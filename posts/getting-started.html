@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>开始使用Hexo - My Hexo Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">开始使用Hexo</h1>
+      <div class="post-meta">
+        <time datetime="2025-07-26">2025-07-26</time>
+        <span class="post-category">分类: <a href="#">教程</a></span>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>Hexo是一个快速、简洁且高效的博客框架。使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。本文将介绍如何开始使用Hexo搭建自己的博客。</p>
+      <h2>安装前提</h2>
+      <p>安装Hexo相当简单，只需要先安装下列应用程序：</p>
+      <ul>
+        <li>Node.js (Node.js 版本需不低于 10.13，建议使用 Node.js 12.0 及以上版本)</li>
+        <li>Git</li>
+      </ul>
+      <h2>安装Hexo</h2>
+      <p>所有必备的应用程序安装完成后，即可使用npm安装Hexo。</p>
+      <pre><code class="bash">$ npm install -g hexo-cli</code></pre>
+      <h2>建站</h2>
+      <p>安装 Hexo 完成后，请执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。</p>
+      <pre><code class="bash">$ hexo init <folder>
+$ cd <folder>
+$ npm install</code></pre>
+      <p>新建完成后，指定文件夹的目录如下：</p>
+      <pre><code>.
+├── _config.yml
+├── package.json
+├── scaffolds
+├── source
+|   ├── _drafts
+|   └── _posts
+└── themes</code></pre>
+      <h2>配置</h2>
+      <p>你可以在 _config.yml 中修改大部分的配置。</p>
+      <h3>网站信息</h3>
+      <pre><code class="yaml"># Site
+title: 我的博客
+subtitle: '副标题'
+description: '网站描述'
+keywords: 关键词
+author: 作者名
+language: zh-CN
+timezonee: 'Asia/Shanghai'</code></pre>
+    </div>
+    <footer class="post-footer">
+      <div class="post-tags">
+        <a href="#">Hexo</a>
+        <a href="#">入门</a>
+      </div>
+      <div class="post-share">
+        <span>分享到: </span>
+        <a href="#">微博</a>
+        <a href="#">微信</a>
+      </div>
+    </footer>
+  </article>
+</body>
+</html>

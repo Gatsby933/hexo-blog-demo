@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>我的个人主页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="个人主页">
+  <meta name="keywords" content="个人主页,博客,前端,编程">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- 可选：添加图标 -->
+  <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
+  <style>
+    /* 基本样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #000; /* 改为黑色字体 */
+      background-color: #f5f5f5; /* 浅灰色背景 */
+      background-image: url('./images/home.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative; /* 添加相对定位，用于右上角图标定位 */
+    }
+
+    a {
+      color: #333; /* 改为黑色链接 */
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    a:hover {
+      color: #000; /* 悬停时为纯黑色 */
+      text-decoration: none;
+    }
+    
+    /* 右上角图标链接 */
+    .top-right-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    
+    .top-right-icon a {
+      display: block;
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+    }
+
+    /* 主体内容 - 三栏式布局 */
+    .container {
+      max-width: 1200px; /* 减小最大宽度，增加页边距 */
+      margin: 0 auto;
+      padding: 0 30px; /* 增加水平内边距 */
+    }
+
+    main.container {
+      flex: 1;
+      min-height: 85vh;
+      padding: 220px 0 80px; /* 整体下移更多，给顶部留出更多空间，底部为版权留空间 */
+      display: flex;
+      justify-content: center; /* 改为居中对齐 */
+      gap: 20px; /* 使用gap属性控制列间距 */
+    }
+
+    /* 三栏式布局 */
+    .column {
+      background: rgba(255, 255, 255, 0.9); /* 白色背景，高透明度 */
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      align-self: flex-start; /* 确保三栏顶部对齐 */
+    }
+    
+    /* 左侧栏内头像和用户名样式 */
+    .user-profile-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      margin-bottom: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .username {
+      font-size: 1.5rem;
+      color: #000; /* 黑色用户名 */
+      margin: 5px 0;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    /* 网站艺术字样式 */
+    .site-title-art {
+      text-align: center;
+      margin-bottom: 20px;
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%); /* 居中 */
+      z-index: 10;
+      width: 40%; /* 与b板块宽度相同 */
+    }
+    
+    .site-title-art img {
+      width: 60%; /* 缩小图片 */
+      height: auto;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .site-title-art h1 {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #000; /* 黑色文字 */
+      margin: 0;
+      padding: 10px 0;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .column-left, .column-right {
+      width: 25%;
+    }
+    
+    .column-center {
+      width: 40%; /* 使中间栏更窄 */
+    }
+    
+    /* 动画效果 */
+    .fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 卡片样式 */
+    .card {
+      background: rgba(255, 255, 255, 0.95); /* 白色背景 */
+      backdrop-filter: blur(5px);
+      color: #333; /* 黑色文字 */
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      margin-bottom: 15px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-title {
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+      font-weight: bold;
+      color: #000; /* 黑色标题 */
+    }
+    
+    .card-title:hover {
+      color: #333; /* 悬停时为深灰色 */
+      transform: translateX(5px);
+    }
+    
+    .card-title:after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #333; /* 下划线颜色改为黑色 */
+      transition: width 0.3s ease;
+    }
+    
+    .card-title:hover:after {
+      width: 100%;
+    }
+    
+    .card-text {
+      transition: all 0.3s ease;
+      color: #555; /* 深灰色文本 */
+    }
+    
+    .card:hover .card-text {
+      transform: translateY(-3px);
+    }
+
+    /* 导航按钮 - 纵向排列 */
+    .nav-buttons {
+      display: flex;
+      flex-direction: column; /* 改为纵向排列 */
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.9); /* 白色背景 */
+      border-radius: 15px;
+      padding: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .nav-btn {
+      background: linear-gradient(135deg, rgba(245, 245, 245, 0.9), rgba(235, 235, 235, 0.9));
+      color: #333; /* 黑色文字 */
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      width: 100%; /* 占满整行 */
+      margin: 8px 0; /* 增加垂直间距 */
+      text-align: center;
+    }
+    
+    .nav-btn:hover {
+      background: rgba(80, 80, 80, 0.7);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      color: #4a9df8;
+    }
+    
+    /* 站点统计 */
+    .site-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .stat-box {
+      background: rgba(245, 245, 245, 0.9);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-box:hover {
+      background: rgba(235, 235, 235, 0.9);
+      transform: translateY(-3px);
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #000; /* 黑色数字 */
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      color: #555; /* 深灰色标签 */
+    }
+
+    /* 通知栏 */
+    .notification-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(245, 245, 245, 0.9);
+      color: #333; /* 黑色文字 */
+      border-radius: 15px;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .notification-icon {
+      font-size: 1.2rem;
+      margin-right: 10px;
+      color: #333; /* 黑色图标 */
+    }
+    
+
+    
+
+    
+    /* 博客文章样式 */
+    .blog-post {
+      margin-bottom: 20px;
+      border-left: 4px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .blog-post:hover {
+      border-left: 4px solid #4a9df8;
+      transform: translateX(5px);
+    }
+    
+    .post-meta {
+      font-size: 0.85rem;
+      color: #777; /* 灰色元数据 */
+      margin-bottom: 8px;
+    }
+    
+    /* 链接样式 */
+    .custom-link {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+      background-color: rgba(245, 245, 245, 0.9);
+      color: #333; /* 黑色链接 */
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .custom-link:hover {
+      background-color: rgba(235, 235, 235, 0.9);
+      color: #000; /* 悬停时为纯黑色 */
+      transform: translateX(5px);
+      text-decoration: none;
+    }
+    
+    /* 底部版权 */
+    .footer {
+      text-align: center;
+      color: white;
+      font-size: 0.9rem;
+      position: relative;
+      width: 100%;
+      padding: 15px 0;
+      margin-top: 20px;
+      background-color: rgba(20, 20, 20, 0.8);
+      z-index: 10;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 991.98px) {
+      main.container {
+        flex-direction: column;
+        padding: 280px 5% 60px; /* 增加顶部空间，为头像、艺术字和时间留出位置 */
+      }
+      
+      .column-left, .column-center, .column-right {
+        width: 90%; /* 增加宽度，减少页边距 */
+        margin: 0 0 20px 0;
+      }
+      
+      .user-profile {
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        width: 90%;
+        max-width: 300px;
+      }
+      
+      .site-title-art {
+        top: 90px;
+        margin-top: 0;
+        width: 90%;
+        max-width: 300px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      .datetime-block {
+        top: 160px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 300px;
+      }
+      
+      .avatar {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+        margin-bottom: 0;
+      }
+      
+      .username {
+        font-size: 1.3rem;
+      }
+      
+      .site-title-art h1 {
+        font-size: 1.8rem;
+      }
+      
+      .time {
+        font-size: 1.5rem;
+      }
+      
+      .date {
+        font-size: 0.9rem;
+      }
+      
+      .nav-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      
+      .nav-btn {
+        width: calc(50% - 10px);
+        flex: 1 0 40%;
+        margin: 5px;
+      }
+      
+      .top-right-icon {
+        top: 10px;
+        right: 10px;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      body {
+        background-attachment: scroll !important;
+        font-size: 14px;
+      }
+
+      main.container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .row.w-100 {
+        transform: none !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        position: relative;
+      }
+
+      .col-md-3, .col-md-2, .col-md-6 {
+        width: 100%;
+        margin-left: 0 !important;
+        padding: 0 15px;
+        position: static !important;
+      }
+      
+      /* 调整最近文章在移动端的位置 */
+      .col-md-3[style*="position: absolute"] {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        margin-top: 15px;
+      }
+
+      .profile-section img.rounded-circle {
+        width: 100px;
+        height: 100px;
+      }
+
+      .card {
+        width: 100% !important;
+        margin-bottom: 15px;
+        max-width: 100% !important;
+      }
+      
+      /* 调整博客文章在移动端的显示 */
+      .card-title {
+        font-size: 1.3rem !important;
+      }
+      
+      .card-text {
+        font-size: 0.9rem !important;
+      }    
+      /* 博客文章区域在移动端的调整 */
+      .col-md-6 .row.w-100 {
+        margin: 0;
+      }
+      
+      .col-md-6 .col-md-6 {
+        width: 100%;
+        padding: 0 10px;
+      }
+      
+      .site-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+     /* 超小屏幕优化 */
+    @media (max-width: 480px) {
+      main.container {
+        padding: 320px 5% 60px; /* 进一步增加顶部空间 */
+      }
+      
+      .container {
+        padding: 10px;
+      }
+      
+      .site-title-art {
+        max-width: 250px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 20px;
+      }
+      
+      .avatar {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .username {
+        font-size: 1.1rem;
+      }
+      
+      .site-title-art h1 {
+        font-size: 1.5rem;
+      }
+      
+      .time {
+        font-size: 1.3rem;
+      }
+      
+      .date {
+        font-size: 0.8rem;
+      }
+
+      .col-md-3, .col-md-2, .col-md-6 {
+        padding: 0 5px;
+      }
+
+      .profile-section img.rounded-circle {
+        width: 80px;
+        height: 80px;
+      }
+
+      h5 {
+        font-size: 1.5rem !important;
+      }
+
+      .card {
+        padding: 10px;
+        margin-bottom: 10px !important;
+      }
+      
+      .tag-cloud, .recent-posts, .category-list {
+        font-size: 0.9rem;
+      }
+      
+      /* 调整博客文章在超小屏幕的显示 */
+      .card-title {
+        font-size: 1.2rem !important;
+        margin-bottom: 5px !important;
+      }
+      
+      .card-text {
+        font-size: 0.85rem !important;
+        margin-bottom: 5px !important;
+      }
+      
+      /* 调整分类和最近文章链接在超小屏幕的显示 */
+      .category-link, .recent-link {
+        padding: 3px 8px !important;
+      }
+      
+      /* 调整标签云在超小屏幕的显示 */
+      .tag-cloud a {
+        font-size: 0.9em !important;
+        margin-right: 5px !important;
+        margin-bottom: 5px !important;
+      }
+      
+      .nav-btn {
+        flex: 1 0 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 右上角图标链接 -->
+  <div class="top-right-icon">
+    <a href="#"><i class="fa fa-cog"></i></a>
+  </div>
+  
+  <!-- 头像和用户名已移至左侧栏内部 -->
+  
+  <!-- 网站艺术字 (b板块上方) -->
+  <div class="site-title-art">
+    <img src="./images/web.png" alt="我的博客天地" />
+  </div>
+  
+  <!-- 时间日期块已移至右侧栏内部 -->
+  
+  <!-- 主体内容 - 三栏式布局 -->
+  <main class="container">
+    
+    <!-- 左侧栏 (a区域) -->
+    <div class="column column-left fade-in">
+      
+      <!-- 头像和用户名 -->
+      <div class="user-profile-left">
+        <img src="../blog-home/img/icon/logo.png" alt="用户头像" class="avatar">
+        <h3 class="username">@王映寒</h3>
+      </div>
+      
+      <!-- 导航按钮 -->
+      <div class="nav-buttons">
+        <a href="#" class="nav-btn">首页</a>
+        <a href="#" class="nav-btn">专题</a>
+        <a href="#" class="nav-btn">好友</a>
+        <a href="#" class="nav-btn">留言</a>
+      </div>
+      
+      <!-- 站点统计 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">站点统计</h5>
+          <div class="site-stats">
+            <div class="stat-box">
+              <div class="stat-number">42</div>
+              <div class="stat-label">文章</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">1024</div>
+              <div class="stat-label">访客</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">128</div>
+              <div class="stat-label">留言</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">36</div>
+              <div class="stat-label">标签</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 分类 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">分类</h5>
+          <div>
+            <a href="#" class="custom-link">技术开发 (15)</a>
+            <a href="#" class="custom-link">学习笔记 (12)</a>
+            <a href="#" class="custom-link">生活随笔 (8)</a>
+            <a href="#" class="custom-link">杂谈 (7)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 这里已经移除了网站艺术字，因为已经在页面顶部添加了 -->
+    
+    <!-- 中间栏 (b区域) -->
+    <div class="column column-center fade-in">
+      
+      <!-- 通知栏 -->
+      <div class="notification-bar">
+        <i class="fa fa-bell notification-icon"></i>
+        <span>朋友们，欢迎访问我的个人博客。</span>
+      </div>
+      
+      <!-- 特色图片 -->
+      <div class="card mb-4">
+        <img src="./images/home.jpg" class="card-img-top" alt="特色图片" style="border-radius: 10px; max-height: 200px; object-fit: cover;">
+      </div>
+      
+      <!-- 博客文章 -->
+      <div class="blog-posts">
+        <!-- 文章1 -->
+        <div class="card blog-post">
+          <div class="card-body">
+            <h5 class="card-title">JavaScript基础知识总结</h5>
+            <p class="post-meta">发布于 2025-03-15 | 分类: 技术开发</p>
+            <p class="card-text">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一。本文总结了JavaScript的基础知识，包括变量、数据类型、函数、对象等内容...</p>
+          </div>
+        </div>
+        
+        <!-- 文章2 -->
+        <div class="card blog-post">
+          <div class="card-body">
+            <h5 class="card-title">CSS布局技巧分享</h5>
+            <p class="post-meta">发布于 2025-03-10 | 分类: 技术开发</p>
+            <p class="card-text">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观。本文分享了几种常用的CSS布局技巧，包括Flexbox、Grid、响应式设计等...</p>
+          </div>
+        </div>
+        
+        <!-- 文章3 -->
+        <div class="card blog-post">
+          <div class="card-body">
+            <h5 class="card-title">Node.js入门指南</h5>
+            <p class="post-meta">发布于 2025-03-05 | 分类: 学习笔记</p>
+            <p class="card-text">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码。本文介绍了Node.js的基本概念、安装方法和简单应用...</p>
+          </div>
+        </div>
+        
+        <!-- 文章4 -->
+        <div class="card blog-post">
+          <div class="card-body">
+            <h5 class="card-title">旅行中的小确幸</h5>
+            <p class="post-meta">发布于 2025-02-28 | 分类: 生活随笔</p>
+            <p class="card-text">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静。分享一些旅途中的小故事和感悟...</p>
+          </div>
+        </div>
+        
+        <!-- 文章5 -->
+        <div class="card blog-post">
+          <div class="card-body">
+            <h5 class="card-title">关于效率与专注的思考</h5>
+            <p class="post-meta">发布于 2025-02-20 | 分类: 杂谈</p>
+            <p class="card-text">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题。本文分享了我对效率工具、时间管理和注意力经济的一些思考与实践经验...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 右侧栏 (c区域) -->
+    <div class="column column-right fade-in">
+      <!-- 最新评论 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">最新评论</h5>
+          <div>
+            <div class="mb-3">
+              <div style="font-weight: bold;">@张三</div>
+              <p class="mb-1" style="font-size: 0.9rem;">这篇文章写得很棒，对我帮助很大！</p>
+              <small style="opacity: 0.7;">来自《JavaScript基础知识总结》</small>
+            </div>
+            <div class="mb-3">
+              <div style="font-weight: bold;">@李四</div>
+              <p class="mb-1" style="font-size: 0.9rem;">我也有类似的经历，感同身受。</p>
+              <small style="opacity: 0.7;">来自《旅行中的小确幸》</small>
+            </div>
+            <div class="mb-3">
+              <div style="font-weight: bold;">@王五</div>
+              <p class="mb-1" style="font-size: 0.9rem;">学习了，感谢分享这么详细的教程！</p>
+              <small style="opacity: 0.7;">来自《Node.js入门指南》</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 推荐文章 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">推荐文章</h5>
+          <div>
+            <a href="#" class="custom-link">Web开发最佳实践指南</a>
+            <a href="#" class="custom-link">如何提高代码质量</a>
+            <a href="#" class="custom-link">2025年前端发展趋势</a>
+            <a href="#" class="custom-link">程序员的自我修养</a>
+            <a href="#" class="custom-link">旅行摄影技巧分享</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 推荐专题 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">推荐专题</h5>
+          <div>
+            <a href="#" class="custom-link">前端开发系列</a>
+            <a href="#" class="custom-link">后端技术探索</a>
+            <a href="#" class="custom-link">旅行日记</a>
+            <a href="#" class="custom-link">读书笔记</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 标签云 -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">标签云</h5>
+          <div style="line-height: 2;">
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.1em; padding: 5px 10px; border-radius: 15px; display: inline-block;">JavaScript</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; padding: 5px 10px; border-radius: 15px; display: inline-block;">CSS</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.2em; padding: 5px 10px; border-radius: 15px; display: inline-block;">HTML</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.0em; padding: 5px 10px; border-radius: 15px; display: inline-block;">Node.js</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; padding: 5px 10px; border-radius: 15px; display: inline-block;">Vue</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.1em; padding: 5px 10px; border-radius: 15px; display: inline-block;">React</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 0.8em; padding: 5px 10px; border-radius: 15px; display: inline-block;">TypeScript</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.0em; padding: 5px 10px; border-radius: 15px; display: inline-block;">旅行</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 0.9em; padding: 5px 10px; border-radius: 15px; display: inline-block;">阅读</a>
+            <a href="#" class="badge" style="background-color: rgba(70, 70, 70, 0.7); margin-right: 5px; margin-bottom: 5px; font-size: 1.0em; padding: 5px 10px; border-radius: 15px; display: inline-block;">效率</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底部版权 -->
+  <footer class="footer">
+    <div style="display: inline-block; background: linear-gradient(135deg, rgba(128, 128, 128, 0.8), rgba(64, 64, 64, 0.8)); padding: 8px 20px; border-radius: 20px; backdrop-filter: blur(5px);">
+      &copy; 2025 版权所有. @王映寒
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 页面初始化代码
+      console.log('页面已加载');
+      
+      // 更新时间和日期
+      function updateDateTime() {
+        const now = new Date();
+        
+        // 更新时间 - 格式化为 HH:MM:SS
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+          timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        
+        // 更新日期 - 格式化为 YYYY-MM-DD
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+          dateElement.textContent = `${year}-${month}-${day}`;
+        }
+      }
+      
+      // 立即更新一次
+      updateDateTime();
+      
+      // 每秒更新一次
+      setInterval(updateDateTime, 1000);
+    });
+  </script>
+</body>
+</html>
