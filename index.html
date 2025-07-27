@@ -131,7 +131,7 @@
       text-align: center;
       margin-bottom: 20px;
       position: absolute;
-      top: 30px;
+      top: 80px; /* 调整位置，使其与通知栏等距 */
       left: 50%;
       transform: translateX(-50%); /* 居中 */
       z-index: 10;
@@ -144,6 +144,8 @@
       border-radius: 10px;
       display: block;
       margin: 0 auto;
+      background: none; /* 确保不在框里 */
+      box-shadow: none; /* 移除阴影 */
     }
     
     .site-title-art h1 {
@@ -632,7 +634,7 @@
       
       <!-- 头像和用户名 -->
       <div class="user-profile-left">
-        <img src="../images/logo.png" alt="用户头像" class="avatar">
+        <img src="./images/logo.png" alt="用户头像" class="avatar">
         <h3 class="username">@王映寒</h3>
       </div>
       
