@@ -51,10 +51,10 @@
     
     /* 右上角图标链接 */
     .top-right-icon {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 1000;
+      z-index: 2002;
     }
     
     .top-right-icon a {
@@ -755,9 +755,9 @@
         display: flex;
       }
       
-      /* 隐藏右上角设置按钮，显示左上角菜单 */
+      /* 右上角图标通过JavaScript控制显示 */
       .top-right-icon {
-        display: none;
+        display: block;
       }
       
       .top-left-menu {
@@ -1533,20 +1533,28 @@
      function hideWelcomeScreen() {
        const welcomeScreen = document.getElementById('mobileWelcome');
        const mainContent = document.querySelector('main.container');
+       const topRightIcon = document.querySelector('.top-right-icon');
        
        welcomeScreen.style.display = 'none';
        mainContent.classList.add('mobile-show');
+       if (topRightIcon && isMobileDevice()) {
+         topRightIcon.style.display = 'block';
+       }
        isWelcomeActive = false;
      }
      
-     // 触摸事件监听
+     // 触摸事件监听 - 只在欢迎页面激活时监听
      document.addEventListener('touchstart', function(e) {
-       touchStartY = e.changedTouches[0].screenY;
+       if (isWelcomeActive) {
+         touchStartY = e.changedTouches[0].screenY;
+       }
      });
      
      document.addEventListener('touchend', function(e) {
-       touchEndY = e.changedTouches[0].screenY;
-       handleSwipe();
+       if (isWelcomeActive) {
+         touchEndY = e.changedTouches[0].screenY;
+         handleSwipe();
+       }
      });
      
      // 点击箭头也可以进入
@@ -1567,14 +1575,21 @@
     function initMobileWelcome() {
       const welcomeScreen = document.getElementById('mobileWelcome');
       const mainContent = document.querySelector('main.container');
+      const topRightIcon = document.querySelector('.top-right-icon');
       
       if (isMobileDevice()) {
         welcomeScreen.style.display = 'flex';
         mainContent.classList.remove('mobile-show');
+        if (topRightIcon) {
+          topRightIcon.style.display = 'none';
+        }
         isWelcomeActive = true;
       } else {
         welcomeScreen.style.display = 'none';
         mainContent.classList.add('mobile-show');
+        if (topRightIcon) {
+          topRightIcon.style.display = 'block';
+        }
         isWelcomeActive = false;
       }
     }
