@@ -66,6 +66,300 @@
       text-align: center;
       line-height: 40px;
     }
+    
+    /* 左上角菜单图标 */
+    .top-left-menu {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      display: none;
+    }
+    
+    .top-left-menu a {
+      display: block;
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      color: #333;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 移动端侧边栏 */
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 2001;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-sidebar.active {
+      left: 0;
+    }
+    
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.2rem;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    .sidebar-content {
+      padding: 20px 0;
+    }
+    
+    .sidebar-link {
+      display: block;
+      padding: 15px 20px;
+      color: #333;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-link:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #000;
+      padding-left: 30px;
+    }
+    
+    /* 侧边栏遮罩 */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* 移动端欢迎屏幕 */
+    .mobile-welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.5s ease;
+    }
+    
+    .mobile-welcome-screen.active {
+      display: flex;
+    }
+    
+    .mobile-welcome-screen.slide-up {
+      transform: translateY(-100%);
+    }
+    
+    .welcome-content {
+      text-align: center;
+      color: white;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+    
+    .welcome-logo {
+      margin-bottom: 40px;
+      animation: fadeInDown 1s ease-out;
+      text-align: center;
+    }
+    
+    .welcome-logo img {
+      width: 80%;
+      max-width: 300px;
+      height: auto;
+      filter: brightness(0) invert(1);
+      drop-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+    }
+    
+    .welcome-profile {
+      margin-bottom: 30px;
+      animation: fadeInProfile 1s ease-out 0.3s both;
+      text-align: center;
+    }
+    
+    .welcome-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.8);
+      margin: 0 auto 15px auto;
+      display: block;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      animation: pulse 2s infinite;
+    }
+    
+    .welcome-username {
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin: 0;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .welcome-text {
+      margin-bottom: 60px;
+      animation: fadeInText 1s ease-out 0.6s both;
+      text-align: center;
+    }
+    
+    .welcome-text p {
+      font-size: 1.2rem;
+      margin: 0;
+      opacity: 0.9;
+      font-weight: 300;
+      text-align: center;
+      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    .welcome-arrow {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: fadeInUp 1s ease-out 0.9s both, bounceArrow 2s infinite 1.5s;
+      cursor: pointer;
+    }
+    
+    .welcome-arrow i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      display: block;
+      opacity: 0.8;
+    }
+    
+    .welcome-arrow p {
+      font-size: 0.9rem;
+      margin: 0;
+      opacity: 0.7;
+      font-weight: 300;
+    }
+    
+    /* 动画效果 */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+    
+    @keyframes bounceArrow {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+    
+    @keyframes fadeInProfile {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInText {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+
 
     /* 主体内容 - 三栏式布局 */
     .container {
@@ -456,88 +750,283 @@
     }
 
     @media (max-width: 767.98px) {
+      /* 显示移动端欢迎屏幕 */
+      .mobile-welcome-screen {
+        display: flex;
+      }
+      
+      /* 隐藏右上角设置按钮，显示左上角菜单 */
+      .top-right-icon {
+        display: none;
+      }
+      
+      .top-left-menu {
+        display: block;
+      }
+      
       body {
         background-attachment: scroll !important;
         font-size: 14px;
       }
 
+      /* 隐藏左侧栏和右侧栏 */
+      .column-left, .column-right {
+        display: none;
+      }
+
+      /* 主内容样式 */
       main.container {
+        display: none !important;
         flex-direction: column;
+        align-items: center;
+        padding: 80px 15px 60px !important;
+      }
+      
+      main.container.mobile-show {
+        display: flex !important;
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      /* 只显示中间栏 */
+      .column-center {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      /* 网页艺术字适配 */
+      .site-title-art {
+        position: fixed;
+        top: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        z-index: 100;
+        text-align: center;
+      }
+      
+      .site-title-art img {
+        width: 100%;
+        height: auto;
+        max-width: 160px;
+      }
+      
+      /* 移动端分类条 */
+      .mobile-categories {
+        display: block;
+        width: 100%;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 10px 0;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+
+      
+      .mobile-categories::-webkit-scrollbar {
+        height: 4px;
+      }
+      
+      .mobile-categories::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+      }
+      
+      .mobile-categories::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 2px;
+      }
+      
+      .category-item {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-right: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        color: #333;
+        text-decoration: none;
+        font-size: 14px;
+        white-space: nowrap;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .category-item:hover {
+        background: rgba(255, 255, 255, 1);
+        color: #000;
+        transform: translateY(-1px);
+      }
+      
+      /* 移动端用户信息框 */
+       .mobile-user-info {
+         background: rgba(255, 255, 255, 0.95) !important;
+         border-radius: 15px !important;
+         padding: 15px !important;
+         margin: 15px 15px 5px !important;
+         text-align: center !important;
+         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+       }
+      
+      .mobile-username {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+      }
+      
+      .mobile-stats {
+        display: flex;
+        justify-content: space-around;
         align-items: center;
       }
       
-      .row.w-100 {
-        transform: none !important;
-        max-width: 100% !important;
-        margin-left: 0 !important;
-        position: relative;
-      }
-
-      .col-md-3, .col-md-2, .col-md-6 {
-        width: 100%;
-        margin-left: 0 !important;
-        padding: 0 15px;
-        position: static !important;
+      .mobile-stat-item {
+        text-align: center;
+        flex: 1;
       }
       
-      /* 调整最近文章在移动端的位置 */
-      .col-md-3[style*="position: absolute"] {
-        position: static !important;
-        top: auto !important;
-        left: auto !important;
-        margin-top: 15px;
+      .mobile-stat-number {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 2px;
       }
-
-      .profile-section img.rounded-circle {
-        width: 100px;
-        height: 100px;
+      
+      .mobile-stat-label {
+        font-size: 0.8rem;
+        color: #666;
       }
-
+      
+      /* 隐藏桌面端的通知栏和特色图片 */
+      .notification-bar,
+      .card.mb-4 {
+        display: none;
+      }
+      
       .card {
         width: 100% !important;
         margin-bottom: 15px;
         max-width: 100% !important;
       }
       
-      /* 调整博客文章在移动端的显示 */
-      .card-title {
-        font-size: 1.3rem !important;
+      /* 移动端博客文章样式 */
+      .mobile-post {
+        margin-bottom: 15px;
       }
       
-      .card-text {
-        font-size: 0.9rem !important;
-      }    
-      /* 博客文章区域在移动端的调整 */
-      .col-md-6 .row.w-100 {
-        margin: 0;
+      .mobile-post-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 0.75rem;
+        color: #666;
       }
       
-      .col-md-6 .col-md-6 {
-        width: 100%;
-        padding: 0 10px;
+      .mobile-post-time {
+        font-weight: 500;
       }
       
-      .site-stats {
-        grid-template-columns: repeat(2, 1fr);
+      .mobile-post-category {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+      }
+      
+      .mobile-post-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        height: 110px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      .mobile-post-title {
+         font-size: 1.1rem !important;
+         font-weight: bold !important;
+         color: #333 !important;
+         margin-bottom: 8px !important;
+         line-height: 1.3 !important;
+         overflow: hidden !important;
+         display: -webkit-box !important;
+         -webkit-line-clamp: 2 !important;
+         -webkit-box-orient: vertical !important;
+         white-space: normal !important;
+         text-overflow: unset !important;
+         max-height: 2.6em !important;
+       }
+       
+       .mobile-post-excerpt {
+         font-size: 0.85rem !important;
+         color: #666 !important;
+         line-height: 1.4 !important;
+         margin: 0 !important;
+         overflow: hidden !important;
+         display: -webkit-box !important;
+         -webkit-line-clamp: 2 !important;
+         -webkit-box-orient: vertical !important;
+         white-space: normal !important;
+         text-overflow: unset !important;
+         max-height: 2.8em !important;
+       }
+      
+      /* 分页样式 */
+       .mobile-pagination {
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         margin: 20px 0 15px;
+         gap: 8px;
+       }
+      
+      .mobile-page-btn {
+         background: rgba(255, 255, 255, 0.9);
+         border: 1px solid rgba(0, 0, 0, 0.1);
+         border-radius: 6px;
+         padding: 6px 10px;
+         font-size: 0.85rem;
+         color: #333;
+         cursor: pointer;
+         transition: all 0.3s ease;
+       }
+      
+      .mobile-page-btn:hover,
+      .mobile-page-btn.active {
+        background: #333;
+        color: white;
+      }
+      
+      .mobile-page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
     }
     
      /* 超小屏幕优化 */
     @media (max-width: 480px) {
-      main.container {
-        padding: 320px 5% 60px; /* 进一步增加顶部空间 */
-      }
-      
-      .container {
-        padding: 10px;
-      }
-      
-      .site-title-art {
-        max-width: 250px;
-        left: 50%;
-        transform: translateX(-50%);
-        top: 20px;
-      }
+       main.container {
+         padding: 200px 5% 40px;
+       }
+       
+       main.container.mobile-show {
+         display: flex !important;
+       }
+       
+       .container {
+         padding: 8px;
+       }
+       
+       .site-title-art {
+         max-width: 140px;
+         left: 50%;
+         transform: translateX(-50%);
+         top: 8px;
+       }
       
       .avatar {
         width: 50px;
@@ -609,6 +1098,36 @@
         flex: 1 0 100%;
       }
     }
+    
+    /* 桌面端隐藏移动端元素 */
+    @media (min-width: 768px) {
+      .mobile-welcome-screen {
+        display: none !important;
+      }
+      
+      main.container {
+        display: flex !important;
+      }
+      
+      .mobile-categories,
+      .mobile-stats,
+      .mobile-user-info,
+      .mobile-pagination,
+      #mobile-posts-container {
+        display: none !important;
+      }
+      
+      #desktop-posts-container {
+        display: block !important;
+      }
+    }
+    
+    /* 移动端隐藏桌面端元素 */
+    @media (max-width: 767.98px) {
+      #desktop-posts-container {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -616,6 +1135,50 @@
   <div class="top-right-icon">
     <a href="#"><i class="fa fa-cog"></i></a>
   </div>
+  
+  <!-- 左上角菜单图标 -->
+  <div class="top-left-menu" id="mobileMenuBtn">
+    <a href="#"><i class="fa fa-bars"></i></a>
+  </div>
+  
+  <!-- 移动端侧边栏 -->
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+      <h3>菜单</h3>
+      <button class="close-btn" id="closeSidebar"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="sidebar-content">
+      <a href="#" class="sidebar-link">首页</a>
+      <a href="#" class="sidebar-link">专题</a>
+      <a href="#" class="sidebar-link">好友</a>
+      <a href="#" class="sidebar-link">留言</a>
+    </div>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <!-- 移动端欢迎屏幕 -->
+  <div class="mobile-welcome-screen" id="mobileWelcome">
+    <div class="welcome-content">
+      <div class="welcome-logo">
+        <img src="./images/web.png" alt="我的博客天地" />
+      </div>
+      <div class="welcome-profile">
+        <img src="./images/logo.png" alt="用户头像" class="welcome-avatar">
+        <h2 class="welcome-username">@王映寒</h2>
+      </div>
+      <div class="welcome-text">
+        <p>欢迎来到我的博客世界</p>
+      </div>
+      <div class="welcome-arrow">
+        <i class="fa fa-chevron-up"></i>
+        <p>向上滑动进入</p>
+      </div>
+    </div>
+  </div>
+  
+
   
   <!-- 头像和用户名已移至左侧栏内部 -->
   
@@ -671,15 +1234,17 @@
         </div>
       </div>
       
-      <!-- 分类 -->
+      <!-- 专题 -->
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">分类</h5>
+          <h5 class="card-title">专题</h5>
           <div>
-            <a href="#" class="custom-link">技术开发 (15)</a>
-            <a href="#" class="custom-link">学习笔记 (12)</a>
-            <a href="#" class="custom-link">生活随笔 (8)</a>
-            <a href="#" class="custom-link">杂谈 (7)</a>
+            <a href="#" class="custom-link">全部文章</a>
+            <a href="#" class="custom-link">技术探索</a>
+            <a href="#" class="custom-link">生活记录</a>
+            <a href="#" class="custom-link">学习记录</a>
+            <a href="#" class="custom-link">读书感悟</a>
+            <a href="#" class="custom-link">个人创作</a>
           </div>
         </div>
       </div>
@@ -689,6 +1254,35 @@
     
     <!-- 中间栏 (b区域) -->
     <div class="column column-center fade-in">
+      
+      <!-- 移动端用户信息框 -->
+      <div class="mobile-user-info">
+        <div class="mobile-username">@王映寒</div>
+        <div class="mobile-stats">
+          <div class="mobile-stat-item">
+            <div class="mobile-stat-number">42</div>
+            <div class="mobile-stat-label">文章</div>
+          </div>
+          <div class="mobile-stat-item">
+            <div class="mobile-stat-number">1024</div>
+            <div class="mobile-stat-label">访客</div>
+          </div>
+          <div class="mobile-stat-item">
+            <div class="mobile-stat-number">128</div>
+            <div class="mobile-stat-label">留言</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 移动端分类条 -->
+      <div class="mobile-categories">
+        <a href="#" class="category-item">全部文章</a>
+        <a href="#" class="category-item">技术探索</a>
+        <a href="#" class="category-item">生活记录</a>
+        <a href="#" class="category-item">学习记录</a>
+        <a href="#" class="category-item">读书感悟</a>
+        <a href="#" class="category-item">个人创作</a>
+      </div>
       
       <!-- 通知栏 -->
       <div class="notification-bar">
@@ -701,52 +1295,151 @@
         <img src="./images/home.jpg" class="card-img-top" alt="特色图片" style="border-radius: 10px; max-height: 200px; object-fit: cover;">
       </div>
       
-      <!-- 博客文章 -->
-      <div class="blog-posts">
-        <!-- 文章1 -->
-        <div class="card blog-post">
+      <!-- 移动端博客文章列表 -->
+      <div id="mobile-posts-container">
+        <div class="mobile-post">
+          <div class="mobile-post-meta">
+            <span class="mobile-post-time">2025-03-15</span>
+            <span class="mobile-post-category">技术开发</span>
+          </div>
+          <div class="mobile-post-card">
+            <h5 class="mobile-post-title">JavaScript基础知识总结</h5>
+            <p class="mobile-post-excerpt">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一...</p>
+          </div>
+        </div>
+        
+        <div class="mobile-post">
+          <div class="mobile-post-meta">
+            <span class="mobile-post-time">2025-03-10</span>
+            <span class="mobile-post-category">技术开发</span>
+          </div>
+          <div class="mobile-post-card">
+            <h5 class="mobile-post-title">CSS布局技巧分享</h5>
+            <p class="mobile-post-excerpt">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观...</p>
+          </div>
+        </div>
+        
+        <div class="mobile-post">
+          <div class="mobile-post-meta">
+            <span class="mobile-post-time">2025-03-05</span>
+            <span class="mobile-post-category">学习笔记</span>
+          </div>
+          <div class="mobile-post-card">
+            <h5 class="mobile-post-title">Node.js入门指南</h5>
+            <p class="mobile-post-excerpt">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码...</p>
+          </div>
+        </div>
+        
+        <div class="mobile-post">
+          <div class="mobile-post-meta">
+            <span class="mobile-post-time">2025-02-28</span>
+            <span class="mobile-post-category">生活随笔</span>
+          </div>
+          <div class="mobile-post-card">
+            <h5 class="mobile-post-title">旅行中的小确幸</h5>
+            <p class="mobile-post-excerpt">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静...</p>
+          </div>
+        </div>
+        
+        <div class="mobile-post">
+          <div class="mobile-post-meta">
+            <span class="mobile-post-time">2025-02-20</span>
+            <span class="mobile-post-category">杂谈</span>
+          </div>
+          <div class="mobile-post-card">
+            <h5 class="mobile-post-title">关于效率与专注的思考</h5>
+            <p class="mobile-post-excerpt">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题...</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 移动端分页 -->
+      <div class="mobile-pagination">
+        <button class="mobile-page-btn" id="prev-btn" onclick="changePage(-1)">上一页</button>
+        <button class="mobile-page-btn active" onclick="goToPage(1)">1</button>
+        <button class="mobile-page-btn" onclick="goToPage(2)">2</button>
+        <button class="mobile-page-btn" onclick="goToPage(3)">3</button>
+        <button class="mobile-page-btn" id="next-btn" onclick="changePage(1)">下一页</button>
+      </div>
+      
+      <!-- 桌面端博客文章列表 -->
+      <div id="desktop-posts-container">
+        <!-- 博客文章1 -->
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">JavaScript基础知识总结</h5>
-            <p class="post-meta">发布于 2025-03-15 | 分类: 技术开发</p>
-            <p class="card-text">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一。本文总结了JavaScript的基础知识，包括变量、数据类型、函数、对象等内容...</p>
+            <p class="card-text">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一。它具有动态类型、弱类型、基于原型的面向对象等特点，被广泛应用于Web开发、移动应用开发、桌面应用开发等领域...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">2025-03-15</small>
+              <span class="badge bg-secondary">技术开发</span>
+            </div>
           </div>
         </div>
         
-        <!-- 文章2 -->
-        <div class="card blog-post">
+        <!-- 博客文章2 -->
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">CSS布局技巧分享</h5>
-            <p class="post-meta">发布于 2025-03-10 | 分类: 技术开发</p>
-            <p class="card-text">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观。本文分享了几种常用的CSS布局技巧，包括Flexbox、Grid、响应式设计等...</p>
+            <p class="card-text">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观。本文将分享一些实用的CSS布局技巧，包括Flexbox、Grid、定位等方法的使用场景和最佳实践...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">2025-03-10</small>
+              <span class="badge bg-secondary">技术开发</span>
+            </div>
           </div>
         </div>
         
-        <!-- 文章3 -->
-        <div class="card blog-post">
+        <!-- 博客文章3 -->
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">Node.js入门指南</h5>
-            <p class="post-meta">发布于 2025-03-05 | 分类: 学习笔记</p>
-            <p class="card-text">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码。本文介绍了Node.js的基本概念、安装方法和简单应用...</p>
+            <p class="card-text">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码。它具有事件驱动、非阻塞I/O等特点，非常适合构建高性能的网络应用...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">2025-03-05</small>
+              <span class="badge bg-secondary">学习笔记</span>
+            </div>
           </div>
         </div>
         
-        <!-- 文章4 -->
-        <div class="card blog-post">
+        <!-- 博客文章4 -->
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">旅行中的小确幸</h5>
-            <p class="post-meta">发布于 2025-02-28 | 分类: 生活随笔</p>
-            <p class="card-text">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静。分享一些旅途中的小故事和感悟...</p>
+            <p class="card-text">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静。山间的清新空气、潺潺的溪水声、还有那些不知名的野花，都让人心情愉悦...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">2025-02-28</small>
+              <span class="badge bg-secondary">生活随笔</span>
+            </div>
           </div>
         </div>
         
-        <!-- 文章5 -->
-        <div class="card blog-post">
+        <!-- 博客文章5 -->
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">关于效率与专注的思考</h5>
-            <p class="post-meta">发布于 2025-02-20 | 分类: 杂谈</p>
-            <p class="card-text">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题。本文分享了我对效率工具、时间管理和注意力经济的一些思考与实践经验...</p>
+            <p class="card-text">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题。本文分享一些个人在工作和学习中总结的经验，希望能对大家有所帮助。专注力是一种可以训练的能力...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">2025-02-20</small>
+              <span class="badge bg-secondary">杂谈</span>
+            </div>
           </div>
         </div>
+        
+        <!-- 桌面端分页 -->
+        <nav aria-label="博客分页">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+            </li>
+            <li class="page-item active" aria-current="page">
+              <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">下一页</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
     
@@ -779,7 +1472,7 @@
       <!-- 推荐文章 -->
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">推荐文章</h5>
+          <h5 class="card-title">近期更新</h5>
           <div>
             <a href="#" class="custom-link">Web开发最佳实践指南</a>
             <a href="#" class="custom-link">如何提高代码质量</a>
@@ -790,18 +1483,7 @@
         </div>
       </div>
       
-      <!-- 推荐专题 -->
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">推荐专题</h5>
-          <div>
-            <a href="#" class="custom-link">前端开发系列</a>
-            <a href="#" class="custom-link">后端技术探索</a>
-            <a href="#" class="custom-link">旅行日记</a>
-            <a href="#" class="custom-link">读书笔记</a>
-          </div>
-        </div>
-      </div>
+
       
       <!-- 标签云 -->
       <div class="card">
@@ -834,10 +1516,148 @@
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // 移动端欢迎屏幕控制
+     let touchStartY = 0;
+     let touchEndY = 0;
+     let isWelcomeActive = true;
+     
+     function handleSwipe() {
+       const swipeDistance = touchStartY - touchEndY;
+       
+       // 只允许向上滑动进入主页面
+       if (swipeDistance > 50 && isWelcomeActive) {
+         hideWelcomeScreen();
+       }
+     }
+     
+     function hideWelcomeScreen() {
+       const welcomeScreen = document.getElementById('mobileWelcome');
+       const mainContent = document.querySelector('main.container');
+       
+       welcomeScreen.style.display = 'none';
+       mainContent.classList.add('mobile-show');
+       isWelcomeActive = false;
+     }
+     
+     // 触摸事件监听
+     document.addEventListener('touchstart', function(e) {
+       touchStartY = e.changedTouches[0].screenY;
+     });
+     
+     document.addEventListener('touchend', function(e) {
+       touchEndY = e.changedTouches[0].screenY;
+       handleSwipe();
+     });
+     
+     // 点击箭头也可以进入
+     document.addEventListener('click', function(e) {
+       if (e.target.closest('.welcome-arrow') && isWelcomeActive) {
+         hideWelcomeScreen();
+       }
+     });
+    
+
+    
+    // 检测是否为移动设备
+    function isMobileDevice() {
+      return window.innerWidth <= 767;
+    }
+    
+    // 初始化移动端欢迎屏幕
+    function initMobileWelcome() {
+      const welcomeScreen = document.getElementById('mobileWelcome');
+      const mainContent = document.querySelector('main.container');
+      
+      if (isMobileDevice()) {
+        welcomeScreen.style.display = 'flex';
+        mainContent.classList.remove('mobile-show');
+        isWelcomeActive = true;
+      } else {
+        welcomeScreen.style.display = 'none';
+        mainContent.classList.add('mobile-show');
+        isWelcomeActive = false;
+      }
+    }
+    
+    // 窗口大小改变时重新检测
+    window.addEventListener('resize', function() {
+      initMobileWelcome();
+    });
+    
+    // 移动端侧边栏功能
+    function initMobileSidebar() {
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('mobileSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const closeBtn = document.getElementById('closeSidebar');
+      
+      if (menuBtn && sidebar && overlay && closeBtn) {
+        // 打开侧边栏
+        menuBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.add('active');
+          overlay.classList.add('active');
+        });
+        
+        // 关闭侧边栏
+        function closeSidebar() {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+        }
+        
+        closeBtn.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+      }
+    }
+    
+    // 移动端分页功能
+    let currentPage = 1;
+    const totalPages = 3;
+    
+    function changePage(direction) {
+      const newPage = currentPage + direction;
+      if (newPage >= 1 && newPage <= totalPages) {
+        goToPage(newPage);
+      }
+    }
+    
+    function goToPage(page) {
+      if (page < 1 || page > totalPages) return;
+      
+      currentPage = page;
+      
+      // 更新按钮状态
+      document.querySelectorAll('.mobile-page-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 设置当前页按钮为活跃状态
+      const pageButtons = document.querySelectorAll('.mobile-page-btn');
+      pageButtons[page].classList.add('active'); // 跳过上一页按钮
+      
+      // 更新上一页/下一页按钮状态
+      document.getElementById('prev-btn').disabled = (currentPage === 1);
+      document.getElementById('next-btn').disabled = (currentPage === totalPages);
+      
+      // 这里可以添加实际的内容切换逻辑
+      console.log('切换到第', currentPage, '页');
+    }
+    
     // 初始化
     document.addEventListener('DOMContentLoaded', function() {
       // 页面初始化代码
       console.log('页面已加载');
+      
+      // 初始化移动端欢迎屏幕
+      initMobileWelcome();
+      
+      // 初始化移动端侧边栏
+      initMobileSidebar();
+      
+      // 初始化移动端分页
+      if (isMobileDevice()) {
+        goToPage(1);
+      }
       
       // 更新时间和日期
       function updateDateTime() {
