@@ -1,13 +1,19 @@
 const { connectToDatabase } = require('./utils/mongodb');
 const { hashPassword } = require('./utils/auth');
+const { addCorsHeaders, handleOptions } = require('./utils/cors');
 
 exports.handler = async (event, context) => {
+  // 处理OPTIONS请求
+  if (event.httpMethod === 'OPTIONS') {
+    return handleOptions();
+  }
+
   // 只允许POST请求
   if (event.httpMethod !== 'POST') {
-    return {
+    return addCorsHeaders({
       statusCode: 405,
       body: JSON.stringify({ message: '方法不允许' })
-    };
+    });
   }
 
   try {
@@ -15,10 +21,10 @@ exports.handler = async (event, context) => {
 
     // 验证输入
     if (!username || !password) {
-      return {
+      return addCorsHeaders({
         statusCode: 400,
         body: JSON.stringify({ message: '用户名和密码都是必需的' })
-      };
+      });
     }
 
     // 连接数据库
@@ -28,10 +34,10 @@ exports.handler = async (event, context) => {
     // 检查用户名是否已存在
     const existingUser = await users.findOne({ username });
     if (existingUser) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: '用户名已存在' })
-      };
+      return addCorsHeaders({
+      statusCode: 409,
+      body: JSON.stringify({ message: '用户名已存在' })
+    });
     }
 
     // 加密密码
@@ -44,19 +50,26 @@ exports.handler = async (event, context) => {
       createdAt: new Date()
     });
 
-    return {
+    return addCorsHeaders({
       statusCode: 201,
       body: JSON.stringify({
         message: '注册成功',
-        userId: result.insertedId
+        user: {
+          username: result.username,
+          _id: result._id
+        }
       })
-    };
+    });
 
   } catch (error) {
-    console.error('注册错误:', error);
-    return {
+    console.error('注册错误:', error.message);
+    console.error('错误堆栈:', error.stack);
+    return addCorsHeaders({
       statusCode: 500,
-      body: JSON.stringify({ message: '服务器错误' })
-    };
+      body: JSON.stringify({ 
+        message: '服务器错误',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      })
+    });
   }
 };

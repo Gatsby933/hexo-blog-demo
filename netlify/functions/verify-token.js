@@ -1,7 +1,12 @@
 const { connectToDatabase } = require('./utils/mongodb');
 const { verifyToken, getTokenFromHeader } = require('./utils/auth');
+const { handleOptions, addCorsHeaders } = require('./utils/cors');
 
 exports.handler = async (event, context) => {
+  // 处理预检请求
+  if (event.httpMethod === 'OPTIONS') {
+    return handleOptions();
+  }
   // 只允许GET请求
   if (event.httpMethod !== 'GET') {
     return {
@@ -43,7 +48,7 @@ exports.handler = async (event, context) => {
     }
 
     // 返回用户信息
-    return {
+    return addCorsHeaders({
       statusCode: 200,
       body: JSON.stringify({
         message: '令牌有效',
@@ -52,7 +57,7 @@ exports.handler = async (event, context) => {
           username: user.username
         }
       })
-    };
+    });
 
   } catch (error) {
     console.error('验证令牌错误:', error);
