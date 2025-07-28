@@ -1,0 +1,69 @@
+const { connectToDatabase } = require('./utils/mongodb');
+const { verifyPassword, generateToken } = require('./utils/auth');
+
+exports.handler = async (event, context) => {
+  // 只允许POST请求
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ message: '方法不允许' })
+    };
+  }
+
+  try {
+    const { username, password } = JSON.parse(event.body);
+
+    // 验证输入
+    if (!username || !password) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: '用户名和密码都是必需的' })
+      };
+    }
+
+    // 连接数据库
+    const { db } = await connectToDatabase();
+    const users = db.collection('users');
+
+    // 查找用户
+    const user = await users.findOne({ username });
+    if (!user) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: '用户名或密码错误' })
+      };
+    }
+
+    // 验证密码
+    const isValidPassword = await verifyPassword(password, user.password);
+    if (!isValidPassword) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: '用户名或密码错误' })
+      };
+    }
+
+    // 生成JWT令牌
+    const token = generateToken(user);
+
+    // 返回用户信息和令牌
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: '登录成功',
+        token,
+        user: {
+          id: user._id,
+          username: user.username
+        }
+      })
+    };
+
+  } catch (error) {
+    console.error('登录错误:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: '服务器错误' })
+    };
+  }
+};

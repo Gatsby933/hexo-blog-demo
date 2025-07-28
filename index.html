@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/style.css">
   <!-- 可选：添加图标 -->
   <!-- <link rel="shortcut icon" href="images/favicon.ico"> -->
+  
   <style>
     /* 基本样式 */
     * {
@@ -165,6 +166,210 @@
     .sidebar-overlay.active {
       opacity: 1;
       visibility: visible;
+    }
+    
+    /* 登录注册模态框美化 */
+    .modal-dialog {
+      max-width: 380px !important;
+      margin: 1.75rem auto;
+    }
+    
+    .modal-content {
+      background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+      border: 1px solid #495057;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .modal-content .form-control {
+      color: #212529;
+      background-color: #fff;
+      border: 1px solid #ced4da;
+    }
+
+    .modal-content .form-control:focus {
+      color: #212529;
+      background-color: #fff;
+      border-color: #86b7fe;
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .modal-content .form-control::placeholder {
+      color: #6c757d;
+      opacity: 0.8;
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+      color: white;
+      border-bottom: 1px solid #495057;
+      padding: 20px 25px;
+    }
+    
+    .modal-body {
+      padding: 25px;
+      color: white;
+    }
+
+    .modal-footer {
+      background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+      border-top: 1px solid #495057;
+      padding: 15px 25px;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0;
+      color: white;
+    }
+    
+    .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+    }
+
+    .form-label {
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #495057;
+      color: white;
+      padding: 10px 15px;
+    }
+
+    .form-control:focus {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: #6c757d;
+      color: white;
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+      border: none;
+      padding: 10px 0;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .btn-link {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      padding: 0 5px;
+    }
+
+    .btn-link:hover {
+      color: white;
+      text-decoration: underline;
+    }
+    
+    .btn-close:hover {
+      opacity: 1;
+    }
+    
+    .modal-body {
+      padding: 30px 25px;
+      background: #ffffff;
+    }
+    
+    .modal-footer {
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      padding: 15px 25px;
+      justify-content: center;
+    }
+    
+    .form-label {
+      color: #495057;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .form-control {
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #ffffff;
+    }
+    
+    .form-control:focus {
+      border-color: #495057;
+      box-shadow: 0 0 0 0.2rem rgba(73, 80, 87, 0.25);
+      background: #ffffff;
+    }
+    
+    .form-control::placeholder {
+      color: #adb5bd;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+      background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-link {
+      color: #495057;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 0;
+    }
+    
+    .btn-link:hover {
+      color: #212529;
+      text-decoration: underline;
+    }
+    
+    .text-muted {
+      color: #6c757d !important;
+    }
+    
+    .mb-3 {
+      margin-bottom: 20px !important;
     }
     
     /* 移动端欢迎屏幕 */
@@ -1133,7 +1338,73 @@
 <body>
   <!-- 右上角图标链接 -->
   <div class="top-right-icon">
-    <a href="#"><i class="fa fa-cog"></i></a>
+    <a href="#" id="settingsBtn"><i class="fa fa-cog"></i></a>
+  </div>
+  
+  <!-- 登录模态框 -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">用户登录</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label for="loginUsername" class="form-label">账号</label>
+              <input type="text" class="form-control" id="loginUsername" placeholder="请输入账号" required>
+            </div>
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label">密码</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="请输入密码" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">登录</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <span class="text-muted">还没有账号？</span>
+          <button type="button" class="btn btn-link" id="showRegisterBtn">立即注册</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 注册模态框 -->
+  <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="registerModalLabel">用户注册</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label for="registerUsername" class="form-label">用户名</label>
+              <input type="text" class="form-control" id="registerUsername" placeholder="请输入用户名" required>
+            </div>
+            <div class="mb-3">
+              <label for="registerPassword" class="form-label">密码</label>
+              <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码" required>
+            </div>
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">确认密码</label>
+              <input type="password" class="form-control" id="confirmPassword" placeholder="请再次输入密码" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success">注册</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <span class="text-muted">已有账号？</span>
+          <button type="button" class="btn btn-link" id="showLoginBtn">立即登录</button>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- 左上角菜单图标 -->
@@ -1206,7 +1477,8 @@
         <a href="#" class="nav-btn">首页</a>
         <a href="#" class="nav-btn">专题</a>
         <a href="#" class="nav-btn">好友</a>
-        <a href="#" class="nav-btn">留言</a>
+        <a href="guestbook.html" class="nav-btn">留言</a>
+
       </div>
       
       <!-- 站点统计 -->
@@ -1658,50 +1930,281 @@
       console.log('切换到第', currentPage, '页');
     }
     
-    // 初始化
-    document.addEventListener('DOMContentLoaded', function() {
-      // 页面初始化代码
-      console.log('页面已加载');
+    // 用户数据管理
+    const UserManager = {
+      // 注册新用户
+      async saveUser(username, password) {
+        try {
+          const response = await fetch('/.netlify/functions/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || '注册失败');
+          }
+
+          return data;
+        } catch (error) {
+          throw new Error('注册失败：' + error.message);
+        }
+      },
       
+      // 验证用户登录
+      async verifyUser(username, password) {
+        try {
+          const response = await fetch('/.netlify/functions/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || '登录失败');
+          }
+
+          this.setCurrentUser(data);
+          return data.user;
+        } catch (error) {
+          throw new Error('登录失败：' + error.message);
+        }
+      },
+      
+      // 获取当前登录用户
+      getCurrentUser() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+      },
+      
+      // 获取认证令牌
+      getToken() {
+        return localStorage.getItem('token');
+      },
+      
+      // 设置当前登录用户
+      setCurrentUser(data) {
+        if (data) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+        } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+        }
+      },
+      
+      // 验证令牌
+      async verifyToken() {
+        const token = this.getToken();
+        if (!token) return null;
+
+        try {
+          const response = await fetch('/.netlify/functions/verify-token', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          const data = await response.json();
+          if (!response.ok) {
+            this.logout();
+            return null;
+          }
+          return data.user;
+        } catch (error) {
+          this.logout();
+          return null;
+        }
+      },
+      
+      // 退出登录
+      logout() {
+        this.setCurrentUser(null);
+      }
+    };
+    
+    // 登录注册功能
+    function initAuthModals() {
+      const settingsBtn = document.getElementById('settingsBtn');
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+      const showRegisterBtn = document.getElementById('showRegisterBtn');
+      const showLoginBtn = document.getElementById('showLoginBtn');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      
+      // 检查登录状态并更新界面
+      function updateAuthUI() {
+        const currentUser = UserManager.getCurrentUser();
+        if (currentUser) {
+          settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+          settingsBtn.title = `当前用户：${currentUser.username}`;
+        } else {
+          settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
+          settingsBtn.title = '设置';
+        }
+      }
+      
+      // 设置按钮点击事件
+      if (settingsBtn) {
+        settingsBtn.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const currentUser = UserManager.getCurrentUser();
+          if (currentUser) {
+            // 已登录状态下点击图标显示退出选项
+            if (confirm(`${currentUser.username}，确定要退出登录吗？`)) {
+              try {
+                await UserManager.logout();
+                updateAuthUI();
+                alert('已退出登录');
+              } catch (error) {
+                console.error('退出登录失败：', error);
+                alert('退出登录失败：' + error.message);
+              }
+            }
+          } else {
+            loginModal.show();
+          }
+        });
+      }
+      
+      // 切换到注册模态框
+      if (showRegisterBtn) {
+        showRegisterBtn.addEventListener('click', function() {
+          loginModal.hide();
+          setTimeout(() => {
+            registerModal.show();
+          }, 300);
+        });
+      }
+
+      // 登录表单提交
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const username = this.querySelector('[name="username"]').value;
+          const password = this.querySelector('[name="password"]').value;
+          
+          // 验证必填字段
+          if (!username || !password) {
+            alert('请填写用户名和密码');
+            return;
+          }
+
+          try {
+            const user = await UserManager.verifyUser(username, password);
+            UserManager.setCurrentUser(user);
+            updateAuthUI();
+            loginModal.hide();
+            alert(`欢迎回来，${user.username}！`);
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+      }
+
+      // 注册表单提交
+      if (registerForm) {
+        registerForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const username = this.querySelector('[name="username"]').value;
+          const password = this.querySelector('[name="password"]').value;
+          const confirmPassword = this.querySelector('[name="confirmPassword"]').value;
+
+          if (password !== confirmPassword) {
+            alert('两次输入的密码不一致');
+            return;
+          }
+
+          try {
+            const user = await UserManager.saveUser(username, password);
+            // 注册成功后需要登录
+            registerModal.hide();
+            alert('注册成功！请登录您的账号。');
+            setTimeout(() => {
+              loginModal.show();
+            }, 300);
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+      }
+      
+      // 切换到登录模态框
+      if (showLoginBtn) {
+        showLoginBtn.addEventListener('click', function() {
+          registerModal.hide();
+          setTimeout(() => {
+            loginModal.show();
+          }, 300);
+        });
+      }
+      
+      // 初始化时更新界面
+      updateAuthUI();
+    }
+    
+    // 更新时间和日期
+    function updateDateTime() {
+      const now = new Date();
+      
+      // 更新时间 - 格式化为 HH:MM:SS
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeElement = document.getElementById('current-time');
+      if (timeElement) {
+        timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+      
+      // 更新日期 - 格式化为 YYYY-MM-DD
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const dateElement = document.getElementById('current-date');
+      if (dateElement) {
+        dateElement.textContent = `${year}-${month}-${day}`;
+      }
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async function() {
       // 初始化移动端欢迎屏幕
       initMobileWelcome();
       
       // 初始化移动端侧边栏
       initMobileSidebar();
       
+      // 初始化登录注册功能
+      initAuthModals();
+      
       // 初始化移动端分页
       if (isMobileDevice()) {
         goToPage(1);
       }
       
-      // 更新时间和日期
-      function updateDateTime() {
-        const now = new Date();
-        
-        // 更新时间 - 格式化为 HH:MM:SS
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const timeElement = document.getElementById('current-time');
-        if (timeElement) {
-          timeElement.textContent = `${hours}:${minutes}:${seconds}`;
-        }
-        
-        // 更新日期 - 格式化为 YYYY-MM-DD
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const dateElement = document.getElementById('current-date');
-        if (dateElement) {
-          dateElement.textContent = `${year}-${month}-${day}`;
-        }
-      }
-      
-      // 立即更新一次
+      // 立即更新一次时间日期
       updateDateTime();
       
-      // 每秒更新一次
+      // 每秒更新一次时间日期
       setInterval(updateDateTime, 1000);
+
+      // 恢复用户登录状态
+      try {
+        const user = await UserManager.verifyToken();
+        if (user) {
+          console.log('用户登录状态已恢复:', user.username);
+        }
+      } catch (error) {
+        console.error('验证登录状态失败:', error);
+        UserManager.logout();
+      }
     });
   </script>
 </body>
