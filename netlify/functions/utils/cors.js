@@ -1,11 +1,23 @@
 // CORS配置
-const corsHeaders = (origin) => ({
-    'Access-Control-Allow-Origin': origin || 'http://localhost:51537',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Max-Age': '86400'
-});
+const corsHeaders = (origin) => {
+    // 允许的域名列表
+    const allowedOrigins = [
+        'http://localhost:51537',
+        'http://localhost:9999',
+        'https://clever-mermaid-713c96.netlify.app'
+    ];
+    
+    // 检查origin是否在允许列表中
+    const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    
+    return {
+        'Access-Control-Allow-Origin': allowedOrigin,
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400'
+    };
+};
 
 // 处理预检请求
 const handleOptions = (event) => {
