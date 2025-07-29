@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { username, avatar, content } = JSON.parse(event.body);
+    const { username, avatar, content, createdAt } = JSON.parse(event.body);
 
     // 验证输入
     if (!username || !content) {
@@ -41,7 +41,7 @@ exports.handler = async (event, context) => {
       username,
       avatar: avatar || './images/avatar.svg',
       content,
-      createdAt: new Date(),
+      createdAt: createdAt ? new Date(createdAt) : new Date(), // 使用前端传递的时间戳，如果没有则使用当前时间
       likes: 0,
       likedBy: []
     };

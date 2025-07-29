@@ -589,7 +589,8 @@
              body: JSON.stringify({
                username,
                avatar,
-               content
+               content,
+               createdAt: new Date().toISOString() // 添加当前时间戳
              })
            });
            
