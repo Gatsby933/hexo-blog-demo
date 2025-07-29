@@ -341,6 +341,16 @@ ul, ol {
   margin-bottom: 15px;
 }
 
+/* 修复留言板头像全屏问题 */
+.user-avatar img,
+.comment-avatar img {
+  max-width: 64px;
+  max-height: 64px;
+  width: auto !important;
+  height: auto !important;
+  object-fit: cover;
+}
+
 .social-links {
   margin-top: 15px;
 }
