@@ -4,7 +4,8 @@ const corsHeaders = (origin) => {
     const allowedOrigins = [
         'http://localhost:51537',
         'http://localhost:9999',
-        'https://clever-mermaid-713c96.netlify.app'
+        'https://clever-mermaid-713c96.netlify.app',
+        'https://blog.hanverse.pub'
     ];
     
     // 检查origin是否在允许列表中
