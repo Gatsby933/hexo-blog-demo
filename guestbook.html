@@ -8,7 +8,7 @@
    <meta name="keywords" content="留言板,评论,博客">
   <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="css/style.css
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/user-auth.css">
   <script src="js/config.js"></script>
   <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -47,6 +47,153 @@
       background: rgba(255, 255, 255, 0.3);
       color: white;
       text-decoration: none;
+    }
+    
+    .top-right-icon {
+      position: fixed !important;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    
+    .avatar-tooltip {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1001;
+      pointer-events: none;
+    }
+
+    .avatar-tooltip::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-left-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .top-right-icon:hover .avatar-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* 下拉框样式 */
+    .top-right-icon .dropdown-item {
+      padding: 10px 8px;
+      color: #363636;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      min-height: 40px;
+      margin: 3px 6px;
+      border-radius: 6px;
+      line-height: 1.4;
+      width: calc(100% - 12px);
+    }
+
+    .top-right-icon .dropdown-item:hover {
+      background-color: #2c2c2c;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .top-right-icon .dropdown-menu {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      padding: 8px 0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: absolute;
+      right: 0;
+      left: auto;
+      z-index: 1000;
+      min-width: 6rem;
+      width: 6rem;
+      padding: 0;
+      display: none;
+      transition: all 0.3s ease;
+    }
+    
+    .top-right-icon .dropdown-menu.show {
+      display: block;
+      padding: 8px 0;
+    }
+
+    .top-right-icon .dropdown-menu:hover {
+      background-color: rgba(240, 240, 240, 0.98);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .top-right-icon .dropdown-divider {
+      margin: 6px 12px;
+      border-top: 1px solid #e9ecef;
+      opacity: 0.6;
+    }
+    
+    /* 设置按钮样式 - 覆盖user-auth.css */
+    .top-right-icon #settingsBtn {
+      width: 48px !important;
+      height: 48px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 !important;
+      background: white !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      border: none !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    }
+
+    .top-right-icon #settingsBtn:hover {
+      box-shadow: 0 4px 12px rgba(0,123,255,0.3) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .top-right-icon #settingsBtn i {
+      font-size: 20px !important;
+      color: #666 !important;
+    }
+
+    /* 头像样式 - 完全铺满按钮 - 最高优先级 */
+    .top-right-icon #settingsBtn img {
+      width: 48px !important;
+      height: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      min-width: 48px !important;
+      min-height: 48px !important;
+      border-radius: 50% !important;
+      object-fit: cover !important;
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
     }
     
     .guestbook-container {

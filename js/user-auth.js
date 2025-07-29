@@ -456,7 +456,6 @@ function initAuthModals() {
         const avatarTooltip = document.getElementById('avatarTooltip');
         if (avatarTooltip) {
           avatarTooltip.textContent = currentUser.username;
-          avatarTooltip.style.display = 'block';
           console.log('已更新头像悬停提示:', currentUser.username);
         }
         
@@ -494,7 +493,6 @@ function initAuthModals() {
         // 隐藏头像悬停提示
         const avatarTooltip = document.getElementById('avatarTooltip');
         if (avatarTooltip) {
-          avatarTooltip.style.display = 'none';
           console.log('已隐藏头像悬停提示');
         }
         

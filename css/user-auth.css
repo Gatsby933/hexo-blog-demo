@@ -4,39 +4,33 @@
 .top-right-icon #settingsBtn {
   width: 48px !important;
   height: 48px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: white;
-  border-radius: 50%;
-  overflow: hidden;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  background: white !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+  color: #333 !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
 }
+
 .top-right-icon #settingsBtn img {
-  width: 40px !important;
-  height: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
+  width: 48px !important;
+  height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
   object-fit: cover !important;
   border-radius: 50% !important;
-  display: block;
-}
-.top-right-icon #settingsBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  color: #333;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
 .top-right-icon #settingsBtn:hover {
