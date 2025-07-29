@@ -334,75 +334,7 @@
       <div class="comments-container" style="background: rgba(255, 255, 255, 0.8); padding: 20px 20px 20px 25px; border-radius: 15px; margin-top: 30px;">
         <h4 style="margin-left: 5px;">最新评论</h4>
         <div class="comment-list">
-          <!-- 示例评论 -->
-          <div class="comment-item mb-4 p-3" style="background: rgba(240, 240, 240, 0.5); border-radius: 10px;">
-            <div class="d-flex">
-              <div class="comment-avatar me-3">
-                <img src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 48px; height: 48px; background-color: #f0f0f0;">
-              </div>
-              <div class="flex-grow-1">
-                <div class="comment-author fw-bold">张三</div>
-                <div class="comment-content mt-2">这个博客设计得很漂亮，内容也很丰富，期待更多精彩内容！</div>
-                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
-                  <small class="text-muted">2025-03-01</small>
-                  <div class="comment-actions">
-                    <button class="btn btn-sm btn-outline-secondary me-2" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-thumbs-up"></i> 点赞
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-reply"></i> 回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="comment-item mb-4 p-3" style="background: rgba(240, 240, 240, 0.5); border-radius: 10px;">
-            <div class="d-flex">
-              <div class="comment-avatar me-3">
-                <img src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 48px; height: 48px; background-color: #f0f0f0;">
-              </div>
-              <div class="flex-grow-1">
-                <div class="comment-author fw-bold">李四</div>
-                <div class="comment-content mt-2">博主的文章写得很有深度，每次都能学到新东西，感谢分享！</div>
-                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
-                  <small class="text-muted">2025-02-28</small>
-                  <div class="comment-actions">
-                    <button class="btn btn-sm btn-outline-secondary me-2" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-thumbs-up"></i> 点赞
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-reply"></i> 回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="comment-item mb-4 p-3" style="background: rgba(240, 240, 240, 0.5); border-radius: 10px;">
-            <div class="d-flex">
-              <div class="comment-avatar me-3">
-                <img src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 48px; height: 48px; background-color: #f0f0f0;">
-              </div>
-              <div class="flex-grow-1">
-                <div class="comment-author fw-bold">王五</div>
-                <div class="comment-content mt-2">偶然发现这个博客，被博主的文笔吸引，已经收藏了，会常来看看的！</div>
-                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
-                  <small class="text-muted">2025-02-25</small>
-                  <div class="comment-actions">
-                    <button class="btn btn-sm btn-outline-secondary me-2" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-thumbs-up"></i> 点赞
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" style="border-radius: 20px; padding: 2px 10px;">
-                      <i class="fa fa-reply"></i> 回复
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- 评论将通过JavaScript动态加载 -->
         </div>
         
         <!-- 分页导航 -->
@@ -639,6 +571,17 @@
              currentPage = totalPages;
              updatePagination();
              showCommentsForPage(currentPage);
+             
+             // 通知主页刷新评论（如果主页已打开）
+             try {
+               if (window.opener && window.opener.CommentSync) {
+                 window.opener.CommentSync.refreshHomepageComments();
+               }
+               // 使用localStorage通知其他页面
+               localStorage.setItem('commentUpdated', Date.now().toString());
+             } catch (e) {
+               console.log('无法通知主页刷新评论:', e.message);
+             }
              
              alert('评论发表成功！');
            } else {

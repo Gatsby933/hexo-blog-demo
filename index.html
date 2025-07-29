@@ -13,6 +13,7 @@
   <script src="js/config.js"></script>
   <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/user-auth.js"></script>
+  <script src="js/modules/comment-sync.js"></script>
   <script>
     // 调试Bootstrap Dropdown功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -2040,22 +2041,9 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">最新评论</h5>
-          <div>
-            <div class="mb-3">
-              <div style="font-weight: bold;">@张三</div>
-              <p class="mb-1" style="font-size: 0.9rem;">这篇文章写得很棒，对我帮助很大！</p>
-              <small style="opacity: 0.7;">来自《JavaScript基础知识总结》</small>
-            </div>
-            <div class="mb-3">
-              <div style="font-weight: bold;">@李四</div>
-              <p class="mb-1" style="font-size: 0.9rem;">我也有类似的经历，感同身受。</p>
-              <small style="opacity: 0.7;">来自《旅行中的小确幸》</small>
-            </div>
-            <div class="mb-3">
-              <div style="font-weight: bold;">@王五</div>
-              <p class="mb-1" style="font-size: 0.9rem;">学习了，感谢分享这么详细的教程！</p>
-              <small style="opacity: 0.7;">来自《Node.js入门指南》</small>
-            </div>
+          <div id="latest-comments-container">
+            <!-- 最新评论将通过JavaScript动态加载 -->
+            <div class="text-muted text-center">正在加载评论...</div>
           </div>
         </div>
       </div>
