@@ -478,22 +478,22 @@
        // 从服务器加载评论数据
        async function loadComments() {
          try {
-           // 检查是否在本地开发环境
-           const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+           console.log('从API加载评论');
+           const response = await fetch('/.netlify/functions/get-comments');
+           console.log('API响应状态:', response.status, response.statusText);
            
-           if (isLocalDev) {
-             // 本地开发环境：使用现有的静态评论
-             console.log('本地开发环境：使用静态评论数据');
-             totalComments = document.querySelectorAll('.comment-item').length;
-             totalPages = Math.ceil(totalComments / commentsPerPage);
-             updatePagination();
-             showCommentsForPage(currentPage);
+           const responseText = await response.text();
+           console.log('API响应内容:', responseText);
+           
+           let data;
+           try {
+             data = JSON.parse(responseText);
+           } catch (parseError) {
+             console.error('JSON解析失败:', parseError);
+             console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
+             fallbackToStaticComments();
              return;
            }
-           
-           // 生产环境：从Netlify Functions加载评论
-           const response = await fetch('/.netlify/functions/get-comments');
-           const data = await response.json();
            
            if (response.ok) {
              allComments = data.comments;
@@ -599,29 +599,7 @@
        // 添加新评论到服务器和页面
        async function addNewComment(username, avatar, content) {
          try {
-           // 检查是否在本地开发环境
-           const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-           
-           if (isLocalDev) {
-             // 本地开发环境：直接添加到页面
-             console.log('本地开发环境：添加评论到页面');
-             const commentElement = createCommentElement(username, avatar, content);
-             commentList.appendChild(commentElement);
-             
-             // 更新总评论数和分页
-             totalComments = document.querySelectorAll('.comment-item').length;
-             totalPages = Math.ceil(totalComments / commentsPerPage);
-             
-             // 跳转到最后一页显示新评论
-             currentPage = totalPages;
-             updatePagination();
-             showCommentsForPage(currentPage);
-             
-             alert('评论发表成功！（本地模式）');
-             return;
-           }
-           
-           // 生产环境：保存到服务器
+           console.log('保存评论到API');
            const response = await fetch('/.netlify/functions/save-comment', {
              method: 'POST',
              headers: {
@@ -634,7 +612,20 @@
              })
            });
            
-           const data = await response.json();
+           console.log('保存评论API响应状态:', response.status, response.statusText);
+           
+           const responseText = await response.text();
+           console.log('保存评论API响应内容:', responseText);
+           
+           let data;
+           try {
+             data = JSON.parse(responseText);
+           } catch (parseError) {
+             console.error('保存评论JSON解析失败:', parseError);
+             console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
+             alert('评论发表失败：服务器响应格式错误');
+             return;
+           }
            
            if (response.ok) {
              // 重新加载评论列表

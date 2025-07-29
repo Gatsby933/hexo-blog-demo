@@ -11,8 +11,11 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return addCorsHeaders({
       statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ message: '方法不允许' })
-    });
+    }, event);
   }
 
   try {
@@ -22,6 +25,9 @@ exports.handler = async (event, context) => {
     if (!username || !content) {
       return addCorsHeaders({
         statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ message: '用户名和评论内容都是必需的' })
       }, event);
     }
@@ -44,6 +50,9 @@ exports.handler = async (event, context) => {
 
     return addCorsHeaders({
       statusCode: 201,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         message: '评论保存成功',
         comment: {
@@ -56,11 +65,16 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('保存评论错误:', error.message);
     console.error('错误堆栈:', error.stack);
+    
+    // 确保返回JSON格式的错误响应
     return addCorsHeaders({
       statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ 
         message: '服务器错误',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误'
       })
     }, event);
   }

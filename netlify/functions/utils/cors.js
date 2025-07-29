@@ -12,8 +12,11 @@ const corsHeaders = (origin) => {
         'https://blog.hanverse.pub'
     ];
     
-    // 检查origin是否在允许列表中
-    const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    // 检查origin是否在允许列表中，或者是否为netlify.app域名
+    const isAllowedOrigin = allowedOrigins.includes(origin) || 
+                           (origin && origin.includes('.netlify.app'));
+    
+    const allowedOrigin = isAllowedOrigin ? origin : allowedOrigins[0];
     
     return {
         'Access-Control-Allow-Origin': allowedOrigin,

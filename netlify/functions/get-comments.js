@@ -11,8 +11,11 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
     return addCorsHeaders({
       statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ message: '方法不允许' })
-    });
+    }, event);
   }
 
   try {
@@ -45,6 +48,9 @@ exports.handler = async (event, context) => {
 
     return addCorsHeaders({
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         comments: formattedComments,
         pagination: {
@@ -62,9 +68,12 @@ exports.handler = async (event, context) => {
     console.error('错误堆栈:', error.stack);
     return addCorsHeaders({
       statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ 
         message: '服务器错误',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误'
       })
     }, event);
   }
