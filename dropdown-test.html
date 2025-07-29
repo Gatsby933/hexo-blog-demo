@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Dropdown测试</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
+  <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Bootstrap Dropdown测试</h1>
+    
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        测试下拉菜单
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li><a class="dropdown-item" href="#">选项1</a></li>
+        <li><a class="dropdown-item" href="#">选项2</a></li>
+        <li><a class="dropdown-item" href="#">选项3</a></li>
+      </ul>
+    </div>
+    
+    <script>
+      // 检查Bootstrap是否正确加载
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Bootstrap版本:', typeof bootstrap !== 'undefined' ? bootstrap.Dropdown.VERSION : '未加载');
+        
+        // 手动创建一个dropdown实例
+        const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+        const dropdownList = [...dropdownElementList].map(dropdownToggleEl => {
+          return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+        
+        console.log('创建的dropdown实例:', dropdownList);
+      });
+    </script>
+  </div>
+</body>
+</html>

@@ -5,7 +5,7 @@ const { addCorsHeaders, handleOptions } = require('./utils/cors');
 exports.handler = async (event, context) => {
   // 处理OPTIONS请求
   if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
+    return handleOptions(event);
   }
 
   // 只允许POST请求
@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
       return addCorsHeaders({
         statusCode: 400,
         body: JSON.stringify({ message: '用户名和密码都是必需的' })
-      });
+      }, event);
     }
 
     // 连接数据库
@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
       return addCorsHeaders({
       statusCode: 409,
       body: JSON.stringify({ message: '用户名已存在' })
-    });
+    }, event);
     }
 
     // 加密密码
@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
           _id: result._id
         }
       })
-    });
+    }, event);
 
   } catch (error) {
     console.error('注册错误:', error.message);
@@ -70,6 +70,6 @@ exports.handler = async (event, context) => {
         message: '服务器错误',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       })
-    });
+    }, event);
   }
 };

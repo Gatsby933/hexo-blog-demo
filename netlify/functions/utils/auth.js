@@ -13,9 +13,13 @@ const generateToken = (user) => {
 // 验证JWT令牌
 const verifyToken = (token) => {
   try {
+    console.log('验证令牌:', token.substring(0, 10) + '...');
+    console.log('使用密钥:', process.env.JWT_SECRET);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('令牌解码成功:', decoded);
     return { valid: true, decoded };
   } catch (error) {
+    console.error('令牌验证失败:', error.message);
     return { valid: false, error: error.message };
   }
 };

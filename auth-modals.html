@@ -1,0 +1,93 @@
+<!-- 用户认证相关模态框 -->
+
+<!-- 头像更换模态框 -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="avatar-upload-circle mb-3">
+          <input type="file" id="avatarInput" accept="image/*" class="d-none">
+          <label for="avatarInput" class="upload-label w-100 h-100 d-flex align-items-center justify-content-center">
+            <i class="fa fa-plus"></i>
+            <span class="ms-2">点击选择图片</span>
+          </label>
+        </div>
+        <div id="previewContainer" class="d-none mb-3">
+          <img id="avatarPreview" src="" alt="头像预览" class="img-fluid rounded-circle" style="max-width: 200px;">
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" id="cancelAvatarBtn">取消</button>
+        <button type="button" class="btn btn-primary" id="confirmAvatarBtn">更换</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 登录模态框 -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">用户登录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="loginUsername" class="form-label">账号</label>
+            <input type="text" class="form-control" id="loginUsername" placeholder="请输入账号" required>
+          </div>
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">密码</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="请输入密码" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">登录</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-muted">还没有账号？</span>
+        <button type="button" class="btn btn-link" id="showRegisterBtn">立即注册</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 注册模态框 -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="registerModalLabel">用户注册</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="registerForm">
+          <div class="mb-3">
+            <label for="registerUsername" class="form-label">用户名</label>
+            <input type="text" class="form-control" id="registerUsername" placeholder="请输入用户名" required>
+          </div>
+          <div class="mb-3">
+            <label for="registerPassword" class="form-label">密码</label>
+            <input type="password" class="form-control" id="registerPassword" placeholder="请输入密码" required>
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">确认密码</label>
+            <input type="password" class="form-control" id="confirmPassword" placeholder="请再次输入密码" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">注册</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-muted">已有账号？</span>
+        <button type="button" class="btn btn-link" id="showLoginBtn">立即登录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 用户设置下拉菜单已移至index.html -->

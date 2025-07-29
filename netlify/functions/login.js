@@ -5,7 +5,7 @@ const { addCorsHeaders, handleOptions } = require('./utils/cors');
 exports.handler = async (event, context) => {
   // 处理OPTIONS请求
   if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
+    return handleOptions(event);
   }
 
   // 只允许POST请求
@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
     return addCorsHeaders({
       statusCode: 405,
       body: JSON.stringify({ message: '方法不允许' })
-    });
+    }, event);
   }
 
   try {
@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
       return addCorsHeaders({
         statusCode: 400,
         body: JSON.stringify({ message: '用户名和密码都是必需的' })
-      });
+      }, event);
     }
 
     // 连接数据库
@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
       return addCorsHeaders({
       statusCode: 401,
       body: JSON.stringify({ message: '用户名或密码错误' })
-    });
+    }, event);
     }
 
     // 验证密码
@@ -46,7 +46,7 @@ exports.handler = async (event, context) => {
       return addCorsHeaders({
         statusCode: 401,
         body: JSON.stringify({ message: '用户名或密码错误' })
-      });
+      }, event);
     }
 
     // 生成JWT令牌
@@ -63,13 +63,13 @@ exports.handler = async (event, context) => {
           username: user.username
         }
       })
-    });
+    }, event);
 
   } catch (error) {
     console.error('登录错误:', error);
     return addCorsHeaders({
       statusCode: 500,
       body: JSON.stringify({ message: '服务器错误' })
-    });
+    }, event);
   }
 };

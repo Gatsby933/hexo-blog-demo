@@ -2,6 +2,11 @@
   functions = "netlify/functions"
   publish = "."
 
+[dev]
+  functions = "netlify/functions"
+  publish = "."
+  port = 9999
+
 [functions]
   node_bundler = "esbuild"
 

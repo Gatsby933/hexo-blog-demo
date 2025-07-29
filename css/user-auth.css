@@ -1,0 +1,78 @@
+/* 用户认证相关样式 */
+
+/* 设置按钮样式 */
+.top-right-icon #settingsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: #333;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.top-right-icon #settingsBtn:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#settingsDropdown i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+#settingsDropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#settingsDropdown button:hover {
+  background-color: #f8f9fa;
+}
+
+/* 头像上传样式 */
+.avatar-upload-circle {
+  width: 150px;
+  height: 150px;
+  border: 2px dashed #ccc;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-circle:hover {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.avatar-upload-circle i {
+  font-size: 24px;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-circle:hover i {
+  color: #007bff;
+}
+
+.avatar-upload-circle .upload-label {
+  cursor: pointer;
+}
