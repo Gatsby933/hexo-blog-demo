@@ -40,10 +40,10 @@ exports.handler = async (event, context) => {
       .limit(limit)
       .toArray();
 
-    // 格式化日期
+    // 格式化日期，保留完整的时间信息
     const formattedComments = commentsList.map(comment => ({
       ...comment,
-      createdAt: comment.createdAt.toISOString().split('T')[0]
+      createdAt: comment.createdAt.toISOString() // 保留完整的ISO时间格式
     }));
 
     return addCorsHeaders({
