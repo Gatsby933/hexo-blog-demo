@@ -51,7 +51,10 @@ exports.handler = async (event, context) => {
     return addCorsHeaders({
       statusCode: 201,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // 禁止缓存POST请求
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
       body: JSON.stringify({
         message: '评论保存成功',

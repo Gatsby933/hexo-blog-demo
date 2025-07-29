@@ -49,7 +49,10 @@ exports.handler = async (event, context) => {
     return addCorsHeaders({
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300, s-maxage=600', // 客户端5分钟，CDN10分钟
+        'ETag': `"comments-${totalComments}-${page}"`, // 基于评论数量和页码生成ETag
+        'Last-Modified': formattedComments.length > 0 ? new Date(formattedComments[0].createdAt).toUTCString() : new Date().toUTCString()
       },
       body: JSON.stringify({
         comments: formattedComments,

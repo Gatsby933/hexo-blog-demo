@@ -410,18 +410,90 @@
        let totalPages = 1;
        let allComments = []; // 存储所有评论数据
        
+       // 缓存相关函数
+       const CACHE_KEY = 'guestbook_comments_cache';
+       const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+       
+       // 保存评论到本地缓存
+       function cacheComments(comments, pagination) {
+         const cacheData = {
+           comments: comments,
+           pagination: pagination,
+           timestamp: Date.now()
+         };
+         try {
+           localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+           console.log('评论已缓存到本地');
+         } catch (error) {
+           console.warn('缓存评论失败:', error);
+         }
+       }
+       
+       // 从本地缓存获取评论
+       function getCachedComments() {
+         try {
+           const cached = localStorage.getItem(CACHE_KEY);
+           if (cached) {
+             const cacheData = JSON.parse(cached);
+             const isValid = Date.now() - cacheData.timestamp < CACHE_DURATION;
+             if (isValid) {
+               console.log('使用缓存的评论数据');
+               return cacheData;
+             } else {
+               console.log('缓存已过期，清除缓存');
+               localStorage.removeItem(CACHE_KEY);
+             }
+           }
+         } catch (error) {
+           console.warn('读取缓存失败:', error);
+           localStorage.removeItem(CACHE_KEY);
+         }
+         return null;
+       }
+       
+       // 清除评论缓存
+       function clearCommentsCache() {
+         try {
+           localStorage.removeItem(CACHE_KEY);
+           console.log('评论缓存已清除');
+         } catch (error) {
+           console.warn('清除缓存失败:', error);
+         }
+       }
+       
        // 初始化：加载评论数据
        loadComments();
        
-       // 从服务器加载评论数据
+       // 从服务器加载评论数据（支持缓存）
        async function loadComments() {
-         try {
-           // 显示加载状态
+         // 先尝试从缓存加载
+         const cachedData = getCachedComments();
+         if (cachedData) {
+           // 使用缓存数据立即显示
+           allComments = cachedData.comments;
+           totalComments = cachedData.pagination.totalComments;
+           totalPages = cachedData.pagination.totalPages;
+           
+           // 隐藏加载状态
+           const loadingElement = document.getElementById('comments-loading');
+           if (loadingElement) {
+             loadingElement.style.display = 'none';
+           }
+           
+           // 渲染缓存的评论
+           renderComments();
+           updatePagination();
+           showCommentsForPage(currentPage);
+         } else {
+           // 没有缓存时显示加载状态
            const loadingElement = document.getElementById('comments-loading');
            if (loadingElement) {
              loadingElement.style.display = 'block';
            }
-           
+         }
+         
+         // 后台更新数据
+         try {
            console.log('从API加载评论');
            const apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
            console.log('API URL:', apiUrl);
@@ -437,35 +509,51 @@
            } catch (parseError) {
              console.error('JSON解析失败:', parseError);
              console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
-             hideLoadingAndFallback();
+             if (!cachedData) {
+               hideLoadingAndFallback();
+             }
              return;
            }
            
            if (response.ok) {
-             allComments = data.comments;
-             totalComments = data.pagination.totalComments;
-             totalPages = data.pagination.totalPages;
+             // 检查数据是否有更新
+             const hasUpdate = !cachedData || 
+               JSON.stringify(data.comments) !== JSON.stringify(cachedData.comments) ||
+               data.pagination.totalComments !== cachedData.pagination.totalComments;
+             
+             if (hasUpdate) {
+               console.log('检测到评论更新，刷新显示');
+               allComments = data.comments;
+               totalComments = data.pagination.totalComments;
+               totalPages = data.pagination.totalPages;
+               
+               // 渲染新数据
+               renderComments();
+               updatePagination();
+               showCommentsForPage(currentPage);
+             } else {
+               console.log('评论数据无变化');
+             }
+             
+             // 更新缓存
+             cacheComments(data.comments, data.pagination);
              
              // 隐藏加载状态
+             const loadingElement = document.getElementById('comments-loading');
              if (loadingElement) {
                loadingElement.style.display = 'none';
              }
-             
-             // 渲染评论
-             renderComments();
-             
-             // 更新分页
-             updatePagination();
-             showCommentsForPage(currentPage);
            } else {
              console.error('加载评论失败:', data.message);
-             // 回退到静态评论
-             hideLoadingAndFallback();
+             if (!cachedData) {
+               hideLoadingAndFallback();
+             }
            }
          } catch (error) {
            console.error('加载评论时发生错误:', error);
-           // 回退到静态评论
-           hideLoadingAndFallback();
+           if (!cachedData) {
+             hideLoadingAndFallback();
+           }
          }
        }
        
@@ -610,6 +698,9 @@
            }
            
            if (response.ok) {
+             // 清除评论缓存，确保获取最新数据
+             clearCommentsCache();
+             
              // 重新加载评论列表
              await loadComments();
              
