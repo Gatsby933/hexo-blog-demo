@@ -334,7 +334,13 @@
       <div class="comments-container" style="background: rgba(255, 255, 255, 0.8); padding: 20px 20px 20px 25px; border-radius: 15px; margin-top: 30px;">
         <h4 style="margin-left: 5px;">最新评论</h4>
         <div class="comment-list">
-          <!-- 评论将通过JavaScript动态加载 -->
+          <!-- 加载状态 -->
+          <div id="comments-loading" class="text-center py-4">
+            <div class="spinner-border text-secondary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">评论加载中...</p>
+          </div>
         </div>
         
         <!-- 分页导航 -->
@@ -410,6 +416,12 @@
        // 从服务器加载评论数据
        async function loadComments() {
          try {
+           // 显示加载状态
+           const loadingElement = document.getElementById('comments-loading');
+           if (loadingElement) {
+             loadingElement.style.display = 'block';
+           }
+           
            console.log('从API加载评论');
            const apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
            console.log('API URL:', apiUrl);
@@ -425,7 +437,7 @@
            } catch (parseError) {
              console.error('JSON解析失败:', parseError);
              console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
-             fallbackToStaticComments();
+             hideLoadingAndFallback();
              return;
            }
            
@@ -434,8 +446,10 @@
              totalComments = data.pagination.totalComments;
              totalPages = data.pagination.totalPages;
              
-             // 清空现有评论列表
-             commentList.innerHTML = '';
+             // 隐藏加载状态
+             if (loadingElement) {
+               loadingElement.style.display = 'none';
+             }
              
              // 渲染评论
              renderComments();
@@ -446,13 +460,22 @@
            } else {
              console.error('加载评论失败:', data.message);
              // 回退到静态评论
-             fallbackToStaticComments();
+             hideLoadingAndFallback();
            }
          } catch (error) {
            console.error('加载评论时发生错误:', error);
            // 回退到静态评论
-           fallbackToStaticComments();
+           hideLoadingAndFallback();
          }
+       }
+       
+       // 隐藏加载状态并回退到静态评论
+       function hideLoadingAndFallback() {
+         const loadingElement = document.getElementById('comments-loading');
+         if (loadingElement) {
+           loadingElement.style.display = 'none';
+         }
+         fallbackToStaticComments();
        }
        
        // 回退到静态评论
@@ -465,10 +488,28 @@
        
        // 渲染评论到页面
        function renderComments() {
+         // 清空现有评论列表（保留加载状态元素）
+         const loadingElement = document.getElementById('comments-loading');
+         commentList.innerHTML = '';
+         if (loadingElement) {
+           commentList.appendChild(loadingElement);
+         }
+         
          allComments.forEach(comment => {
            const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
            commentList.appendChild(commentElement);
          });
+       }
+       
+       // 格式化时间显示，精确到分钟
+       function formatDateTime(date) {
+         const year = date.getFullYear();
+         const month = String(date.getMonth() + 1).padStart(2, '0');
+         const day = String(date.getDate()).padStart(2, '0');
+         const hours = String(date.getHours()).padStart(2, '0');
+         const minutes = String(date.getMinutes()).padStart(2, '0');
+         
+         return `${year}-${month}-${day} ${hours}:${minutes}`;
        }
        
        // 获取当前用户信息
@@ -486,10 +527,14 @@
        
        // 创建评论元素
        function createCommentElement(username, avatar, content, dateString) {
-         // 如果没有提供日期，使用当前日期
+         // 格式化时间显示，精确到分钟
+         let formattedDate;
          if (!dateString) {
            const currentDate = new Date();
-           dateString = currentDate.toISOString().split('T')[0];
+           formattedDate = formatDateTime(currentDate);
+         } else {
+           const date = new Date(dateString);
+           formattedDate = formatDateTime(date);
          }
          
          // 创建新评论元素
@@ -507,7 +552,7 @@
                <div class="comment-author fw-bold">${username}</div>
                <div class="comment-content mt-2">${content}</div>
                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
-                 <small class="text-muted">${dateString}</small>
+                 <small class="text-muted">${formattedDate}</small>
                  <div class="comment-actions">
                    <button class="btn btn-sm btn-outline-secondary me-2 like-btn" data-liked="false" style="border-radius: 20px; padding: 2px 10px;">
                      <i class="fa fa-thumbs-up"></i> 点赞

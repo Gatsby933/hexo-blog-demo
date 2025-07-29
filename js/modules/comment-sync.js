@@ -33,7 +33,7 @@ class CommentSync {
   }
 
   /**
-   * 格式化评论时间
+   * 格式化评论时间，精确到分钟
    * @param {string} dateString 时间字符串
    * @returns {string} 格式化后的时间
    */
@@ -41,18 +41,29 @@ class CommentSync {
     try {
       const date = new Date(dateString);
       const now = new Date();
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffInMs = now - date;
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
       
-      if (diffDays === 1) {
+      if (diffInMinutes < 1) {
+        return '刚刚';
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes}分钟前`;
+      } else if (diffInHours < 24) {
+        return `${diffInHours}小时前`;
+      } else if (diffInDays === 1) {
         return '1天前';
-      } else if (diffDays < 7) {
-        return `${diffDays}天前`;
+      } else if (diffInDays < 7) {
+        return `${diffInDays}天前`;
       } else {
-        return date.toLocaleDateString('zh-CN', {
-          month: 'short',
-          day: 'numeric'
-        });
+        // 超过7天显示具体日期和时间，精确到分钟
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
       }
     } catch (error) {
       return '最近';
