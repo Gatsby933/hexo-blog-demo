@@ -2040,7 +2040,12 @@
       <!-- 最新评论 -->
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">最新评论</h5>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">最新评论</h5>
+            <button id="refresh-homepage-comments" class="btn btn-outline-secondary btn-sm" title="刷新评论">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
           <div id="latest-comments-container">
             <!-- 最新评论将通过JavaScript动态加载 -->
             <div class="text-muted text-center">正在加载评论...</div>
@@ -2321,6 +2326,34 @@
       
       // 每秒更新一次时间日期
       setInterval(updateDateTime, 1000);
+      
+      // 初始化主页评论刷新按钮
+      const refreshHomepageBtn = document.getElementById('refresh-homepage-comments');
+      if (refreshHomepageBtn) {
+        refreshHomepageBtn.addEventListener('click', function() {
+          // 添加旋转动画
+          const icon = this.querySelector('i');
+          icon.classList.add('fa-spin');
+          this.disabled = true;
+          
+          // 强制刷新评论
+          if (window.CommentSync) {
+            window.CommentSync.refreshHomepageComments().finally(() => {
+              // 移除动画并恢复按钮
+              setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                this.disabled = false;
+              }, 500);
+            });
+          } else {
+            // 如果CommentSync未加载，延迟恢复按钮状态
+            setTimeout(() => {
+              icon.classList.remove('fa-spin');
+              this.disabled = false;
+            }, 1000);
+          }
+        });
+      }
 
       // 定期验证用户令牌状态（每5分钟检查一次）
       setInterval(async () => {

@@ -332,7 +332,12 @@
       
       <!-- 评论展示区 -->
       <div class="comments-container" style="background: rgba(255, 255, 255, 0.8); padding: 20px 20px 20px 25px; border-radius: 15px; margin-top: 30px;">
-        <h4 style="margin-left: 5px;">最新评论</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 style="margin-left: 5px; margin-bottom: 0;">最新评论</h4>
+          <button id="refresh-guestbook-comments" class="btn btn-outline-secondary btn-sm" title="刷新评论">
+            <i class="fa fa-refresh"></i>
+          </button>
+        </div>
         <div class="comment-list">
           <!-- 加载状态 -->
           <div id="comments-loading" class="text-center py-4">
@@ -463,6 +468,26 @@
        
        // 初始化：加载评论数据
        loadComments();
+       
+       // 初始化留言板评论刷新按钮
+       const refreshGuestbookBtn = document.getElementById('refresh-guestbook-comments');
+       if (refreshGuestbookBtn) {
+         refreshGuestbookBtn.addEventListener('click', function() {
+           // 添加旋转动画
+           const icon = this.querySelector('i');
+           icon.classList.add('fa-spin');
+           this.disabled = true;
+           
+           // 强制刷新评论
+           loadComments(true).finally(() => {
+             // 移除动画并恢复按钮
+             setTimeout(() => {
+               icon.classList.remove('fa-spin');
+               this.disabled = false;
+             }, 500);
+           });
+         });
+       }
        
        // 从服务器加载评论数据（支持缓存）
        async function loadComments(forceRefresh = false) {
