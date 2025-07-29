@@ -94,3 +94,111 @@
 .avatar-upload-circle .upload-label {
   cursor: pointer;
 }
+
+/* 模态框样式 - 黑白配色和更窄设计 */
+#loginModal .modal-dialog,
+#registerModal .modal-dialog {
+  max-width: 400px !important;
+  width: 90% !important;
+}
+
+#loginModal .modal-content,
+#registerModal .modal-content {
+  background-color: #ffffff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+#loginModal .modal-header,
+#registerModal .modal-header {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+#loginModal .modal-title,
+#registerModal .modal-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+}
+
+#loginModal .btn-close,
+#registerModal .btn-close {
+  filter: invert(1) !important;
+}
+
+#loginModal .modal-body,
+#registerModal .modal-body {
+  padding: 1.5rem !important;
+  background-color: #ffffff !important;
+}
+
+#loginModal .form-label,
+#registerModal .form-label {
+  color: #333333 !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+#loginModal .form-control,
+#registerModal .form-control {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 4px !important;
+  padding: 0.75rem !important;
+  font-size: 0.95rem !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+#loginModal .form-control:focus,
+#registerModal .form-control:focus {
+  border-color: #000000 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1) !important;
+}
+
+#loginModal .btn-primary,
+#registerModal .btn-success {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+#loginModal .btn-primary:hover,
+#registerModal .btn-success:hover {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+  transform: translateY(-1px) !important;
+}
+
+#loginModal .modal-footer,
+#registerModal .modal-footer {
+  background-color: #f8f9fa !important;
+  border-top: 1px solid #dee2e6 !important;
+  padding: 1rem 1.5rem !important;
+  justify-content: center !important;
+}
+
+#loginModal .btn-link,
+#registerModal .btn-link {
+  color: #000000 !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+#loginModal .btn-link:hover,
+#registerModal .btn-link:hover {
+  color: #333333 !important;
+  text-decoration: underline !important;
+}
+
+#loginModal .text-muted,
+#registerModal .text-muted {
+  color: #6c757d !important;
+  margin-right: 0.5rem !important;
+}

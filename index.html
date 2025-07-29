@@ -1696,7 +1696,10 @@
         if (window.UserAuth && typeof window.UserAuth.initAuthModals === 'function') {
           // 确保DOM完全加载后再初始化
           setTimeout(() => {
-            window.UserAuth.initAuthModals();
+            // 初始化模态框并获取updateAuthUI函数
+            const updateAuthUI = window.UserAuth.initAuthModals();
+            // 将updateAuthUI函数保存到全局变量中
+            window.updateAuthUI = updateAuthUI;
             
             // 在模态框初始化完成后恢复用户登录状态
             setTimeout(async () => {
@@ -2283,9 +2286,12 @@
         try {
           if (userStr) {
             const user = JSON.parse(userStr);
-            // 只有在JSON解析失败或数据结构完全错误时才清除
-            if (!user || typeof user !== 'object') {
+            // 只有在JSON解析失败、数据结构完全错误或缺少关键字段时才清除
+            if (!user || typeof user !== 'object' || !user.username) {
+              console.warn('用户数据缺少关键字段，标记为损坏:', user);
               shouldClearData = true;
+            } else {
+              console.log('用户数据验证通过:', user.username);
             }
           }
         } catch (error) {
@@ -2293,11 +2299,12 @@
           shouldClearData = true;
         }
         
-        // 只在数据确实损坏时才清除登录状态
+        // 只在数据确实损坏且无法修复时才清除登录状态
         if (shouldClearData) {
-          console.log('检测到损坏的用户数据，清除localStorage');
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('token');
+          console.warn('检测到用户数据问题，但暂不清除，等待后续验证');
+          // 不立即清除数据，给用户认证系统一个机会来修复或验证
+          // localStorage.removeItem('currentUser');
+          // localStorage.removeItem('token');
         } else {
           console.log('用户数据完整性检查通过');
         }
@@ -2334,17 +2341,20 @@
           console.log('定期验证用户令牌...');
           const user = await window.UserAuth.UserManager.verifyToken();
           if (user) {
-            // 更新用户数据，确保头像信息不丢失
+            // 验证成功，更新用户数据，确保头像信息不丢失
             const currentUser = window.UserAuth.UserManager.getCurrentUser();
             if (currentUser && (!currentUser.avatar && user.avatar)) {
               // 如果当前用户数据缺少头像但验证返回的用户有头像，更新数据
               window.UserAuth.UserManager.setCurrentUser(user);
               console.log('已更新用户头像信息');
             }
-            // 更新UI显示
+            // 只在验证成功时更新UI显示
             if (typeof updateAuthUI === 'function') {
               updateAuthUI();
             }
+          } else {
+            // 验证失败或网络错误，不调用updateAuthUI避免清除登录状态
+            console.log('定期验证失败，保持当前登录状态不变');
           }
         }
       }, 5 * 60 * 1000); // 5分钟

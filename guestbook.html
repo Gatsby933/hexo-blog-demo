@@ -430,8 +430,8 @@
               <div class="d-flex">
                 <!-- 左侧头像和用户名 -->
                 <div class="comment-avatar me-3"> <!-- 增加右边距，使头像与文本框有更好的间隔 -->
-                  <img src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 64px; height: 64px; background-color: #f0f0f0; margin-top: 0px; margin-left: 12px;">
-                  <div class="mt-2" style="font-size: 0.9rem; font-weight: bold; text-align: right; margin-right: 3px;">当前用户</div>
+                  <img id="currentUserAvatar" src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 64px; height: 64px; background-color: #f0f0f0; margin-top: 0px; margin-left: 12px;">
+                  <div id="currentUserName" class="mt-2" style="font-size: 0.9rem; font-weight: bold; text-align: right; margin-right: 3px;">当前用户</div>
                 </div>
                 <!-- 右侧评论框 -->
                 <div class="flex-grow-1" style="padding-right: 15px; padding-left: 10px;"> <!-- 增加左右内边距 -->
@@ -468,76 +468,191 @@
        // 分页相关变量
        let currentPage = 1;
        const commentsPerPage = 10;
-       let totalComments = document.querySelectorAll('.comment-item').length;
-       let totalPages = Math.ceil(totalComments / commentsPerPage);
+       let totalComments = 0;
+       let totalPages = 1;
+       let allComments = []; // 存储所有评论数据
        
-       // 初始化分页
-       updatePagination();
-       showCommentsForPage(currentPage);
+       // 初始化：加载评论数据
+       loadComments();
        
-       // 获取当前用户信息（模拟）
-       function getCurrentUser() {
-         // 这里应该从用户系统获取实际用户信息
-         // 模拟返回一个用户对象
-         return {
-           username: '当前用户',
-           avatar: './images/avatar.svg'
-         };
+       // 从服务器加载评论数据
+       async function loadComments() {
+         try {
+           // 检查是否在本地开发环境
+           const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+           
+           if (isLocalDev) {
+             // 本地开发环境：使用现有的静态评论
+             console.log('本地开发环境：使用静态评论数据');
+             totalComments = document.querySelectorAll('.comment-item').length;
+             totalPages = Math.ceil(totalComments / commentsPerPage);
+             updatePagination();
+             showCommentsForPage(currentPage);
+             return;
+           }
+           
+           // 生产环境：从Netlify Functions加载评论
+           const response = await fetch('/.netlify/functions/get-comments');
+           const data = await response.json();
+           
+           if (response.ok) {
+             allComments = data.comments;
+             totalComments = data.pagination.totalComments;
+             totalPages = data.pagination.totalPages;
+             
+             // 清空现有评论列表
+             commentList.innerHTML = '';
+             
+             // 渲染评论
+             renderComments();
+             
+             // 更新分页
+             updatePagination();
+             showCommentsForPage(currentPage);
+           } else {
+             console.error('加载评论失败:', data.message);
+             // 回退到静态评论
+             fallbackToStaticComments();
+           }
+         } catch (error) {
+           console.error('加载评论时发生错误:', error);
+           // 回退到静态评论
+           fallbackToStaticComments();
+         }
        }
        
-       // 添加新评论到列表
-       function addNewComment(username, avatar, content) {
+       // 回退到静态评论
+       function fallbackToStaticComments() {
+         totalComments = document.querySelectorAll('.comment-item').length;
+         totalPages = Math.ceil(totalComments / commentsPerPage);
+         updatePagination();
+         showCommentsForPage(currentPage);
+       }
+       
+       // 渲染评论到页面
+       function renderComments() {
+         allComments.forEach(comment => {
+           const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
+           commentList.appendChild(commentElement);
+         });
+       }
+       
+       // 获取当前用户信息
+       function getCurrentUser() {
+         // 从用户认证系统获取实际用户信息
+         const currentUser = window.UserAuth?.UserManager?.getCurrentUser();
+         if (currentUser && currentUser.username) {
+           return {
+             username: currentUser.username,
+             avatar: currentUser.avatar || './images/avatar.svg'
+           };
+         }
+         return null; // 用户未登录时返回null
+       }
+       
+       // 创建评论元素
+       function createCommentElement(username, avatar, content, dateString) {
+         // 如果没有提供日期，使用当前日期
+         if (!dateString) {
+           const currentDate = new Date();
+           dateString = currentDate.toISOString().split('T')[0];
+         }
+         
          // 创建新评论元素
          const newComment = document.createElement('div');
-         newComment.className = 'comment-item';
+         newComment.className = 'comment-item mb-4 p-3';
+         newComment.style.cssText = 'background: rgba(240, 240, 240, 0.5); border-radius: 10px;';
          
-         // 获取当前日期
-         const currentDate = new Date();
-         const dateString = currentDate.toISOString().split('T')[0];
-         
-         // 设置评论HTML内容
+         // 设置评论HTML内容，完全匹配现有评论的结构
          newComment.innerHTML = `
            <div class="d-flex">
-             <div class="user-avatar me-3" style="width: 40px;">
-               <img src="${avatar}" alt="用户头像" class="img-fluid rounded-circle" style="width: 40px; height: 40px; background-color: #f0f0f0;">
+             <div class="comment-avatar me-3">
+               <img src="${avatar}" alt="用户头像" class="rounded-circle" style="width: 48px; height: 48px; background-color: #f0f0f0;">
              </div>
              <div class="flex-grow-1">
-               <div class="d-flex justify-content-between align-items-center mb-1">
-                 <div>
-                   <strong>${username}</strong>
-                   <small class="text-muted ms-2">${dateString}</small>
+               <div class="comment-author fw-bold">${username}</div>
+               <div class="comment-content mt-2">${content}</div>
+               <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
+                 <small class="text-muted">${dateString}</small>
+                 <div class="comment-actions">
+                   <button class="btn btn-sm btn-outline-secondary me-2 like-btn" data-liked="false" style="border-radius: 20px; padding: 2px 10px;">
+                     <i class="fa fa-thumbs-up"></i> 点赞
+                   </button>
+                   <button class="btn btn-sm btn-outline-secondary reply-btn" style="border-radius: 20px; padding: 2px 10px;">
+                     <i class="fa fa-reply"></i> 回复
+                   </button>
                  </div>
-               </div>
-               <p class="mb-1">${content}</p>
-               <div>
-                 <button class="btn btn-sm btn-outline-secondary me-2 like-btn" data-liked="false">
-                   <i class="fa fa-thumbs-up"></i> <span class="like-count">0</span>
-                 </button>
-                 <button class="btn btn-sm btn-outline-secondary reply-btn">
-                   <i class="fa fa-reply"></i> 回复
-                 </button>
                </div>
              </div>
            </div>
          `;
          
-         // 将新评论添加到评论列表的顶部
-           if (commentList.children.length > 0) {
-             commentList.insertBefore(newComment, commentList.firstChild);
-           } else {
-             commentList.appendChild(newComment);
+         // 为新添加的点赞按钮添加事件监听
+         setupLikeButton(newComment.querySelector('.like-btn'));
+         
+         // 为新添加的回复按钮添加事件监听
+         setupReplyButton(newComment.querySelector('.reply-btn'));
+         
+         return newComment;
+       }
+       
+       // 添加新评论到服务器和页面
+       async function addNewComment(username, avatar, content) {
+         try {
+           // 检查是否在本地开发环境
+           const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+           
+           if (isLocalDev) {
+             // 本地开发环境：直接添加到页面
+             console.log('本地开发环境：添加评论到页面');
+             const commentElement = createCommentElement(username, avatar, content);
+             commentList.appendChild(commentElement);
+             
+             // 更新总评论数和分页
+             totalComments = document.querySelectorAll('.comment-item').length;
+             totalPages = Math.ceil(totalComments / commentsPerPage);
+             
+             // 跳转到最后一页显示新评论
+             currentPage = totalPages;
+             updatePagination();
+             showCommentsForPage(currentPage);
+             
+             alert('评论发表成功！（本地模式）');
+             return;
            }
            
-           // 为新添加的点赞按钮添加事件监听
-           setupLikeButton(newComment.querySelector('.like-btn'));
+           // 生产环境：保存到服务器
+           const response = await fetch('/.netlify/functions/save-comment', {
+             method: 'POST',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+             body: JSON.stringify({
+               username,
+               avatar,
+               content
+             })
+           });
            
-           // 为新添加的回复按钮添加事件监听
-           setupReplyButton(newComment.querySelector('.reply-btn'));
+           const data = await response.json();
            
-           // 更新分页并显示第一页
-           currentPage = 1;
-           updatePagination();
-           showCommentsForPage(currentPage);
+           if (response.ok) {
+             // 重新加载评论列表
+             await loadComments();
+             
+             // 跳转到最后一页显示新评论
+             currentPage = totalPages;
+             updatePagination();
+             showCommentsForPage(currentPage);
+             
+             alert('评论发表成功！');
+           } else {
+             alert('评论发表失败: ' + data.message);
+           }
+         } catch (error) {
+           console.error('发表评论时发生错误:', error);
+           alert('评论发表失败，请稍后重试');
+         }
        }
        
        // 设置点赞按钮事件
@@ -687,13 +802,16 @@
              return;
            }
            
-           // 获取当前用户信息（这里模拟，实际应从用户系统获取）
-           const currentUser = getCurrentUser() || { 
-             username: '访客', 
-             avatar: './images/avatar.svg' 
-           };
+           // 获取当前用户信息
+           const currentUser = getCurrentUser();
            
-           // 模拟评论提交成功后的处理
+           // 检查用户是否已登录
+           if (!currentUser) {
+             alert('请先登录后再发表评论');
+             return;
+           }
+           
+           // 评论提交成功后的处理
            addNewComment(currentUser.username, currentUser.avatar, commentContent);
            
            // 重置表单
@@ -733,14 +851,51 @@
       if (window.UserAuth && typeof window.UserAuth.initAuthModals === 'function') {
         // 确保DOM完全加载后再初始化
         setTimeout(() => {
-          window.UserAuth.initAuthModals();
+          // 初始化模态框并获取updateAuthUI函数
+          const updateAuthUI = window.UserAuth.initAuthModals();
+          // 将updateAuthUI函数保存到全局变量中
+          window.updateAuthUI = updateAuthUI;
+          
           // 在模态框初始化完成后恢复用户登录状态
           setTimeout(async () => {
             console.log('正在恢复用户登录状态...');
             if (window.UserAuth && typeof window.UserAuth.restoreUserAuth === 'function') {
               await window.UserAuth.restoreUserAuth();
             }
+            // 恢复用户状态后更新评论框中的用户信息
+            updateCommentFormUserInfo();
           }, 300);
+          
+          // 定义更新评论框用户信息的函数
+          function updateCommentFormUserInfo() {
+            const currentUser = window.UserAuth?.UserManager?.getCurrentUser();
+            const currentUserAvatar = document.getElementById('currentUserAvatar');
+            const currentUserName = document.getElementById('currentUserName');
+            
+            if (currentUser && currentUser.username) {
+              // 更新用户名
+              if (currentUserName) {
+                currentUserName.textContent = currentUser.username;
+              }
+              
+              // 更新头像
+              if (currentUserAvatar) {
+                if (currentUser.avatar && currentUser.avatar !== './images/avatar.svg') {
+                  currentUserAvatar.src = currentUser.avatar;
+                } else {
+                  currentUserAvatar.src = './images/avatar.svg';
+                }
+              }
+            } else {
+              // 未登录状态显示默认信息
+              if (currentUserName) {
+                currentUserName.textContent = '访客';
+              }
+              if (currentUserAvatar) {
+                currentUserAvatar.src = './images/avatar.svg';
+              }
+            }
+          }
         }, 100);
       }
     })

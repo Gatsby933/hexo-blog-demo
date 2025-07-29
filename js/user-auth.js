@@ -171,7 +171,29 @@ const UserManager = {
     try {
       console.log('设置当前用户，接收到的数据:', data);
       if (data === null) {
-        // 处理登出情况
+        // 添加额外验证，防止意外清除
+        const currentUser = this.getCurrentUser();
+        const currentToken = this.getToken();
+        
+        // 如果当前有有效的用户数据，需要额外确认才能清除
+        if (currentUser && currentUser.username && currentToken) {
+          console.warn('警告：尝试清除有效的用户登录状态');
+          console.log('当前用户:', currentUser.username);
+          
+          // 检查调用栈，看是否是从logout函数调用的
+          const stack = new Error().stack;
+          if (stack && stack.includes('logout')) {
+            console.log('确认是从logout函数调用，允许清除用户数据');
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            return;
+          } else {
+            console.log('不是从logout函数调用，拒绝清除用户数据，保持登录状态');
+            return;
+          }
+        }
+        
+        // 如果没有有效用户数据，正常清除
         console.log('清除用户数据');
         localStorage.removeItem('token');
         localStorage.removeItem('currentUser');
@@ -412,18 +434,37 @@ function initAuthModals() {
   
   // 检查登录状态并更新界面
   function updateAuthUI() {
-    try {
-      console.log('开始更新认证UI...');
-      // 检查settingsBtn元素是否存在
-      if (!settingsBtn) {
-        console.warn('settingsBtn元素不存在，无法更新UI');
-        return;
-      }
-      
-      const currentUser = UserManager.getCurrentUser();
-      const token = UserManager.getToken();
-      console.log('当前用户数据:', currentUser);
-      console.log('当前令牌:', token ? token.substring(0, 10) + '...' : 'null');
+      try {
+        console.log('开始更新认证UI...');
+        // 检查settingsBtn元素是否存在
+        if (!settingsBtn) {
+          console.warn('settingsBtn元素不存在，无法更新UI');
+          return;
+        }
+        
+        // 首先检查localStorage中的数据作为备份
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('currentUser');
+        
+        let currentUser = UserManager.getCurrentUser();
+        let token = UserManager.getToken();
+        
+        // 如果内存中的数据不完整，尝试从localStorage恢复
+        if ((!currentUser || !token) && storedToken && storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser && parsedUser.username) {
+              console.log('从localStorage恢复用户数据:', parsedUser.username);
+              currentUser = parsedUser;
+              token = storedToken;
+            }
+          } catch (parseError) {
+            console.error('解析localStorage用户数据失败:', parseError);
+          }
+        }
+        
+        console.log('当前用户数据:', currentUser);
+        console.log('当前令牌:', token ? token.substring(0, 10) + '...' : 'null');
       
       const settingsDropdown = document.getElementById('settingsDropdown');
       const loginOption = document.getElementById('loginOption');
@@ -483,9 +524,37 @@ function initAuthModals() {
           console.log('未找到设置下拉菜单元素');
         }
       } else {
-        // 用户未登录，清除登录状态
-        console.log('用户未登录，重置UI');
-        UserManager.setCurrentUser(null);
+        // 用户数据不完整或未登录，但不要立即清除登录状态
+        console.log('用户数据不完整或未登录，检查localStorage状态');
+        
+        // 检查localStorage中是否还有有效的用户数据
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('currentUser');
+        
+        if (storedToken && storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser && parsedUser.username) {
+              console.log('发现localStorage中有有效用户数据，恢复登录状态');
+              // 恢复用户数据而不是清除
+              if (parsedUser.avatar) {
+                settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像">`;
+              } else {
+                settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+              }
+              settingsBtn.title = `当前用户：${parsedUser.username}`;
+              console.log('已恢复用户头像显示');
+              return; // 提前返回，不执行下面的清除逻辑
+            }
+          } catch (parseError) {
+            console.error('解析localStorage用户数据失败:', parseError);
+          }
+        }
+        
+        // 确实没有有效的用户数据，但不清除内存中的登录状态，只重置UI
+        console.log('确认用户未登录，重置UI（但保留内存状态）');
+        // 注释掉这行，避免意外清除登录状态
+        // UserManager.setCurrentUser(null);
         settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
         settingsBtn.title = '设置';
         console.log('已更新设置按钮为设置图标');
@@ -523,16 +592,34 @@ function initAuthModals() {
     } catch (error) {
       console.error('更新UI失败：', error);
       console.error('错误堆栈:', error.stack);
-      // 发生错误时清除登录状态
-      console.log('由于UI更新失败，执行登出操作');
-      console.log('错误发生时的用户状态:', UserManager.getCurrentUser());
-      UserManager.setCurrentUser(null);
+      // 不要因为UI更新失败就清除登录状态，可能只是DOM元素暂时不可用
+      console.log('UI更新失败，但保持用户登录状态');
       
-      // 检查settingsBtn元素是否存在
+      // 检查settingsBtn元素是否存在，如果存在则尝试基本的UI恢复
       if (settingsBtn) {
-        console.log('重置设置按钮为默认状态');
-        settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
-        settingsBtn.title = '设置';
+        try {
+          const currentUser = UserManager.getCurrentUser();
+          const token = UserManager.getToken();
+          if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
+            // 用户已登录，恢复基本的头像显示
+            if (currentUser.avatar) {
+              settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
+            } else {
+              settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+            }
+            settingsBtn.title = `当前用户：${currentUser.username}`;
+            console.log('已恢复基本的用户头像显示');
+          } else {
+            // 确实没有用户登录
+            settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
+            settingsBtn.title = '设置';
+          }
+        } catch (recoveryError) {
+          console.error('UI恢复也失败了:', recoveryError);
+          // 最后的保险措施
+          settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
+          settingsBtn.title = '设置';
+        }
       }
     }
   }
@@ -1045,8 +1132,8 @@ function initAuthModals() {
     });
   }
   
-  // 初始化时更新界面
-  updateAuthUI();
+  // 不在初始化时立即更新界面，等待restoreUserAuth完成后再更新
+  // updateAuthUI(); // 注释掉立即调用
 
   // 返回更新UI函数，以便外部调用
   return updateAuthUI;
@@ -1130,7 +1217,30 @@ async function restoreUserAuth() {
         console.error('令牌验证成功但获取令牌失败');
       }
     } else {
-      console.log('令牌验证失败，用户未登录');
+      console.log('令牌验证失败，但检查是否有本地用户数据可以恢复');
+      // 即使验证失败，也尝试从localStorage恢复基本的UI显示
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser && parsedUser.username) {
+            console.log('从localStorage恢复用户UI显示:', parsedUser.username);
+            setTimeout(() => {
+              const settingsBtn = document.getElementById('settingsBtn');
+              if (settingsBtn) {
+                if (parsedUser.avatar) {
+                  settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像">`;
+                } else {
+                  settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+                }
+                settingsBtn.title = `当前用户：${parsedUser.username}`;
+                console.log('已从localStorage恢复用户头像显示');
+              }
+            }, 500);
+          }
+        } catch (parseError) {
+          console.error('解析localStorage用户数据失败:', parseError);
+        }
+      }
     }
   } catch (error) {
     console.error('验证登录状态失败:', error);
