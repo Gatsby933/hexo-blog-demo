@@ -167,38 +167,6 @@
   </style>
 </head>
 <body>
-  <!-- 用户认证相关内容已移至auth-modals.html -->
-  <div id="auth-modals-container"></div>
-  <script>
-    // 加载auth-modals.html内容
-    fetch('./auth-modals.html')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text();
-      })
-      .then(html => {
-        document.getElementById('auth-modals-container').innerHTML = html;
-        // 在auth-modals.html加载完成后初始化模态框
-        if (window.UserAuth && typeof window.UserAuth.initAuthModals === 'function') {
-          // 确保DOM完全加载后再初始化
-          setTimeout(() => {
-            window.UserAuth.initAuthModals();
-            
-            // 在模态框初始化完成后恢复用户登录状态
-            setTimeout(async () => {
-              console.log('正在恢复用户登录状态...');
-              if (window.UserAuth && typeof window.UserAuth.restoreUserAuth === 'function') {
-                await window.UserAuth.restoreUserAuth();
-              }
-            }, 300);
-          }, 100);
-        }
-      })
-      .catch(error => console.error('加载auth-modals.html失败:', error));
-  </script>
-  
   <!-- 返回按钮 -->
   <a href="index.html" class="back-btn">
     <i class="fa fa-arrow-left"></i> 返回首页
@@ -599,5 +567,48 @@
     
     // 注意：所有评论相关的函数已移至DOMContentLoaded事件内部
   </script>
+</body>
+</html>
+<!-- 用户认证相关内容已移至auth-modals.html -->
+<div id="auth-modals-container"></div>
+<script>
+  // 加载auth-modals.html内容
+  fetch('./auth-modals.html')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      document.getElementById('auth-modals-container').innerHTML = html;
+      // 在auth-modals.html加载完成后初始化模态框
+      if (window.UserAuth && typeof window.UserAuth.initAuthModals === 'function') {
+        // 确保DOM完全加载后再初始化
+        setTimeout(() => {
+          window.UserAuth.initAuthModals();
+          // 在模态框初始化完成后恢复用户登录状态
+          setTimeout(async () => {
+            console.log('正在恢复用户登录状态...');
+            if (window.UserAuth && typeof window.UserAuth.restoreUserAuth === 'function') {
+              await window.UserAuth.restoreUserAuth();
+            }
+          }, 300);
+        }, 100);
+      }
+    })
+    .catch(error => console.error('加载auth-modals.html失败:', error));
+</script>
+
+<!-- 右上角设置图标 -->
+<div class="top-right-icon dropdown">
+    <button id="settingsBtn" title="设置" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-cog"></i></button>
+    <div class="avatar-tooltip" id="avatarTooltip">用户名</div>
+    <ul class="dropdown-menu" id="settingsDropdown">
+      <li><a class="dropdown-item" href="#" id="changeAvatarBtn">更换头像</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="#" id="logoutBtn">退出登录</a></li>
+    </ul>
+</div>
 </body>
 </html>

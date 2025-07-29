@@ -61,8 +61,9 @@ exports.handler = async (event, context) => {
 
     // 连接数据库
     const client = new MongoClient(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000
+      serverSelectionTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      socketTimeoutMS: 60000
     });
     
     try {

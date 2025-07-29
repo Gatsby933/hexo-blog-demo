@@ -8,23 +8,52 @@ const UserManager = {
   // 注册新用户
   async saveUser(username, password) {
     try {
+      // 创建带超时的fetch请求
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
+      
       const response = await fetch(`${window.API_CONFIG.baseUrl}/register`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ username, password }),
         credentials: 'include',
-        mode: 'cors'
+        mode: 'cors',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
-      const data = await response.json();
+      // 尝试解析JSON响应
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('解析注册响应失败:', jsonError);
+        // 尝试获取响应文本，检查是否包含特定错误信息
+        try {
+          const textResponse = await response.clone().text();
+          console.log('响应文本内容:', textResponse);
+          if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
+            throw new Error('数据库连接超时，请稍后再试');
+          }
+        } catch (textError) {
+          console.error('获取响应文本失败:', textError);
+        }
+        throw new Error('服务器响应格式错误');
+      }
+      
       if (!response.ok) {
         throw new Error(data.message || '注册失败');
       }
 
       return data;
     } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('注册失败：请求超时，请检查网络连接');
+      }
       throw new Error('注册失败：' + error.message);
     }
   },
@@ -42,6 +71,10 @@ const UserManager = {
       const requestBody = JSON.stringify({ username, password });
       console.log('请求体:', { username, password: '******' });
       
+      // 创建一个可以超时的fetch请求
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
+      
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
@@ -50,22 +83,44 @@ const UserManager = {
         },
         body: requestBody,
         credentials: 'include',
-        mode: 'cors'
+        mode: 'cors',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       console.log('登录响应状态:', response.status);
+      
+      // 在尝试解析JSON之前先克隆Response对象
+      const responseClone = response.clone();
+      
       let data;
       try {
         data = await response.json();
         console.log('登录响应数据:', { ...data, token: data.token ? data.token.substring(0, 10) + '...' : null });
       } catch (error) {
         console.error('解析响应数据失败：', error);
+        // 使用之前克隆的Response对象获取文本
+        try {
+          const textResponse = await responseClone.text();
+          console.log('响应文本内容:', textResponse);
+          if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
+            throw new Error('登录失败：数据库连接超时，请稍后再试');
+          }
+        } catch (textError) {
+          console.error('获取响应文本失败:', textError);
+        }
         throw new Error('登录失败：服务器响应格式错误');
       }
 
       if (!response.ok) {
         console.error('登录请求失败：', data);
-        throw new Error(data?.message || '登录失败');
+        // 检查是否包含特定的错误信息
+        if (data?.error && (data.error.includes('timed out') || data.error.includes('TimeoutError'))) {
+          throw new Error('登录失败：数据库连接超时，请稍后再试');
+        } else {
+          throw new Error(data?.message || '登录失败');
+        }
       }
 
       if (!data || typeof data !== 'object' || !data.user || typeof data.user !== 'object' || !data.user.username || !data.token) {
@@ -76,7 +131,15 @@ const UserManager = {
       return data;
     } catch (error) {
       console.error('登录错误：', error);
-      throw new Error('登录失败：' + (error.message || '服务器错误'));
+      if (error.name === 'AbortError') {
+        throw new Error('登录失败：请求超时，请检查网络连接或稍后再试');
+      } else if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
+        throw new Error('登录失败：网络错误，请检查网络连接');
+      } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        throw new Error('登录失败：无法连接到服务器，请检查网络连接或稍后再试');
+      } else {
+        throw new Error('登录失败：' + (error.message || '服务器错误'));
+      }
     }
   },
   
@@ -179,7 +242,7 @@ const UserManager = {
         
         // 创建带超时的fetch请求
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
         
         const response = await fetch(url, {
           headers,
@@ -191,12 +254,27 @@ const UserManager = {
         clearTimeout(timeoutId);
         console.log('验证令牌响应状态:', response.status, response.statusText);
         
+        // 在尝试解析JSON之前先克隆Response对象
+        const responseClone = response.clone();
+        
         let data;
         try {
           data = await response.json();
           console.log('验证令牌响应数据:', data);
         } catch (jsonError) {
           console.error('解析令牌验证响应失败:', jsonError);
+          // 使用之前克隆的Response对象获取文本
+          try {
+            const textResponse = await responseClone.text();
+            console.log('响应文本内容:', textResponse);
+            if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
+              console.warn('数据库连接超时，保持当前登录状态');
+              return this.getCurrentUser(); // 返回当前用户数据
+            }
+          } catch (textError) {
+            console.error('获取响应文本失败:', textError);
+          }
+          
           if (retryCount === maxRetries - 1) {
             this.logout();
             return null;
@@ -214,7 +292,11 @@ const UserManager = {
             return null;
           } else if (response.status === 500) {
             // 服务器错误（如超时），不要退出登录，保持当前状态
-            console.warn(`服务器暂时不可用（状态码: ${response.status}），保持当前登录状态`);
+            if (data?.error && (data.error.includes('timed out') || data.error.includes('TimeoutError'))) {
+              console.warn('数据库连接超时，保持当前登录状态');
+            } else {
+              console.warn(`服务器暂时不可用（状态码: ${response.status}），保持当前登录状态`);
+            }
             return this.getCurrentUser(); // 返回当前用户数据
           } else if (retryCount < maxRetries - 1) {
             // 其他错误，可能是网络问题，继续重试
@@ -566,7 +648,7 @@ function initAuthModals() {
           
           // 创建带超时的fetch请求
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超时
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
           
           verifyResponse = await fetch(`${window.API_CONFIG.baseUrl}/verify-token`, {
             method: 'GET',
@@ -658,7 +740,7 @@ function initAuthModals() {
               
               // 创建带超时的fetch请求
               const uploadController = new AbortController();
-              const uploadTimeoutId = setTimeout(() => uploadController.abort(), 30000); // 30秒超时
+              const uploadTimeoutId = setTimeout(() => uploadController.abort(), 60000); // 60秒超时
               
               uploadResponse = await fetch(`${window.API_CONFIG.baseUrl}/upload-avatar`, {
                 method: 'POST',
@@ -719,8 +801,29 @@ function initAuthModals() {
             }
           } else {
             // 上传成功，处理响应
-            const uploadResult = await uploadResponse.json();
-            console.log('头像上传成功，服务器响应:', uploadResult);
+            // 在尝试解析JSON之前先克隆Response对象
+            const uploadResponseClone = uploadResponse.clone();
+            
+            let uploadResult;
+            try {
+              uploadResult = await uploadResponse.json();
+              console.log('头像上传成功，服务器响应:', uploadResult);
+            } catch (jsonError) {
+              console.error('解析头像上传响应失败:', jsonError);
+              // 使用之前克隆的Response对象获取文本
+              try {
+                const textResponse = await uploadResponseClone.text();
+                console.log('响应文本内容:', textResponse);
+                if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
+                  alert('头像上传失败：数据库连接超时，请稍后再试');
+                  return;
+                }
+              } catch (textError) {
+                console.error('获取响应文本失败:', textError);
+              }
+              alert('头像上传失败：服务器响应格式错误');
+              return;
+            }
             
             // 更新本地用户信息
             const currentUser = UserManager.getCurrentUser();
