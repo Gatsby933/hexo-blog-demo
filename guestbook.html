@@ -479,7 +479,9 @@
        async function loadComments() {
          try {
            console.log('从API加载评论');
-           const response = await fetch('/.netlify/functions/get-comments');
+           const apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
+           console.log('API URL:', apiUrl);
+           const response = await fetch(apiUrl);
            console.log('API响应状态:', response.status, response.statusText);
            
            const responseText = await response.text();
@@ -600,7 +602,9 @@
        async function addNewComment(username, avatar, content) {
          try {
            console.log('保存评论到API');
-           const response = await fetch('/.netlify/functions/save-comment', {
+           const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
+           console.log('保存评论API URL:', apiUrl);
+           const response = await fetch(apiUrl, {
              method: 'POST',
              headers: {
                'Content-Type': 'application/json'
