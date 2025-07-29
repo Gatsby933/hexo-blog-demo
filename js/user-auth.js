@@ -115,7 +115,9 @@ const UserManager = {
         return;
       }
       
+      // 处理两种数据格式：{token, user} 或直接的用户对象
       if (data && data.token && data.user && typeof data.user === 'object') {
+        // 格式：{token, user}
         console.log('解析的令牌:', data.token ? data.token.substring(0, 10) + '...' : 'null');
         console.log('解析的用户数据:', data.user);
         
@@ -125,15 +127,25 @@ const UserManager = {
         console.log('用户数据已保存到localStorage');
         console.log('保存的令牌:', localStorage.getItem('token').substring(0, 10) + '...');
         console.log('保存的用户数据:', localStorage.getItem('currentUser'));
+      } else if (data && typeof data === 'object' && (data.username || data.id)) {
+        // 格式：直接的用户对象
+        console.log('接收到直接的用户对象:', data);
+        const existingToken = localStorage.getItem('token');
+        if (existingToken) {
+          localStorage.setItem('currentUser', JSON.stringify(data));
+          console.log('用户数据已更新到localStorage，保持现有令牌');
+        } else {
+          console.error('没有现有令牌，无法保存用户数据');
+        }
       } else {
-        console.error('无效的用户数据格式');
-        localStorage.removeItem('token');
-        localStorage.removeItem('currentUser');
+        console.error('无效的用户数据格式:', data);
+        // 不要立即清除数据，可能是临时错误
+        console.log('保持现有登录状态');
       }
     } catch (error) {
       console.error('保存用户数据失败：', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('currentUser');
+      // 不要因为保存失败就清除现有数据，可能只是临时错误
+      console.log('保持现有登录状态，稍后重试');
     }
   },
   
@@ -146,61 +158,142 @@ const UserManager = {
     }
 
     console.log('开始验证令牌:', token.substring(0, 10) + '...');
-    try {
-      const url = `${window.API_CONFIG.baseUrl}/verify-token`;
-      console.log('验证令牌请求URL:', url);
-      
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
-      console.log('验证令牌请求头:', headers);
-      
-      const response = await fetch(url, {
-        headers,
-        credentials: 'include',
-        mode: 'cors'
-      });
-      
-      console.log('验证令牌响应状态:', response.status, response.statusText);
-      let data;
+    
+    // 增加超时和重试机制
+    let retryCount = 0;
+    const maxRetries = 2; // 通用验证减少重试次数
+    
+    while (retryCount < maxRetries) {
       try {
-        data = await response.json();
-        console.log('验证令牌响应数据:', data);
-      } catch (jsonError) {
-        console.error('解析令牌验证响应失败:', jsonError);
-        this.logout();
-        return null;
+        console.log(`令牌验证尝试 ${retryCount + 1}/${maxRetries}`);
+        
+        const url = `${window.API_CONFIG.baseUrl}/verify-token`;
+        console.log('验证令牌请求URL:', url);
+        
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        };
+        console.log('验证令牌请求头:', headers);
+        
+        // 创建带超时的fetch请求
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+        
+        const response = await fetch(url, {
+          headers,
+          credentials: 'include',
+          mode: 'cors',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        console.log('验证令牌响应状态:', response.status, response.statusText);
+        
+        let data;
+        try {
+          data = await response.json();
+          console.log('验证令牌响应数据:', data);
+        } catch (jsonError) {
+          console.error('解析令牌验证响应失败:', jsonError);
+          if (retryCount === maxRetries - 1) {
+            this.logout();
+            return null;
+          }
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+        
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            // 认证失败，不需要重试
+            console.error('令牌验证失败:', data?.message, data?.error || '');
+            this.logout();
+            return null;
+          } else if (response.status === 500) {
+            // 服务器错误（如超时），不要退出登录，保持当前状态
+            console.warn(`服务器暂时不可用（状态码: ${response.status}），保持当前登录状态`);
+            return this.getCurrentUser(); // 返回当前用户数据
+          } else if (retryCount < maxRetries - 1) {
+            // 其他错误，可能是网络问题，继续重试
+            console.warn(`令牌验证失败，状态码: ${response.status}，准备重试...`);
+            retryCount++;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          } else {
+            // 最后一次重试失败，但如果是网络问题不要退出登录
+            console.error('令牌验证最终失败:', data?.message, data?.error || '');
+            if (response.status >= 500) {
+              console.warn('服务器错误，保持当前登录状态');
+              return this.getCurrentUser();
+            }
+            this.logout();
+            return null;
+          }
+        }
+        
+        // 确保返回的用户数据有效
+        if (!data.user || typeof data.user !== 'object' || !data.user.username) {
+          console.error('令牌验证返回的用户数据无效:', data);
+          if (retryCount === maxRetries - 1) {
+            this.logout();
+            return null;
+          }
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+        
+        // 额外检查用户ID
+        if (!data.user.id) {
+          console.error('令牌验证返回的用户数据缺少ID:', data.user);
+          if (retryCount === maxRetries - 1) {
+            this.logout();
+            return null;
+          }
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+        
+        console.log('令牌验证成功，用户数据:', data.user);
+        return data.user;
+        
+      } catch (error) {
+        console.error(`令牌验证请求失败 (尝试 ${retryCount + 1}):`, error.message);
+        
+        // 检查是否是网络超时或连接错误
+        const isNetworkError = error.name === 'AbortError' || 
+                              error.message.includes('timeout') || 
+                              error.message.includes('network') ||
+                              error.message.includes('fetch');
+        
+        if (retryCount === maxRetries - 1) {
+          if (isNetworkError) {
+            console.warn('网络连接问题，保持当前登录状态');
+            return this.getCurrentUser();
+          }
+          console.error('令牌验证最终失败，清除登录状态');
+          this.logout();
+          return null;
+        }
+        retryCount++;
+        console.log(`等待1秒后重试...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-      
-      if (!response.ok) {
-        console.error('令牌验证失败:', data?.message, data?.error || '');
-        this.logout();
-        return null;
-      }
-      
-      // 确保返回的用户数据有效
-      if (!data.user || typeof data.user !== 'object' || !data.user.username) {
-        console.error('令牌验证返回的用户数据无效:', data);
-        this.logout();
-        return null;
-      }
-      
-      // 额外检查用户ID
-      if (!data.user.id) {
-        console.error('令牌验证返回的用户数据缺少ID:', data.user);
-        this.logout();
-        return null;
-      }
-      
-      console.log('令牌验证成功，用户数据:', data.user);
-      return data.user;
-    } catch (error) {
-      console.error('令牌验证请求失败:', error);
-      this.logout();
-      return null;
     }
+    
+    // 如果所有重试都失败了，检查是否是网络问题
+    console.error('令牌验证所有重试都失败');
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      console.warn('保持当前登录状态，稍后会自动重试');
+      return currentUser;
+    }
+    this.logout();
+    return null;
   },
   
   // 退出登录
@@ -267,9 +360,23 @@ function initAuthModals() {
       if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
         // 用户已登录
         console.log('用户已登录，更新UI为已登录状态:', currentUser.username);
-        settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+        
+        // 显示用户头像或默认图标
+        if (currentUser.avatar) {
+          settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
+        } else {
+          settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+        }
         settingsBtn.title = `当前用户：${currentUser.username}`;
-        console.log('已更新设置按钮为用户图标');
+        console.log('已更新设置按钮显示头像或用户图标');
+        
+        // 更新头像悬停提示
+        const avatarTooltip = document.getElementById('avatarTooltip');
+        if (avatarTooltip) {
+          avatarTooltip.textContent = currentUser.username;
+          avatarTooltip.style.display = 'block';
+          console.log('已更新头像悬停提示:', currentUser.username);
+        }
         
         // 更新设置下拉菜单
         if (settingsDropdown) {
@@ -302,6 +409,13 @@ function initAuthModals() {
         settingsBtn.title = '设置';
         console.log('已更新设置按钮为设置图标');
         
+        // 隐藏头像悬停提示
+        const avatarTooltip = document.getElementById('avatarTooltip');
+        if (avatarTooltip) {
+          avatarTooltip.style.display = 'none';
+          console.log('已隐藏头像悬停提示');
+        }
+        
         // 更新设置下拉菜单
         if (settingsDropdown) {
           console.log('更新设置下拉菜单为未登录状态...');
@@ -328,8 +442,10 @@ function initAuthModals() {
       console.log('认证UI更新完成');
     } catch (error) {
       console.error('更新UI失败：', error);
+      console.error('错误堆栈:', error.stack);
       // 发生错误时清除登录状态
       console.log('由于UI更新失败，执行登出操作');
+      console.log('错误发生时的用户状态:', UserManager.getCurrentUser());
       UserManager.setCurrentUser(null);
       
       // 检查settingsBtn元素是否存在
@@ -438,23 +554,80 @@ function initAuthModals() {
         return;
       }
 
-      // 验证token
-      const verifyResponse = await fetch(`${window.API_CONFIG.baseUrl}/verify-token`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
+      // 验证token - 增加超时和重试机制
+      console.log('开始验证token用于头像更换...');
+      let verifyResponse;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          console.log(`Token验证尝试 ${retryCount + 1}/${maxRetries}`);
+          
+          // 创建带超时的fetch请求
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超时
+          
+          verifyResponse = await fetch(`${window.API_CONFIG.baseUrl}/verify-token`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            mode: 'cors',
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          console.log('Token验证响应状态:', verifyResponse.status);
+          
+          if (verifyResponse.ok) {
+            // 验证成功，解析响应数据
+            const verifyData = await verifyResponse.json();
+            console.log('Token验证成功，用户数据:', verifyData);
+            break; // 成功则跳出重试循环
+          } else if (verifyResponse.status === 401 || verifyResponse.status === 403) {
+            // 认证失败，不需要重试
+            console.error('Token认证失败，状态码:', verifyResponse.status);
+            break;
+          } else {
+            // 其他错误，可能是网络问题，继续重试
+            console.warn(`Token验证失败，状态码: ${verifyResponse.status}，准备重试...`);
+            retryCount++;
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒后重试
+            }
+          }
+        } catch (error) {
+          console.error(`Token验证请求失败 (尝试 ${retryCount + 1}):`, error.message);
+          retryCount++;
+          if (retryCount < maxRetries) {
+            console.log(`等待2秒后重试...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+      }
 
-      if (!verifyResponse.ok) {
-        // token无效，清除登录状态
-        UserManager.setCurrentUser(null);
-        updateAuthUI();
-        alert('登录已过期，请重新登录');
+      if (!verifyResponse || !verifyResponse.ok) {
+        // token验证失败或网络问题
+        const errorMsg = verifyResponse ? 
+          `验证失败 (状态码: ${verifyResponse.status})` : 
+          '网络连接失败，请检查网络连接';
+        
+        console.error('Token验证最终失败:', errorMsg);
+        
+        if (verifyResponse && (verifyResponse.status === 401 || verifyResponse.status === 403)) {
+          // 只有在明确的认证错误时才清除登录状态
+          UserManager.setCurrentUser(null);
+          updateAuthUI();
+          alert('登录已过期，请重新登录');
+        } else {
+          // 网络错误或服务器错误，不清除登录状态
+          alert(`头像更换失败：${errorMsg}，请稍后重试`);
+        }
+        
         // 先隐藏模态框
         avatarModal.hide();
         // 延迟清理模态框遮罩，确保模态框完全关闭
@@ -467,20 +640,133 @@ function initAuthModals() {
         return;
       }
 
-      // TODO: 实现头像上传到服务器的逻辑
-      alert('头像更换成功！');
-      // 先隐藏模态框
-      avatarModal.hide();
-      // 延迟清理模态框遮罩，确保模态框完全关闭
-      setTimeout(() => {
-        // 清理可能存在的模态框遮罩
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-          backdrop.remove();
-        });
-        // 重置预览
-        avatarInput.value = '';
-        previewContainer.classList.add('d-none');
-      }, 300);
+      // 将图片转换为base64
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const avatarData = e.target.result;
+        
+        try {
+          // 上传头像到服务器 - 增加超时和重试机制
+          console.log('开始上传头像...');
+          let uploadResponse;
+          let uploadRetryCount = 0;
+          const uploadMaxRetries = 3;
+          
+          while (uploadRetryCount < uploadMaxRetries) {
+            try {
+              console.log(`头像上传尝试 ${uploadRetryCount + 1}/${uploadMaxRetries}`);
+              
+              // 创建带超时的fetch请求
+              const uploadController = new AbortController();
+              const uploadTimeoutId = setTimeout(() => uploadController.abort(), 30000); // 30秒超时
+              
+              uploadResponse = await fetch(`${window.API_CONFIG.baseUrl}/upload-avatar`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                mode: 'cors',
+                body: JSON.stringify({ avatar: avatarData }),
+                signal: uploadController.signal
+              });
+              
+              clearTimeout(uploadTimeoutId);
+              console.log('头像上传响应状态:', uploadResponse.status);
+              
+              if (uploadResponse.ok) {
+                // 上传成功，跳出重试循环
+                break;
+              } else if (uploadResponse.status === 401 || uploadResponse.status === 403) {
+                // 认证失败，不需要重试
+                console.error('头像上传认证失败，状态码:', uploadResponse.status);
+                break;
+              } else {
+                // 其他错误，可能是网络问题，继续重试
+                console.warn(`头像上传失败，状态码: ${uploadResponse.status}，准备重试...`);
+                uploadRetryCount++;
+                if (uploadRetryCount < uploadMaxRetries) {
+                  await new Promise(resolve => setTimeout(resolve, 3000)); // 等待3秒后重试
+                }
+              }
+            } catch (uploadError) {
+              console.error(`头像上传请求失败 (尝试 ${uploadRetryCount + 1}):`, uploadError.message);
+              uploadRetryCount++;
+              if (uploadRetryCount < uploadMaxRetries) {
+                console.log(`等待3秒后重试...`);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+              }
+            }
+          }
+
+          if (!uploadResponse || !uploadResponse.ok) {
+            const uploadErrorMsg = uploadResponse ? 
+              `上传失败 (状态码: ${uploadResponse.status})` : 
+              '网络连接失败，请检查网络连接';
+            
+            console.error('头像上传最终失败:', uploadErrorMsg);
+            
+            if (uploadResponse && (uploadResponse.status === 401 || uploadResponse.status === 403)) {
+              // 认证错误
+              UserManager.setCurrentUser(null);
+              updateAuthUI();
+              alert('登录已过期，请重新登录');
+            } else {
+              // 网络错误或服务器错误
+              alert(`头像上传失败：${uploadErrorMsg}，请稍后重试`);
+            }
+          } else {
+            // 上传成功，处理响应
+            const uploadResult = await uploadResponse.json();
+            console.log('头像上传成功，服务器响应:', uploadResult);
+            
+            // 更新本地用户信息
+            const currentUser = UserManager.getCurrentUser();
+            if (currentUser && uploadResult.user && uploadResult.user.avatar) {
+              currentUser.avatar = uploadResult.user.avatar;
+              UserManager.setCurrentUser(currentUser);
+              console.log('头像更新成功，新头像数据:', currentUser.avatar.substring(0, 50) + '...');
+              
+              // 立即更新头像显示
+              const settingsBtn = document.getElementById('settingsBtn');
+              if (settingsBtn && currentUser.avatar) {
+                settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
+                console.log('立即更新了设置按钮头像显示');
+              }
+              
+              // 更新UI显示新头像
+              console.log('准备调用updateAuthUI，当前用户状态:', currentUser);
+              updateAuthUI();
+              console.log('updateAuthUI调用完成，检查用户状态:', UserManager.getCurrentUser());
+              
+              alert('头像更换成功！');
+            } else {
+              console.error('服务器返回的用户数据无效:', uploadResult);
+              alert('头像上传成功，但更新本地数据失败，请刷新页面');
+            }
+          }
+        } catch (uploadError) {
+          console.error('头像上传过程发生错误:', uploadError);
+          alert('头像上传失败，请检查网络连接后重试');
+        }
+        
+        // 先隐藏模态框
+        avatarModal.hide();
+        // 延迟清理模态框遮罩，确保模态框完全关闭
+        setTimeout(() => {
+          // 清理可能存在的模态框遮罩
+          document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+          });
+          // 重置预览
+          avatarInput.value = '';
+          previewContainer.classList.add('d-none');
+        }, 300);
+      };
+      
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error('头像上传失败：', error);
       alert('头像上传失败，请重试');
@@ -690,8 +976,9 @@ async function restoreUserAuth() {
       if (token) {
         // 设置当前用户数据，触发UI更新
         console.log('重新设置当前用户数据...');
-        // 构造正确的数据格式 {token, user}
-        UserManager.setCurrentUser({token, user});
+        // 直接保存用户数据到localStorage，不调用setCurrentUser避免清除数据
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('token', token);
         
         // 等待DOM完全加载
         console.log('等待DOM完全加载...');
@@ -746,7 +1033,8 @@ async function restoreUserAuth() {
     }
   } catch (error) {
     console.error('验证登录状态失败:', error);
-    UserManager.logout();
+    // 不要因为验证过程中的错误就退出登录，可能只是网络问题
+    console.log('保持现有登录状态，稍后会自动重试验证');
   }
 }
 

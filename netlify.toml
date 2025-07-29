@@ -3,6 +3,7 @@
   publish = "."
 
 [dev]
+  framework = "#static"
   functions = "netlify/functions"
   publish = "."
   port = 9999

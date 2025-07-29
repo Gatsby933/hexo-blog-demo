@@ -248,11 +248,25 @@ ul, ol {
   background-color: #fff;
   border-radius: 3px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.pagination-item a:hover {
+  background-color: #2c2c2c;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
 }
 
 .pagination-item.active a {
   background-color: #3273dc;
   color: #fff;
+}
+
+.pagination-item.active a:hover {
+  background-color: #1a5bb8;
 }
 
 /* 归档页面样式 */

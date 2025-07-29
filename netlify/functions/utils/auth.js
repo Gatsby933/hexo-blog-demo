@@ -24,24 +24,30 @@ const verifyToken = (token) => {
   }
 };
 
-// 从请求头中获取令牌
-const getTokenFromHeader = (event) => {
-  const authHeader = event.headers.authorization || event.headers.Authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return null;
+// 从请求头获取令牌
+const getTokenFromHeader = (headers) => {
+  const authHeader = headers.authorization || headers.Authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
   }
-  return authHeader.split(' ')[1];
+  return null;
 };
 
-// 密码加密
+// 哈希密码
 const hashPassword = async (password) => {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(password, salt);
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
 };
 
-// 密码验证
+// 验证密码
 const verifyPassword = async (password, hashedPassword) => {
-  return bcrypt.compare(password, hashedPassword);
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+// 验证用户名格式
+const validateUsername = (username) => {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+  return usernameRegex.test(username);
 };
 
 module.exports = {
@@ -49,5 +55,6 @@ module.exports = {
   verifyToken,
   getTokenFromHeader,
   hashPassword,
-  verifyPassword
+  verifyPassword,
+  validateUsername
 };

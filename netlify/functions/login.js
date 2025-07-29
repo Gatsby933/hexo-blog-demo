@@ -60,7 +60,8 @@ exports.handler = async (event, context) => {
         token,
         user: {
           id: user._id,
-          username: user.username
+          username: user.username,
+          avatar: user.avatar || null
         }
       })
     }, event);
@@ -69,7 +70,11 @@ exports.handler = async (event, context) => {
     console.error('登录错误:', error);
     return addCorsHeaders({
       statusCode: 500,
-      body: JSON.stringify({ message: '服务器错误' })
+      body: JSON.stringify({ 
+        message: '服务器错误', 
+        error: error.message || '未知错误',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      })
     }, event);
   }
 };

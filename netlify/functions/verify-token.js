@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
 
   try {
     // 从请求头获取令牌
-    const token = getTokenFromHeader(event);
+    const token = getTokenFromHeader(event.headers);
     if (!token) {
       return addCorsHeaders({
       statusCode: 401,
@@ -55,9 +55,10 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         message: '令牌有效',
         user: {
-          id: user._id,  // 使用id而不是_id，与login.js保持一致
+          id: user._id.toString(),  // 确保ID是字符串格式
           username: user.username,
-          email: user.email
+          email: user.email,
+          avatar: user.avatar || null  // 包含头像信息
         }
       })
     }, event);
