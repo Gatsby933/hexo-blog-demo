@@ -465,9 +465,9 @@
        loadComments();
        
        // 从服务器加载评论数据（支持缓存）
-       async function loadComments() {
-         // 先尝试从缓存加载
-         const cachedData = getCachedComments();
+       async function loadComments(forceRefresh = false) {
+         // 先尝试从缓存加载（除非强制刷新）
+         const cachedData = forceRefresh ? null : getCachedComments();
          if (cachedData) {
            // 使用缓存数据立即显示
            allComments = cachedData.comments;
@@ -701,8 +701,8 @@
              // 清除评论缓存，确保获取最新数据
              clearCommentsCache();
              
-             // 重新加载评论列表
-             await loadComments();
+             // 强制重新加载评论列表，跳过缓存
+             await loadComments(true);
              
              // 跳转到最后一页显示新评论
              currentPage = totalPages;
