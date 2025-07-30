@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        #preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>头像上传测试工具</h1>
+    
+    <div class="test-section">
+        <h3>1. 检查当前登录状态</h3>
+        <button class="btn-secondary" onclick="checkLoginStatus()">检查登录状态</button>
+        <div id="loginStatus" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 头像上传测试</h3>
+        <input type="file" id="avatarFile" accept="image/*" onchange="previewImage()">
+        <br>
+        <img id="preview" style="display: none;">
+        <br>
+        <button class="btn-primary" onclick="uploadAvatar()">上传头像</button>
+        <div id="uploadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 测试头像URL访问</h3>
+        <input type="text" id="avatarUrl" placeholder="输入头像URL" style="width: 400px;">
+        <button class="btn-secondary" onclick="testAvatarUrl()">测试访问</button>
+        <div id="urlTestResult" class="result"></div>
+        <img id="testImage" style="max-width: 200px; display: none;">
+    </div>
+
+    <div class="test-section">
+        <h3>4. 检查数据库中的头像记录</h3>
+        <button class="btn-secondary" onclick="checkAvatarInDB()">检查数据库记录</button>
+        <div id="dbCheckResult" class="result"></div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            const result = document.getElementById('loginStatus');
+            
+            if (!token) {
+                result.textContent = '未登录：没有找到token';
+                result.className = 'result error';
+                return;
+            }
+            
+            if (!currentUser) {
+                result.textContent = '未登录：没有找到用户信息';
+                result.className = 'result error';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                result.textContent = `已登录\n用户ID: ${user.id}\n用户名: ${user.username}\n当前头像: ${user.avatar || '无'}`;
+                result.className = 'result success';
+            } catch (e) {
+                result.textContent = '用户信息格式错误: ' + e.message;
+                result.className = 'result error';
+            }
+        }
+        
+        // 预览图片
+        function previewImage() {
+            const file = document.getElementById('avatarFile').files[0];
+            const preview = document.getElementById('preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 上传头像
+        async function uploadAvatar() {
+            const file = document.getElementById('avatarFile').files[0];
+            const result = document.getElementById('uploadResult');
+            
+            if (!file) {
+                result.textContent = '请先选择一个图片文件';
+                result.className = 'result error';
+                return;
+            }
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                result.textContent = '请先登录';
+                result.className = 'result error';
+                return;
+            }
+            
+            try {
+                // 转换为base64
+                const base64 = await fileToBase64(file);
+                
+                result.textContent = '正在上传头像...';
+                result.className = 'result';
+                
+                // 发送上传请求
+                const response = await fetch('/.netlify/functions/upload-avatar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        avatar: base64
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.textContent = `上传成功！\n${JSON.stringify(data, null, 2)}`;
+                    result.className = 'result success';
+                    
+                    // 更新localStorage
+                    if (data.user) {
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    }
+                } else {
+                    result.textContent = `上传失败：\n${JSON.stringify(data, null, 2)}`;
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.textContent = '上传错误: ' + error.message;
+                result.className = 'result error';
+            }
+        }
+        
+        // 文件转base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 测试头像URL访问
+        function testAvatarUrl() {
+            const url = document.getElementById('avatarUrl').value;
+            const result = document.getElementById('urlTestResult');
+            const testImage = document.getElementById('testImage');
+            
+            if (!url) {
+                result.textContent = '请输入头像URL';
+                result.className = 'result error';
+                return;
+            }
+            
+            result.textContent = '正在测试URL访问...';
+            result.className = 'result';
+            
+            const img = new Image();
+            img.onload = function() {
+                result.textContent = `URL访问成功\n图片尺寸: ${img.width}x${img.height}`;
+                result.className = 'result success';
+                testImage.src = url;
+                testImage.style.display = 'block';
+            };
+            img.onerror = function() {
+                result.textContent = 'URL访问失败：图片无法加载';
+                result.className = 'result error';
+                testImage.style.display = 'none';
+            };
+            img.src = url;
+        }
+        
+        // 检查数据库中的头像记录
+        async function checkAvatarInDB() {
+            const result = document.getElementById('dbCheckResult');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!currentUser) {
+                result.textContent = '请先登录';
+                result.className = 'result error';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                const avatarUrl = user.avatar;
+                
+                if (!avatarUrl) {
+                    result.textContent = '用户没有设置头像';
+                    result.className = 'result error';
+                    return;
+                }
+                
+                // 从URL中提取头像ID
+                const match = avatarUrl.match(/\/get-avatar\/(.+)$/);
+                if (!match) {
+                    result.textContent = '无法从URL中提取头像ID: ' + avatarUrl;
+                    result.className = 'result error';
+                    return;
+                }
+                
+                const avatarId = match[1];
+                result.textContent = `头像信息:\n用户ID: ${user.id}\n头像URL: ${avatarUrl}\n头像ID: ${avatarId}\n\n正在测试头像访问...`;
+                result.className = 'result';
+                
+                // 测试完整URL访问
+                const fullUrl = `https://blog.hanverse.pub${avatarUrl}?t=${Date.now()}`;
+                
+                const response = await fetch(fullUrl);
+                if (response.ok) {
+                    result.textContent += `\n\n✅ 头像访问成功\n状态码: ${response.status}\n内容类型: ${response.headers.get('content-type')}`;
+                    result.className = 'result success';
+                } else {
+                    result.textContent += `\n\n❌ 头像访问失败\n状态码: ${response.status}\n错误信息: ${response.statusText}`;
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.textContent = '检查失败: ' + error.message;
+                result.className = 'result error';
+            }
+        }
+        
+        // 页面加载时自动检查登录状态
+        window.onload = function() {
+            checkLoginStatus();
+            
+            // 如果有当前用户，自动填入头像URL
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    if (user.avatar) {
+                        document.getElementById('avatarUrl').value = `https://blog.hanverse.pub${user.avatar}`;
+                    }
+                } catch (e) {
+                    // 忽略错误
+                }
+            }
+        };
+    </script>
+</body>
+</html>
