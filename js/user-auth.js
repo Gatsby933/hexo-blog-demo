@@ -93,6 +93,15 @@ const UserManager = {
         localStorage.removeItem('currentUser');
         return null;
       }
+      
+      // 检查并修复头像URL格式
+      if (user.avatar && user.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+        user.avatar = user.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+        // 更新localStorage中的数据
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        console.log('已修复localStorage中的头像URL格式');
+      }
+      
       return user;
     } catch (error) {
       console.error('获取用户数据失败：', error);
