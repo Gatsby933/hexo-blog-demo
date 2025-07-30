@@ -128,11 +128,21 @@ const UserManager = {
       // 处理两种数据格式：{token, user} 或直接的用户对象
       if (data?.token && data?.user?.username) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        // 处理头像URL，确保保存相对路径
+        const userData = { ...data.user };
+        if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+          userData.avatar = userData.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+        }
+        localStorage.setItem('currentUser', JSON.stringify(userData));
       } else if (data?.username) {
         const existingToken = localStorage.getItem('token');
         if (existingToken) {
-          localStorage.setItem('currentUser', JSON.stringify(data));
+          // 处理头像URL，确保保存相对路径
+          const userData = { ...data };
+          if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+            userData.avatar = userData.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+          }
+          localStorage.setItem('currentUser', JSON.stringify(userData));
         }
       }
     } catch (error) {
@@ -758,8 +768,13 @@ function initAuthModals() {
               // 立即更新头像显示
               const settingsBtn = document.getElementById('settingsBtn');
               if (settingsBtn && currentUser.avatar) {
+                // 处理头像URL，确保使用相对路径适配当前环境
+                let avatarUrl = currentUser.avatar;
+                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+                }
                 // 添加时间戳避免缓存问题
-                const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+                avatarUrl = avatarUrl + '?t=' + Date.now();
                 settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
                 console.log('立即更新了设置按钮头像显示，URL:', avatarUrl);
               }
