@@ -158,8 +158,9 @@ if (window.location.pathname === '/' || window.location.pathname.includes('index
     // 延迟初始化，确保API配置已加载
     setTimeout(() => {
       // 检查是否有新评论需要刷新
-      const hasNewComment = localStorage.getItem('commentUpdated');
-      if (hasNewComment) {
+      const commentUpdateTime = localStorage.getItem('commentUpdated');
+      if (commentUpdateTime) {
+        console.log('主页检测到新评论标记，强制刷新评论列表');
         // 清除标记并强制刷新
         localStorage.removeItem('commentUpdated');
         window.CommentSync.initHomepageComments(true);

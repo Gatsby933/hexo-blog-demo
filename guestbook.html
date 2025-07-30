@@ -640,8 +640,9 @@
        
        // 初始化：加载评论数据
        // 检查是否有新评论需要刷新
-       const hasNewComment = localStorage.getItem('commentUpdated');
-       if (hasNewComment) {
+       const commentUpdateTime = localStorage.getItem('commentUpdated');
+       if (commentUpdateTime) {
+         console.log('检测到新评论标记，强制刷新评论列表');
          // 清除标记并强制刷新
          localStorage.removeItem('commentUpdated');
          loadComments(true);
@@ -737,13 +738,9 @@
            }
            
            if (response.ok) {
-             // 检查数据是否有更新或者是强制刷新
-             const hasUpdate = !cachedData || 
-               JSON.stringify(data.comments) !== JSON.stringify(cachedData.comments) ||
-               data.pagination.totalComments !== cachedData.pagination.totalComments;
-             
-             if (hasUpdate || forceRefresh) {
-               console.log(forceRefresh ? '强制刷新评论显示' : '检测到评论更新，刷新显示');
+             // 强制刷新时总是更新，否则检查数据是否有更新
+             if (forceRefresh) {
+               console.log('强制刷新评论显示');
                allComments = data.comments;
                totalComments = data.pagination.totalComments;
                
@@ -752,7 +749,23 @@
                showComments();
                updateLoadMoreButton();
              } else {
-               console.log('评论数据无变化');
+               // 检查数据是否有更新
+               const hasUpdate = !cachedData || 
+                 JSON.stringify(data.comments) !== JSON.stringify(cachedData.comments) ||
+                 data.pagination.totalComments !== cachedData.pagination.totalComments;
+               
+               if (hasUpdate) {
+                 console.log('检测到评论更新，刷新显示');
+                 allComments = data.comments;
+                 totalComments = data.pagination.totalComments;
+                 
+                 // 渲染新数据
+                 renderComments();
+                 showComments();
+                 updateLoadMoreButton();
+               } else {
+                 console.log('评论数据无变化');
+               }
              }
              
              // 更新缓存
@@ -927,7 +940,11 @@
              await loadComments(true);
              
              // 确保新评论能够显示（增加显示数量以包含新评论）
-             displayedComments = Math.max(displayedComments, totalComments);
+             // 如果新评论数量超过当前显示数量，则增加显示数量
+             if (totalComments > displayedComments) {
+               displayedComments = totalComments;
+             }
+             console.log('当前显示评论数:', displayedComments, '总评论数:', totalComments);
              showComments();
              updateLoadMoreButton();
              
