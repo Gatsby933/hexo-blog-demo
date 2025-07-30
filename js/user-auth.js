@@ -94,13 +94,7 @@ const UserManager = {
         return null;
       }
       
-      // 检查并修复头像URL格式，确保使用相对路径
-      if (user.avatar && user.avatar.includes('blog.hanverse.pub/.netlify/functions/')) {
-        user.avatar = user.avatar.replace(/https?:\/\/[^/]*/, '');
-        // 更新localStorage中的数据
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        console.log('已修复localStorage中的头像URL格式为相对路径');
-      }
+      // 头像现在直接存储为base64数据，无需URL处理
       
       return user;
     } catch (error) {
@@ -281,12 +275,8 @@ function initAuthModals() {
         
         // 显示用户头像或默认图标
         if (currentUser.avatar) {
-          // 处理头像URL，确保使用相对路径适配当前环境
-          let avatarUrl = currentUser.avatar;
-          // 使用相对路径，通过Cloudflare路由到正确的服务
-          // 添加时间戳避免缓存问题
-          avatarUrl = avatarUrl + '?t=' + Date.now();
-          settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+          // 头像数据现在直接存储为base64格式，可以直接使用
+          settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
         } else {
           settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
         }
@@ -338,12 +328,8 @@ function initAuthModals() {
               console.log('发现localStorage中有有效用户数据，恢复登录状态');
               // 恢复用户数据而不是清除
               if (parsedUser.avatar) {
-              // 处理头像URL，确保使用相对路径适配当前环境
-              let avatarUrl = parsedUser.avatar;
-              // 使用相对路径，通过Cloudflare路由到正确的服务
-              // 添加时间戳避免缓存问题
-              avatarUrl = avatarUrl + '?t=' + Date.now();
-              settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+              // 头像数据现在直接存储为base64格式，可以直接使用
+              settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
             }
@@ -771,13 +757,9 @@ function initAuthModals() {
               // 立即更新头像显示
               const settingsBtn = document.getElementById('settingsBtn');
               if (settingsBtn && currentUser.avatar) {
-                // 处理头像URL，确保使用相对路径适配当前环境
-                let avatarUrl = currentUser.avatar;
-                // 使用相对路径，通过Cloudflare路由到正确的服务
-                // 添加时间戳避免缓存问题
-                avatarUrl = avatarUrl + '?t=' + Date.now();
-                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
-                console.log('立即更新了设置按钮头像显示，URL:', avatarUrl);
+                // 头像数据现在直接存储为base64格式，可以直接使用
+                settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+                console.log('立即更新了设置按钮头像显示');
               }
               
               // 更新UI显示新头像

@@ -81,10 +81,10 @@ exports.handler = async (event, context) => {
         }, event);
       }
 
-      // 将base64头像转换为文件URL
-      let avatarUrl;
+      // 保存头像数据到用户表
+      let avatarData;
       try {
-        avatarUrl = await saveBase64Avatar(avatar, decoded.userId);
+        avatarData = await saveBase64Avatar(avatar, decoded.userId);
       } catch (avatarError) {
         return addCorsHeaders({
           statusCode: 400,
@@ -92,20 +92,8 @@ exports.handler = async (event, context) => {
         }, event);
       }
 
-      // 更新用户头像并获取更新后的用户信息
-      const updatedUserResult = await users.findOneAndUpdate(
-        { _id: new ObjectId(decoded.userId) },
-        { $set: { avatar: avatarUrl, updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-      const updatedUser = updatedUserResult.value;
-
-      // 删除旧头像文件（异步执行，不影响响应）
-      if (currentUser.avatar && currentUser.avatar !== avatarUrl) {
-        deleteOldAvatar(currentUser.avatar).catch(err => {
-          console.error('删除旧头像失败:', err);
-        });
-      }
+      // 获取更新后的用户信息
+      const updatedUser = await users.findOne({ _id: new ObjectId(decoded.userId) });
 
       return addCorsHeaders({
         statusCode: 200,

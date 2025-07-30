@@ -49,26 +49,26 @@ async function saveBase64Avatar(base64Data, userId) {
       throw new Error('不支持的图片格式');
     }
     
-    // 生成唯一ID
-    const timestamp = Date.now();
-    const hash = crypto.createHash('md5').update(userId + timestamp).digest('hex').substring(0, 8);
-    const avatarId = `${userId}_${hash}`;
-    
-    // 连接数据库并保存头像数据
+    // 连接数据库并直接更新用户头像数据
     const { db } = await connectToDatabase();
-    const avatars = db.collection('avatars');
+    const users = db.collection('users');
+    const { ObjectId } = require('mongodb');
     
-    await avatars.insertOne({
-      _id: avatarId,
-      userId: userId,
-      data: compressedData,
-      imageType: imageType,
-      createdAt: new Date(),
-      size: Buffer.from(matches[2], 'base64').length
-    });
+    // 直接将头像数据存储在用户表中
+    await users.updateOne(
+      { _id: new ObjectId(userId) },
+      { 
+        $set: { 
+          avatar: compressedData,
+          avatarType: imageType,
+          avatarUpdatedAt: new Date(),
+          avatarSize: Buffer.from(matches[2], 'base64').length
+        } 
+      }
+    );
     
-    // 返回头像URL - 使用相对路径，适配所有环境
-    return `/.netlify/functions/get-avatar/${avatarId}`;
+    // 返回头像数据本身，前端直接使用
+    return compressedData;
     
   } catch (error) {
     console.error('保存头像数据错误:', error);
