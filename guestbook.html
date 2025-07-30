@@ -582,9 +582,9 @@
        const pagination = document.querySelector('.pagination');
        
        // 显示更多相关变量
-       let displayedComments = 10; // 当前显示的评论数量
+       let displayedComments = 5; // 当前显示的评论数量
        let currentPage = 1; // 当前页码
-       const commentsPerLoad = 10; // 每次加载的评论数量
+       const commentsPerLoad = 5; // 每次加载的评论数量
        let totalComments = 0;
        let allComments = []; // 存储所有评论数据
        
@@ -624,7 +624,7 @@
            console.log('开始加载评论，页码:', page, '追加模式:', append);
            
            // 构建API请求URL - 强制使用线上API避免本地服务器问题
-           let limit = 10;
+           let limit = 5;
            const apiBaseUrl = 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
            let apiUrl = `${apiBaseUrl}/get-comments?page=${page}&limit=${limit}`;
            if (forceRefresh) {
@@ -937,11 +937,22 @@
          const loadMoreBtn = document.getElementById('loadMoreBtn');
          if (loadMoreBtn) {
            loadMoreBtn.addEventListener('click', async function() {
-             currentPage += 1;
-             await loadComments(false, currentPage, true);
-             displayedComments += 10; // 增加显示的评论数量
-             showComments();
-             updateLoadMoreButton();
+             // 显示加载动画
+             const originalText = this.innerHTML;
+             this.innerHTML = '<i class="fa fa-spinner fa-spin" style="margin-right: 8px;"></i>加载中...';
+             this.disabled = true;
+             
+             try {
+               currentPage += 1;
+               await loadComments(false, currentPage, true);
+               displayedComments += 5; // 增加显示的评论数量
+               showComments();
+               updateLoadMoreButton();
+             } finally {
+               // 恢复按钮状态
+               this.innerHTML = originalText;
+               this.disabled = false;
+             }
            });
            loadMoreBtn.addEventListener('mouseenter', function() {
              this.style.background = 'rgba(51, 51, 51, 0.1)';
@@ -985,12 +996,25 @@
              alert('请先登录后再发表评论');
              return;
            }
-           await addNewComment(currentUser.username, currentUser.avatar, commentContent);
-           commentForm.reset();
-           commentsContainer.scrollIntoView({ behavior: 'smooth' });
-           // 新评论后重置分页并重新加载第一页
-           currentPage = 1;
-           await loadComments(true, 1, false);
+           
+           // 获取提交按钮并显示加载动画
+           const submitBtn = this.querySelector('button[type="submit"]');
+           const originalContent = submitBtn.innerHTML;
+           submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size: 12px;"></i>';
+           submitBtn.disabled = true;
+           
+           try {
+             await addNewComment(currentUser.username, currentUser.avatar, commentContent);
+             commentForm.reset();
+             commentsContainer.scrollIntoView({ behavior: 'smooth' });
+             // 新评论后重置分页并重新加载第一页
+             currentPage = 1;
+             await loadComments(true, 1, false);
+           } finally {
+             // 恢复按钮状态
+             submitBtn.innerHTML = originalContent;
+             submitBtn.disabled = false;
+           }
          });
        }
        
