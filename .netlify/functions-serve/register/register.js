@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/register.js')
+module.exports = require('./netlify/functions/register.js')

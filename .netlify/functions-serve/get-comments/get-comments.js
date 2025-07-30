@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/get-comments.js')
+module.exports = require('./netlify/functions/get-comments.js')

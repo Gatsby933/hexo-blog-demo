@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/login.js')
+module.exports = require('./netlify/functions/login.js')

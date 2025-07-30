@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/save-comment.js')
+module.exports = require('./netlify/functions/save-comment.js')

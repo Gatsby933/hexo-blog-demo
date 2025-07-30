@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/ensure-indexes.js')
+module.exports = require('./netlify/functions/ensure-indexes.js')

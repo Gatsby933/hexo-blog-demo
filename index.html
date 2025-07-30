@@ -1756,8 +1756,8 @@
         <img src="./images/web.png" alt="我的博客天地" />
       </div>
       <div class="welcome-profile">
-        <img id="welcomeAvatar" src="./images/avatar.svg" alt="用户头像" class="welcome-avatar">
-        <h2 id="welcomeUsername" class="welcome-username">欢迎</h2>
+        <img id="welcomeAvatar" src="./images/logo.png" alt="用户头像" class="welcome-avatar">
+        <h2 id="welcomeUsername" class="welcome-username">@王映寒</h2>
       </div>
       <div class="welcome-text">
         <p>欢迎来到我的博客世界</p>
@@ -1788,8 +1788,8 @@
       
       <!-- 头像和用户名 -->
       <div class="user-profile-left">
-        <img id="sidebarAvatar" src="./images/avatar.svg" alt="用户头像" class="avatar">
-        <h3 id="sidebarUsername" class="username">访客</h3>
+        <img id="sidebarAvatar" src="./images/logo.png" alt="用户头像" class="avatar">
+        <h3 id="sidebarUsername" class="username">@王映寒</h3>
       </div>
       
       <!-- 导航按钮 -->
@@ -2402,45 +2402,9 @@
   </script>
 <script>
 function updateDynamicAvatars() {
-  try {
-    const currentUserStr = localStorage.getItem('currentUser');
-    if (currentUserStr) {
-      const currentUser = JSON.parse(currentUserStr);
-      if (currentUser && currentUser.avatar) {
-        const avatarUrl = currentUser.avatar; // 头像现在是base64数据，直接使用
-        const welcomeAvatar = document.getElementById('welcomeAvatar');
-        const sidebarAvatar = document.getElementById('sidebarAvatar');
-        const welcomeUsername = document.getElementById('welcomeUsername');
-        const sidebarUsername = document.getElementById('sidebarUsername');
-        if (welcomeAvatar) {
-          welcomeAvatar.src = avatarUrl;
-          welcomeAvatar.onerror = () => { welcomeAvatar.src = './images/avatar.svg'; };
-        }
-        if (sidebarAvatar) {
-          sidebarAvatar.src = avatarUrl;
-          sidebarAvatar.onerror = () => { sidebarAvatar.src = './images/avatar.svg'; };
-        }
-        if (welcomeUsername) {
-          welcomeUsername.textContent = currentUser.username || '欢迎';
-        }
-        if (sidebarUsername) {
-          sidebarUsername.textContent = currentUser.username || '访客';
-        }
-        return;
-      }
-    }
-  } catch (e) {
-    console.error('更新动态头像失败', e);
-  }
-  // 默认头像和用户名
-  const welcomeAvatar = document.getElementById('welcomeAvatar');
-  const sidebarAvatar = document.getElementById('sidebarAvatar');
-  const welcomeUsername = document.getElementById('welcomeUsername');
-  const sidebarUsername = document.getElementById('sidebarUsername');
-  if (welcomeAvatar) welcomeAvatar.src = './images/avatar.svg';
-  if (sidebarAvatar) sidebarAvatar.src = './images/avatar.svg';
-  if (welcomeUsername) welcomeUsername.textContent = '欢迎';
-  if (sidebarUsername) sidebarUsername.textContent = '访客';
+  // 移动端欢迎页面和左侧栏现在使用静态头像和用户名(@王映寒, logo.png)
+  // 不再动态更新这些元素，保持静态显示
+  console.log('头像和用户名已设置为静态显示：@王映寒');
 }
 
 window.addEventListener('DOMContentLoaded', updateDynamicAvatars);

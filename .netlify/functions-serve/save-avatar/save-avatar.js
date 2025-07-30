@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/save-avatar.js')
+module.exports = require('./netlify/functions/save-avatar.js')

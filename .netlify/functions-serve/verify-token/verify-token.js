@@ -1,1 +1,1 @@
-module.exports = require('./src/netlify/functions/verify-token.js')
+module.exports = require('./netlify/functions/verify-token.js')
