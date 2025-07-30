@@ -262,8 +262,13 @@ function initAuthModals() {
         
         // 显示用户头像或默认图标
         if (currentUser.avatar) {
+          // 处理头像URL，确保使用相对路径适配当前环境
+          let avatarUrl = currentUser.avatar;
+          if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+            avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+          }
           // 添加时间戳避免缓存问题
-          const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+          avatarUrl = avatarUrl + '?t=' + Date.now();
           settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
         } else {
           settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
@@ -316,8 +321,13 @@ function initAuthModals() {
               console.log('发现localStorage中有有效用户数据，恢复登录状态');
               // 恢复用户数据而不是清除
               if (parsedUser.avatar) {
+                // 处理头像URL，确保使用相对路径适配当前环境
+                let avatarUrl = parsedUser.avatar;
+                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+                }
                 // 添加时间戳避免缓存问题
-                const avatarUrl = parsedUser.avatar + '?t=' + Date.now();
+                avatarUrl = avatarUrl + '?t=' + Date.now();
                 settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
               } else {
                 settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
@@ -383,8 +393,13 @@ function initAuthModals() {
           if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
             // 用户已登录，恢复基本的头像显示
             if (currentUser.avatar) {
+              // 处理头像URL，确保使用相对路径适配当前环境
+              let avatarUrl = currentUser.avatar;
+              if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+                avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+              }
               // 添加时间戳避免缓存问题
-              const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+              avatarUrl = avatarUrl + '?t=' + Date.now();
               settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
@@ -979,9 +994,18 @@ async function restoreUserAuth() {
           setTimeout(() => {
             const settingsBtn = document.getElementById('settingsBtn');
             if (settingsBtn) {
-              settingsBtn.innerHTML = parsedUser.avatar ? 
-                `<img src="${parsedUser.avatar}" alt="用户头像">` : 
-                '<i class="fa fa-user"></i>';
+              if (parsedUser.avatar) {
+                // 处理头像URL，确保使用相对路径适配当前环境
+                let avatarUrl = parsedUser.avatar;
+                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
+                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+                }
+                // 添加时间戳避免缓存问题
+                avatarUrl = avatarUrl + '?t=' + Date.now();
+                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+              } else {
+                settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+              }
               settingsBtn.title = `当前用户：${parsedUser.username}`;
             }
           }, 500);
