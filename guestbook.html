@@ -872,10 +872,7 @@
          // 优化的头像加载实现
          let avatarSrc = avatar || './images/avatar.svg';
          
-         // 确保头像URL始终使用完整的自定义域名URL
-         if (avatarSrc.startsWith('/.netlify/functions/')) {
-           avatarSrc = 'https://blog.hanverse.pub' + avatarSrc;
-         }
+         // 使用相对路径，通过Cloudflare路由到正确的服务
          
          // 头像缓存机制
          if (!window.avatarCache) {
