@@ -268,7 +268,7 @@
             addLog('开始头像访问调试测试');
             
             // 使用debug-get-avatar函数进行线上调试
-            const queryUrl = `https://blog.hanverse.pub/.netlify/functions/debug-get-avatar/${encodeURIComponent(avatarId)}?debug=true`;
+            const queryUrl = `/.netlify/functions/debug-get-avatar/${encodeURIComponent(avatarId)}?debug=true`;
             addLog(`调试头像ID: ${avatarId}`);
             
             try {
@@ -372,7 +372,7 @@
             
             addLog(`测试get-avatar API: ${avatarId}`);
             
-            const apiUrl = `https://blog.hanverse.pub/.netlify/functions/get-avatar/${avatarId}`;
+            const apiUrl = `/.netlify/functions/get-avatar/${avatarId}`;
             
             try {
                 const response = await fetch(apiUrl);
