@@ -157,7 +157,15 @@ if (window.location.pathname === '/' || window.location.pathname.includes('index
   document.addEventListener('DOMContentLoaded', () => {
     // 延迟初始化，确保API配置已加载
     setTimeout(() => {
-      window.CommentSync.initHomepageComments();
+      // 检查是否有新评论需要刷新
+      const hasNewComment = localStorage.getItem('commentUpdated');
+      if (hasNewComment) {
+        // 清除标记并强制刷新
+        localStorage.removeItem('commentUpdated');
+        window.CommentSync.initHomepageComments(true);
+      } else {
+        window.CommentSync.initHomepageComments();
+      }
     }, 500);
   });
   

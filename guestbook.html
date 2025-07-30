@@ -639,7 +639,15 @@
        }
        
        // 初始化：加载评论数据
-       loadComments();
+       // 检查是否有新评论需要刷新
+       const hasNewComment = localStorage.getItem('commentUpdated');
+       if (hasNewComment) {
+         // 清除标记并强制刷新
+         localStorage.removeItem('commentUpdated');
+         loadComments(true);
+       } else {
+         loadComments();
+       }
        
        // 初始化显示更多功能
        totalComments = document.querySelectorAll('.comment-item').length;
