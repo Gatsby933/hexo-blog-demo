@@ -588,68 +588,11 @@
        let totalComments = 0;
        let allComments = []; // 存储所有评论数据
        
-       // 缓存相关函数
-       const CACHE_KEY = 'guestbook_comments_cache';
-       const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
-       
-       // 保存评论到本地缓存
-       function cacheComments(comments, pagination) {
-         const cacheData = {
-           comments: comments,
-           pagination: pagination,
-           timestamp: Date.now()
-         };
-         try {
-           localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-           console.log('评论已缓存到本地');
-         } catch (error) {
-           console.warn('缓存评论失败:', error);
-         }
-       }
-       
-       // 从本地缓存获取评论
-       function getCachedComments() {
-         try {
-           const cached = localStorage.getItem(CACHE_KEY);
-           if (cached) {
-             const cacheData = JSON.parse(cached);
-             const isValid = Date.now() - cacheData.timestamp < CACHE_DURATION;
-             if (isValid) {
-               console.log('使用缓存的评论数据');
-               return cacheData;
-             } else {
-               console.log('缓存已过期，清除缓存');
-               localStorage.removeItem(CACHE_KEY);
-             }
-           }
-         } catch (error) {
-           console.warn('读取缓存失败:', error);
-           localStorage.removeItem(CACHE_KEY);
-         }
-         return null;
-       }
-       
-       // 清除评论缓存
-       function clearCommentsCache() {
-         try {
-           localStorage.removeItem(CACHE_KEY);
-           console.log('评论缓存已清除');
-         } catch (error) {
-           console.warn('清除缓存失败:', error);
-         }
-       }
+
        
        // 初始化：加载评论数据
-       // 检查是否有新评论需要刷新
-       const commentUpdateTime = localStorage.getItem('commentUpdated');
-       if (commentUpdateTime) {
-         console.log('检测到新评论标记，强制刷新评论列表');
-         // 清除标记并强制刷新
-         localStorage.removeItem('commentUpdated');
-         loadComments(true);
-       } else {
-         loadComments();
-       }
+       // 初始化加载评论
+       loadComments();
        
        // 初始化显示更多功能
        setupLoadMoreButton();
@@ -678,29 +621,11 @@
        // 从服务器加载评论数据（支持缓存）
        async function loadComments(forceRefresh = false, page = 1, append = false) {
          try {
-           console.log('开始加载评论，强制刷新:', forceRefresh);
+           console.log('开始加载评论，页码:', page, '追加模式:', append);
            
-           // 如果不是强制刷新，先尝试从缓存获取
-           if (!forceRefresh) {
-             const cachedData = getCachedComments();
-             if (cachedData && cachedData.comments && cachedData.comments.length > 0) {
-               console.log('使用缓存评论数据');
-               allComments = cachedData.comments;
-               totalComments = cachedData.pagination?.totalComments || allComments.length;
-               renderComments();
-               showComments();
-               updateLoadMoreButton();
-               const loadingElement = document.getElementById('comments-loading');
-               if (loadingElement) {
-                 loadingElement.style.display = 'none';
-               }
-               return;
-             }
-           }
-           
-           // 主页风格：每次只请求10条，支持分页
-            let limit = 10;
-            let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
+           // 构建API请求URL
+           let limit = 10;
+           let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
            if (forceRefresh) {
              apiUrl += `&_t=${Date.now()}`;
            }
@@ -717,45 +642,40 @@
            console.log('API响应状态:', response.status, response.statusText);
            
            if (!response.ok) {
-             console.error('API请求失败，状态码:', response.status);
              throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
            }
            
            const data = await response.json();
-            console.log('获取到评论数据:', data);
-            
-            if (append && page > 1) {
-              // 追加模式：将新评论添加到现有列表
-              const newComments = data.comments || [];
-              allComments = allComments.concat(newComments);
-              console.log('追加评论，新增:', newComments.length, '条，总计:', allComments.length, '条');
-            } else {
-              // 替换模式：替换整个评论列表
-              allComments = data.comments || [];
-              console.log('替换评论列表，共:', allComments.length, '条');
-            }
-            
-            totalComments = data.pagination?.totalComments || allComments.length;
-            
-            console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
-            
-            if (append && page > 1) {
-              // 追加模式：只渲染新评论
-              const newComments = data.comments || [];
-              newComments.forEach(comment => {
-                const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
-                commentList.appendChild(commentElement);
-              });
-            } else {
-              // 替换模式：重新渲染所有评论
-              renderComments();
-            }
-            
-            showComments();
-            updateLoadMoreButton();
+           console.log('获取到评论数据:', data);
            
-           // 缓存新数据
-           cacheComments(allComments, { totalComments });
+           if (append && page > 1) {
+             // 追加模式：将新评论添加到现有列表
+             const newComments = data.comments || [];
+             allComments = allComments.concat(newComments);
+             console.log('追加评论，新增:', newComments.length, '条，总计:', allComments.length, '条');
+           } else {
+             // 替换模式：替换整个评论列表
+             allComments = data.comments || [];
+             console.log('替换评论列表，共:', allComments.length, '条');
+           }
+           
+           totalComments = data.pagination?.totalComments || allComments.length;
+           console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
+           
+           if (append && page > 1) {
+             // 追加模式：只渲染新评论
+             const newComments = data.comments || [];
+             newComments.forEach(comment => {
+               const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
+               commentList.appendChild(commentElement);
+             });
+           } else {
+             // 替换模式：重新渲染所有评论
+             renderComments();
+           }
+           
+           showComments();
+           updateLoadMoreButton();
            
            const loadingElement = document.getElementById('comments-loading');
            if (loadingElement) {
@@ -764,20 +684,8 @@
            
          } catch (error) {
            console.error('加载评论失败:', error);
-           
-           // 尝试使用缓存数据作为回退
-           const cachedData = getCachedComments();
-           if (cachedData && cachedData.comments && cachedData.comments.length > 0) {
-             console.log('API失败，使用缓存数据作为回退');
-             allComments = cachedData.comments;
-             totalComments = cachedData.pagination?.totalComments || allComments.length;
-             renderComments();
-             showComments();
-             updateLoadMoreButton();
-           } else {
-             console.log('无缓存数据，回退到静态评论');
-             hideLoadingAndFallback();
-           }
+           // 直接回退到静态评论，不使用缓存
+           hideLoadingAndFallback();
            
            const loadingElement = document.getElementById('comments-loading');
            if (loadingElement) {
@@ -940,9 +848,6 @@
            }
            
            if (response.ok) {
-             // 清除评论缓存，确保获取最新数据
-             clearCommentsCache();
-             
              // 强制重新加载评论列表，跳过缓存，重置到第一页
              currentPage = 1;
              displayedComments = 10; // 重置显示数量
@@ -958,8 +863,6 @@
                if (window.opener && window.opener.CommentSync) {
                  window.opener.CommentSync.refreshHomepageComments();
                }
-               // 使用localStorage通知其他页面
-               localStorage.setItem('commentUpdated', Date.now().toString());
              } catch (e) {
                console.log('无法通知主页刷新评论:', e.message);
              }
