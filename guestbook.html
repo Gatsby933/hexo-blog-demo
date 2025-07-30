@@ -786,10 +786,7 @@
          comments.forEach(comment => {
            let avatarSrc = comment.avatar || './images/avatar.svg';
            
-           // 确保头像URL始终使用完整的自定义域名URL
-           if (avatarSrc.startsWith('/.netlify/functions/')) {
-             avatarSrc = 'https://blog.hanverse.pub' + avatarSrc;
-           }
+           // 使用相对路径，通过Cloudflare路由到正确的服务
            
            if (!window.avatarCache.has(avatarSrc)) {
              const preloadImg = new Image();
@@ -1216,10 +1213,7 @@
                 if (currentUser.avatar && currentUser.avatar !== './images/avatar.svg') {
                    let avatarUrl = currentUser.avatar;
                    
-                   // 确保头像URL始终使用完整的自定义域名URL
-                   if (avatarUrl.startsWith('/.netlify/functions/')) {
-                     avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-                   }
+                   // 使用相对路径，通过Cloudflare路由到正确的服务
                    
                    currentUserAvatar.src = avatarUrl;
                 } else {

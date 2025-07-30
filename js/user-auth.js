@@ -94,12 +94,12 @@ const UserManager = {
         return null;
       }
       
-      // 检查并修复头像URL格式
-      if (user.avatar && user.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-        user.avatar = user.avatar.replace('https://blog.hanverse.pub', '');
+      // 检查并修复头像URL格式，确保使用相对路径
+      if (user.avatar && user.avatar.includes('blog.hanverse.pub/.netlify/functions/')) {
+        user.avatar = user.avatar.replace(/https?:\/\/[^/]*/, '');
         // 更新localStorage中的数据
         localStorage.setItem('currentUser', JSON.stringify(user));
-        console.log('已修复localStorage中的头像URL格式');
+        console.log('已修复localStorage中的头像URL格式为相对路径');
       }
       
       return user;
@@ -139,8 +139,8 @@ const UserManager = {
         localStorage.setItem('token', data.token);
         // 处理头像URL，确保保存相对路径
         const userData = { ...data.user };
-        if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-          userData.avatar = userData.avatar.replace('https://blog.hanverse.pub', '');
+        if (userData.avatar && userData.avatar.includes('blog.hanverse.pub/.netlify/functions/')) {
+          userData.avatar = userData.avatar.replace(/https?:\/\/[^/]*/, '');
         }
         localStorage.setItem('currentUser', JSON.stringify(userData));
       } else if (data?.username) {
@@ -148,8 +148,8 @@ const UserManager = {
         if (existingToken) {
           // 处理头像URL，确保保存相对路径
           const userData = { ...data };
-          if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-            userData.avatar = userData.avatar.replace('https://blog.hanverse.pub', '');
+          if (userData.avatar && userData.avatar.includes('blog.hanverse.pub/.netlify/functions/')) {
+            userData.avatar = userData.avatar.replace(/https?:\/\/[^/]*/, '');
           }
           localStorage.setItem('currentUser', JSON.stringify(userData));
         }
@@ -283,10 +283,7 @@ function initAuthModals() {
         if (currentUser.avatar) {
           // 处理头像URL，确保使用相对路径适配当前环境
           let avatarUrl = currentUser.avatar;
-          // 确保头像URL始终使用完整的自定义域名URL
-          if (avatarUrl.startsWith('/.netlify/functions/')) {
-            avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-          }
+          // 使用相对路径，通过Cloudflare路由到正确的服务
           // 添加时间戳避免缓存问题
           avatarUrl = avatarUrl + '?t=' + Date.now();
           settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
@@ -343,10 +340,7 @@ function initAuthModals() {
               if (parsedUser.avatar) {
               // 处理头像URL，确保使用相对路径适配当前环境
               let avatarUrl = parsedUser.avatar;
-              // 确保头像URL始终使用完整的自定义域名URL
-              if (avatarUrl.startsWith('/.netlify/functions/')) {
-                avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-              }
+              // 使用相对路径，通过Cloudflare路由到正确的服务
               // 添加时间戳避免缓存问题
               avatarUrl = avatarUrl + '?t=' + Date.now();
               settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
@@ -416,10 +410,7 @@ function initAuthModals() {
             if (currentUser.avatar) {
               // 处理头像URL，确保使用相对路径适配当前环境
               let avatarUrl = currentUser.avatar;
-              // 确保头像URL始终使用完整的自定义域名URL
-              if (avatarUrl.startsWith('/.netlify/functions/')) {
-                avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-              }
+              // 使用相对路径，通过Cloudflare路由到正确的服务
               // 添加时间戳避免缓存问题
               avatarUrl = avatarUrl + '?t=' + Date.now();
               settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
@@ -782,10 +773,7 @@ function initAuthModals() {
               if (settingsBtn && currentUser.avatar) {
                 // 处理头像URL，确保使用相对路径适配当前环境
                 let avatarUrl = currentUser.avatar;
-                // 确保头像URL始终使用完整的自定义域名URL
-                if (avatarUrl.startsWith('/.netlify/functions/')) {
-                  avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-                }
+                // 使用相对路径，通过Cloudflare路由到正确的服务
                 // 添加时间戳避免缓存问题
                 avatarUrl = avatarUrl + '?t=' + Date.now();
                 settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
@@ -1025,10 +1013,7 @@ async function restoreUserAuth() {
               if (parsedUser.avatar) {
             // 处理头像URL，确保使用相对路径适配当前环境
             let avatarUrl = parsedUser.avatar;
-            // 确保头像URL始终使用完整的自定义域名URL
-            if (avatarUrl.startsWith('/.netlify/functions/')) {
-              avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-            }
+            // 使用相对路径，通过Cloudflare路由到正确的服务
             // 添加时间戳避免缓存问题
             avatarUrl = avatarUrl + '?t=' + Date.now();
             settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;

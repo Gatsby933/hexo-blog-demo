@@ -167,9 +167,7 @@
             const originalUrl = avatarUrl;
             
             // 测试当前的转换逻辑
-            if (avatarUrl.startsWith('/.netlify/functions/')) {
-                avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
-            }
+            // 使用相对路径，通过Cloudflare路由到正确的服务
             
             const finalUrl = avatarUrl + '?t=' + Date.now();
             
