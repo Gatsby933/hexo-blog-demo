@@ -394,12 +394,8 @@ function initAuthModals() {
           if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
             // 用户已登录，恢复基本的头像显示
             if (currentUser.avatar) {
-              // 处理头像URL，确保使用相对路径适配当前环境
-              let avatarUrl = currentUser.avatar;
-              // 使用相对路径，通过Cloudflare路由到正确的服务
-              // 添加时间戳避免缓存问题
-              avatarUrl = avatarUrl + '?t=' + Date.now();
-              settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+              // 头像数据现在直接存储为base64格式，可以直接使用
+              settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
             }
@@ -993,12 +989,8 @@ async function restoreUserAuth() {
             const settingsBtn = document.getElementById('settingsBtn');
             if (settingsBtn) {
               if (parsedUser.avatar) {
-            // 处理头像URL，确保使用相对路径适配当前环境
-            let avatarUrl = parsedUser.avatar;
-            // 使用相对路径，通过Cloudflare路由到正确的服务
-            // 添加时间戳避免缓存问题
-            avatarUrl = avatarUrl + '?t=' + Date.now();
-            settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+            // 头像数据现在直接存储为base64格式，可以直接使用
+            settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
           } else {
             settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
           }

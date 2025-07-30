@@ -76,28 +76,10 @@ async function saveBase64Avatar(base64Data, userId) {
   }
 }
 
-// 删除旧的头像数据
-async function deleteOldAvatar(avatarUrl) {
-  try {
-    if (avatarUrl && (avatarUrl.includes('/get-avatar/') || avatarUrl.startsWith('/api/avatar/'))) {
-      const avatarId = avatarUrl.split('/').pop();
-      
-      const { db } = await connectToDatabase();
-      const avatars = db.collection('avatars');
-      
-      const result = await avatars.deleteOne({ _id: avatarId });
-      if (result.deletedCount > 0) {
-        console.log('已删除旧头像数据:', avatarId);
-      }
-    }
-  } catch (error) {
-    console.error('删除旧头像数据错误:', error);
-  }
-}
+// 头像数据现在直接存储在用户表中，不再需要单独的删除函数
 
 module.exports = {
-  saveBase64Avatar,
-  deleteOldAvatar
+  saveBase64Avatar
 };
 
 // 如果直接调用此文件，提供HTTP接口

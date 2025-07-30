@@ -44,12 +44,11 @@ exports.handler = asyncHandler(async (event, context) => {
       .toArray()
   ]);
 
-  // 格式化评论数据并优化头像URL
+  // 格式化评论数据
   const formattedComments = commentsList.map(comment => {
     let avatarUrl = comment.avatar || '/images/avatar.svg';
     
-    // 头像URL处理 - 保持相对路径，让前端根据当前域名解析
-    // 不再强制转换为完整URL，以支持本地开发和线上环境
+    // 头像现在是base64数据或默认路径，直接使用
     
     return {
       ...comment,
