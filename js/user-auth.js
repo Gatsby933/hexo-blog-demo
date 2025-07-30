@@ -262,7 +262,9 @@ function initAuthModals() {
         
         // 显示用户头像或默认图标
         if (currentUser.avatar) {
-          settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
+          // 添加时间戳避免缓存问题
+          const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+          settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
         } else {
           settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
         }
@@ -314,7 +316,9 @@ function initAuthModals() {
               console.log('发现localStorage中有有效用户数据，恢复登录状态');
               // 恢复用户数据而不是清除
               if (parsedUser.avatar) {
-                settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像">`;
+                // 添加时间戳避免缓存问题
+                const avatarUrl = parsedUser.avatar + '?t=' + Date.now();
+                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
               } else {
                 settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
               }
@@ -379,7 +383,9 @@ function initAuthModals() {
           if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
             // 用户已登录，恢复基本的头像显示
             if (currentUser.avatar) {
-              settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
+              // 添加时间戳避免缓存问题
+              const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+              settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
             }
@@ -737,8 +743,10 @@ function initAuthModals() {
               // 立即更新头像显示
               const settingsBtn = document.getElementById('settingsBtn');
               if (settingsBtn && currentUser.avatar) {
-                settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像">`;
-                console.log('立即更新了设置按钮头像显示');
+                // 添加时间戳避免缓存问题
+                const avatarUrl = currentUser.avatar + '?t=' + Date.now();
+                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+                console.log('立即更新了设置按钮头像显示，URL:', avatarUrl);
               }
               
               // 更新UI显示新头像
