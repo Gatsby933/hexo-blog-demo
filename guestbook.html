@@ -623,22 +623,17 @@
          try {
            console.log('开始加载评论，页码:', page, '追加模式:', append);
            
-           // 构建API请求URL
+           // 构建API请求URL - 强制使用线上API避免本地服务器问题
            let limit = 10;
-           let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
+           const apiBaseUrl = 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+           let apiUrl = `${apiBaseUrl}/get-comments?page=${page}&limit=${limit}`;
            if (forceRefresh) {
              apiUrl += `&_t=${Date.now()}`;
            }
            console.log('请求评论API:', apiUrl);
            
-           const headers = {};
-           if (forceRefresh) {
-             headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-             headers['Pragma'] = 'no-cache';
-             headers['Expires'] = '0';
-           }
-           
-           const response = await fetch(apiUrl, { headers });
+           // 使用URL参数防止缓存，避免CORS问题
+           const response = await fetch(apiUrl);
            console.log('API响应状态:', response.status, response.statusText);
            
            if (!response.ok) {
@@ -657,9 +652,10 @@
              // 替换模式：替换整个评论列表
              allComments = data.comments || [];
              console.log('替换评论列表，共:', allComments.length, '条');
+             // 只在非追加模式下更新总评论数
+             totalComments = data.pagination?.totalComments || allComments.length;
            }
            
-           totalComments = data.pagination?.totalComments || allComments.length;
            console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
            
            if (append && page > 1) {
@@ -817,7 +813,7 @@
        async function addNewComment(username, avatar, content) {
          try {
            console.log('保存评论到API');
-           const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
+           const apiUrl = `https://clever-mermaid-713c96.netlify.app/.netlify/functions/save-comment`;
            console.log('保存评论API URL:', apiUrl);
            const response = await fetch(apiUrl, {
              method: 'POST',
@@ -943,6 +939,7 @@
            loadMoreBtn.addEventListener('click', async function() {
              currentPage += 1;
              await loadComments(false, currentPage, true);
+             displayedComments += 10; // 增加显示的评论数量
              showComments();
              updateLoadMoreButton();
            });
