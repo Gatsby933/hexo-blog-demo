@@ -102,7 +102,13 @@
     </div>
 
     <div class="debug-container">
-        <h2 class="debug-title">4. 直接API测试</h2>
+        <h2 class="debug-title">4. 数据库调试</h2>
+        <button onclick="testDatabaseQuery()">查询数据库中的头像记录</button>
+        <div id="dbTest"></div>
+    </div>
+
+    <div class="debug-container">
+        <h2 class="debug-title">5. 直接API测试</h2>
         <button onclick="testGetAvatarApi()">测试get-avatar API</button>
         <div id="apiTest"></div>
     </div>
@@ -253,6 +259,100 @@
             
             idValidation.innerHTML = result;
             addLog(`头像ID验证结果: ${isValid ? '有效' : '无效'}`, isValid ? 'success' : 'error');
+        }
+
+        async function testDatabaseQuery() {
+            const dbTest = document.getElementById('dbTest');
+            const avatarId = document.getElementById('avatarId').value;
+            
+            addLog('开始数据库查询测试');
+            
+            let queryUrl;
+            if (avatarId) {
+                queryUrl = `https://blog.hanverse.pub/.netlify/functions/debug-avatar-db?id=${encodeURIComponent(avatarId)}`;
+                addLog(`查询特定头像ID: ${avatarId}`);
+            } else {
+                queryUrl = `https://blog.hanverse.pub/.netlify/functions/debug-avatar-db`;
+                addLog('查询所有头像记录');
+            }
+            
+            try {
+                const response = await fetch(queryUrl);
+                const responseData = await response.json();
+                
+                if (response.ok) {
+                    let result = `
+                        <div class="debug-item success">
+                            <strong>数据库查询成功!</strong><br>
+                            <strong>时间戳:</strong> ${responseData.timestamp}<br>
+                            <strong>数据库连接:</strong> ${responseData.databaseConnected ? '✓ 成功' : '✗ 失败'}<br>
+                    `;
+                    
+                    if (responseData.avatarId) {
+                        result += `
+                            <strong>查询头像ID:</strong> ${responseData.avatarId}<br>
+                            <strong>ID格式验证:</strong> ${responseData.idFormatValid ? '✓ 有效' : '✗ 无效'}<br>
+                            <strong>头像是否存在:</strong> ${responseData.avatarFound ? '✓ 存在' : '✗ 不存在'}<br>
+                        `;
+                        
+                        if (responseData.avatarInfo) {
+                            result += `
+                                <strong>头像信息:</strong><br>
+                                &nbsp;&nbsp;用户ID: ${responseData.avatarInfo.userId}<br>
+                                &nbsp;&nbsp;图片类型: ${responseData.avatarInfo.imageType}<br>
+                                &nbsp;&nbsp;创建时间: ${responseData.avatarInfo.createdAt}<br>
+                                &nbsp;&nbsp;文件大小: ${responseData.avatarInfo.size} 字节<br>
+                                &nbsp;&nbsp;数据长度: ${responseData.avatarInfo.dataLength}<br>
+                            `;
+                        }
+                        
+                        if (responseData.idParts) {
+                            result += `
+                                <strong>ID格式分析:</strong><br>
+                                &nbsp;&nbsp;用户ID部分: ${responseData.idParts.userIdPart} (长度: ${responseData.idParts.userIdLength})<br>
+                                &nbsp;&nbsp;哈希部分: ${responseData.idParts.hashPart} (长度: ${responseData.idParts.hashLength})<br>
+                            `;
+                        }
+                    } else {
+                        result += `
+                            <strong>总头像数量:</strong> ${responseData.totalAvatars}<br>
+                            <strong>示例头像:</strong><br>
+                        `;
+                        
+                        if (responseData.sampleAvatars && responseData.sampleAvatars.length > 0) {
+                            responseData.sampleAvatars.forEach(avatar => {
+                                result += `&nbsp;&nbsp;ID: ${avatar.id}, 用户: ${avatar.userId}, 类型: ${avatar.imageType}<br>`;
+                            });
+                        } else {
+                            result += '&nbsp;&nbsp;没有找到头像记录<br>';
+                        }
+                    }
+                    
+                    result += '</div>';
+                    dbTest.innerHTML = result;
+                    addLog('数据库查询完成', 'success');
+                } else {
+                    const result = `
+                        <div class="debug-item error">
+                            <strong>数据库查询失败!</strong><br>
+                            <strong>状态码:</strong> ${response.status}<br>
+                            <strong>错误信息:</strong> ${responseData.message || '未知错误'}
+                        </div>
+                    `;
+                    dbTest.innerHTML = result;
+                    addLog(`数据库查询失败: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                const result = `
+                    <div class="debug-item error">
+                        <strong>网络错误!</strong><br>
+                        <strong>错误信息:</strong> ${error.message}
+                    </div>
+                `;
+                dbTest.innerHTML = result;
+                addLog(`网络错误: ${error.message}`, 'error');
+            }
         }
 
         async function testGetAvatarApi() {
