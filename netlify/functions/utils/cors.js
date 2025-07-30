@@ -21,7 +21,7 @@ const corsHeaders = (origin) => {
     return {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, expires',
         'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Max-Age': '86400'
     };
@@ -51,7 +51,7 @@ const addCorsHeaders = (response, event) => {
         headers = {
             'Access-Control-Allow-Origin': origin,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, expires',
             'Access-Control-Allow-Credentials': 'true',
             'Access-Control-Max-Age': '86400'
         };

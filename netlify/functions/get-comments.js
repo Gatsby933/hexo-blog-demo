@@ -76,6 +76,9 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('获取评论错误:', error.message);
     console.error('错误堆栈:', error.stack);
+    // 新增调试输出
+    console.error('event.queryStringParameters:', event.queryStringParameters);
+    console.error('event.headers:', event.headers);
     return addCorsHeaders({
       statusCode: 500,
       headers: {

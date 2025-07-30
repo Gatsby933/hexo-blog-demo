@@ -583,6 +583,7 @@
        
        // 显示更多相关变量
        let displayedComments = 10; // 当前显示的评论数量
+       let currentPage = 1; // 当前页码
        const commentsPerLoad = 10; // 每次加载的评论数量
        let totalComments = 0;
        let allComments = []; // 存储所有评论数据
@@ -676,115 +677,34 @@
        
        // 从服务器加载评论数据（支持缓存）
        async function loadComments(forceRefresh = false) {
-         // 先尝试从缓存加载（除非强制刷新）
-         const cachedData = forceRefresh ? null : getCachedComments();
-         if (cachedData) {
-           // 使用缓存数据立即显示
-           allComments = cachedData.comments;
-           totalComments = cachedData.pagination.totalComments;
-           
-           // 隐藏加载状态
-           const loadingElement = document.getElementById('comments-loading');
-           if (loadingElement) {
-             loadingElement.style.display = 'none';
-           }
-           
-           // 渲染缓存的评论
-           renderComments();
-           showComments();
-           updateLoadMoreButton();
-         } else {
-           // 没有缓存时显示加载状态
-           const loadingElement = document.getElementById('comments-loading');
-           if (loadingElement) {
-             loadingElement.style.display = 'block';
-           }
+         // 主页风格：每次只请求10条，支持分页
+         let page = 1;
+         let limit = 10;
+         let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
+         if (forceRefresh) {
+           apiUrl += `&_t=${Date.now()}`;
          }
-         
-         // 后台更新数据
-         try {
-           console.log('从API加载评论', forceRefresh ? '(强制刷新)' : '');
-           let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
-           if (forceRefresh) {
-             apiUrl += `?_t=${Date.now()}`;
-           }
-           console.log('API URL:', apiUrl);
-           
-           const headers = {};
-           if (forceRefresh) {
-             headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-             headers['Pragma'] = 'no-cache';
-             headers['Expires'] = '0';
-           }
-           
-           const response = await fetch(apiUrl, { headers });
-           console.log('API响应状态:', response.status, response.statusText);
-           
-           const responseText = await response.text();
-           console.log('API响应内容:', responseText);
-           
-           let data;
-           try {
-             data = JSON.parse(responseText);
-           } catch (parseError) {
-             console.error('JSON解析失败:', parseError);
-             console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
-             if (!cachedData) {
-               hideLoadingAndFallback();
-             }
-             return;
-           }
-           
-           if (response.ok) {
-             // 强制刷新时总是更新，否则检查数据是否有更新
-             if (forceRefresh) {
-               console.log('强制刷新评论显示');
-               allComments = data.comments;
-               totalComments = data.pagination.totalComments;
-               
-               // 渲染新数据
-               renderComments();
-               showComments();
-               updateLoadMoreButton();
-             } else {
-               // 检查数据是否有更新
-               const hasUpdate = !cachedData || 
-                 JSON.stringify(data.comments) !== JSON.stringify(cachedData.comments) ||
-                 data.pagination.totalComments !== cachedData.pagination.totalComments;
-               
-               if (hasUpdate) {
-                 console.log('检测到评论更新，刷新显示');
-                 allComments = data.comments;
-                 totalComments = data.pagination.totalComments;
-                 
-                 // 渲染新数据
-                 renderComments();
-                 showComments();
-                 updateLoadMoreButton();
-               } else {
-                 console.log('评论数据无变化');
-               }
-             }
-             
-             // 更新缓存
-             cacheComments(data.comments, data.pagination);
-             
-             // 隐藏加载状态
-             const loadingElement = document.getElementById('comments-loading');
-             if (loadingElement) {
-               loadingElement.style.display = 'none';
-             }
-           } else {
-             console.error('加载评论失败:', data.message);
-             if (!cachedData) {
-               hideLoadingAndFallback();
-             }
-           }
-         } catch (error) {
-           console.error('加载评论时发生错误:', error);
-           if (!cachedData) {
-             hideLoadingAndFallback();
-           }
+         const headers = {};
+         if (forceRefresh) {
+           headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+           headers['Pragma'] = 'no-cache';
+           headers['Expires'] = '0';
+         }
+         const response = await fetch(apiUrl, { headers });
+         if (!response.ok) {
+           return;
+         }
+         const data = await response.json();
+         allComments = data.comments || [];
+         totalComments = data.pagination?.totalComments || allComments.length;
+         renderComments();
+         showComments();
+         updateLoadMoreButton();
+         // 缓存逻辑可选保留
+         cacheComments(allComments, { totalComments });
+         const loadingElement = document.getElementById('comments-loading');
+         if (loadingElement) {
+           loadingElement.style.display = 'none';
          }
        }
        
@@ -1041,18 +961,16 @@
        function setupLoadMoreButton() {
          const loadMoreBtn = document.getElementById('loadMoreBtn');
          if (loadMoreBtn) {
-           loadMoreBtn.addEventListener('click', function() {
-             displayedComments += commentsPerLoad;
+           loadMoreBtn.addEventListener('click', async function() {
+             currentPage += 1;
+             await loadComments(false, currentPage, true);
              showComments();
              updateLoadMoreButton();
            });
-           
-           // 添加悬停效果
            loadMoreBtn.addEventListener('mouseenter', function() {
              this.style.background = 'rgba(51, 51, 51, 0.1)';
              this.style.transform = 'translateY(-1px)';
            });
-           
            loadMoreBtn.addEventListener('mouseleave', function() {
              this.style.background = 'rgba(255, 255, 255, 0.9)';
              this.style.transform = 'translateY(0)';
@@ -1079,34 +997,24 @@
        
        // 监听评论表单提交事件
        if (commentForm) {
-         commentForm.addEventListener('submit', function(event) {
+         commentForm.addEventListener('submit', async function(event) {
            event.preventDefault();
-           
-           // 获取评论内容
            const commentContent = document.getElementById('commentContent').value.trim();
-           
            if (!commentContent) {
              alert('请填写评论内容');
              return;
            }
-           
-           // 获取当前用户信息
            const currentUser = getCurrentUser();
-           
-           // 检查用户是否已登录
            if (!currentUser) {
              alert('请先登录后再发表评论');
              return;
            }
-           
-           // 评论提交成功后的处理
-           addNewComment(currentUser.username, currentUser.avatar, commentContent);
-           
-           // 重置表单
+           await addNewComment(currentUser.username, currentUser.avatar, commentContent);
            commentForm.reset();
-           
-           // 滚动到评论区域顶部查看新评论
            commentsContainer.scrollIntoView({ behavior: 'smooth' });
+           // 新评论后重置分页并重新加载第一页
+           currentPage = 1;
+           await loadComments(true, 1, false);
          });
        }
        
