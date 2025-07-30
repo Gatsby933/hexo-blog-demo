@@ -676,35 +676,113 @@
        }
        
        // 从服务器加载评论数据（支持缓存）
-       async function loadComments(forceRefresh = false) {
-         // 主页风格：每次只请求10条，支持分页
-         let page = 1;
-         let limit = 10;
-         let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
-         if (forceRefresh) {
-           apiUrl += `&_t=${Date.now()}`;
-         }
-         const headers = {};
-         if (forceRefresh) {
-           headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-           headers['Pragma'] = 'no-cache';
-           headers['Expires'] = '0';
-         }
-         const response = await fetch(apiUrl, { headers });
-         if (!response.ok) {
-           return;
-         }
-         const data = await response.json();
-         allComments = data.comments || [];
-         totalComments = data.pagination?.totalComments || allComments.length;
-         renderComments();
-         showComments();
-         updateLoadMoreButton();
-         // 缓存逻辑可选保留
-         cacheComments(allComments, { totalComments });
-         const loadingElement = document.getElementById('comments-loading');
-         if (loadingElement) {
-           loadingElement.style.display = 'none';
+       async function loadComments(forceRefresh = false, page = 1, append = false) {
+         try {
+           console.log('开始加载评论，强制刷新:', forceRefresh);
+           
+           // 如果不是强制刷新，先尝试从缓存获取
+           if (!forceRefresh) {
+             const cachedData = getCachedComments();
+             if (cachedData && cachedData.comments && cachedData.comments.length > 0) {
+               console.log('使用缓存评论数据');
+               allComments = cachedData.comments;
+               totalComments = cachedData.pagination?.totalComments || allComments.length;
+               renderComments();
+               showComments();
+               updateLoadMoreButton();
+               const loadingElement = document.getElementById('comments-loading');
+               if (loadingElement) {
+                 loadingElement.style.display = 'none';
+               }
+               return;
+             }
+           }
+           
+           // 主页风格：每次只请求10条，支持分页
+            let limit = 10;
+            let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments?page=${page}&limit=${limit}`;
+           if (forceRefresh) {
+             apiUrl += `&_t=${Date.now()}`;
+           }
+           console.log('请求评论API:', apiUrl);
+           
+           const headers = {};
+           if (forceRefresh) {
+             headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+             headers['Pragma'] = 'no-cache';
+             headers['Expires'] = '0';
+           }
+           
+           const response = await fetch(apiUrl, { headers });
+           console.log('API响应状态:', response.status, response.statusText);
+           
+           if (!response.ok) {
+             console.error('API请求失败，状态码:', response.status);
+             throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
+           }
+           
+           const data = await response.json();
+            console.log('获取到评论数据:', data);
+            
+            if (append && page > 1) {
+              // 追加模式：将新评论添加到现有列表
+              const newComments = data.comments || [];
+              allComments = allComments.concat(newComments);
+              console.log('追加评论，新增:', newComments.length, '条，总计:', allComments.length, '条');
+            } else {
+              // 替换模式：替换整个评论列表
+              allComments = data.comments || [];
+              console.log('替换评论列表，共:', allComments.length, '条');
+            }
+            
+            totalComments = data.pagination?.totalComments || allComments.length;
+            
+            console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
+            
+            if (append && page > 1) {
+              // 追加模式：只渲染新评论
+              const newComments = data.comments || [];
+              newComments.forEach(comment => {
+                const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
+                commentList.appendChild(commentElement);
+              });
+            } else {
+              // 替换模式：重新渲染所有评论
+              renderComments();
+            }
+            
+            showComments();
+            updateLoadMoreButton();
+           
+           // 缓存新数据
+           cacheComments(allComments, { totalComments });
+           
+           const loadingElement = document.getElementById('comments-loading');
+           if (loadingElement) {
+             loadingElement.style.display = 'none';
+           }
+           
+         } catch (error) {
+           console.error('加载评论失败:', error);
+           
+           // 尝试使用缓存数据作为回退
+           const cachedData = getCachedComments();
+           if (cachedData && cachedData.comments && cachedData.comments.length > 0) {
+             console.log('API失败，使用缓存数据作为回退');
+             allComments = cachedData.comments;
+             totalComments = cachedData.pagination?.totalComments || allComments.length;
+             renderComments();
+             showComments();
+             updateLoadMoreButton();
+           } else {
+             console.log('无缓存数据，回退到静态评论');
+             hideLoadingAndFallback();
+           }
+           
+           const loadingElement = document.getElementById('comments-loading');
+           if (loadingElement) {
+             loadingElement.style.display = 'none';
+           }
          }
        }
        
@@ -865,15 +943,13 @@
              // 清除评论缓存，确保获取最新数据
              clearCommentsCache();
              
-             // 强制重新加载评论列表，跳过缓存
-             await loadComments(true);
+             // 强制重新加载评论列表，跳过缓存，重置到第一页
+             currentPage = 1;
+             displayedComments = 10; // 重置显示数量
+             await loadComments(true, 1, false);
              
-             // 确保新评论能够显示（增加显示数量以包含新评论）
-             // 如果新评论数量超过当前显示数量，则增加显示数量
-             if (totalComments > displayedComments) {
-               displayedComments = totalComments;
-             }
-             console.log('当前显示评论数:', displayedComments, '总评论数:', totalComments);
+             // 确保新评论能够显示（由于按时间倒序排列，新评论应该在第一页）
+             console.log('评论发表后 - 当前显示评论数:', displayedComments, '总评论数:', totalComments);
              showComments();
              updateLoadMoreButton();
              

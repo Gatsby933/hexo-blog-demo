@@ -19,14 +19,20 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    // 检查环境变量
+    console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+    console.log('MONGODB_DB_NAME:', process.env.MONGODB_DB_NAME);
+    
     // 获取查询参数
     const queryParams = event.queryStringParameters || {};
     const page = parseInt(queryParams.page) || 1;
     const limit = parseInt(queryParams.limit) || 10;
     const skip = (page - 1) * limit;
 
+    console.log('尝试连接数据库...');
     // 连接数据库
     const { db } = await connectToDatabase();
+    console.log('数据库连接成功');
     const comments = db.collection('comments');
 
     // 获取评论总数
