@@ -24,9 +24,10 @@ exports.handler = asyncHandler(async (event, context) => {
   const { db } = await connectToDatabase();
   const comments = db.collection('comments');
 
-  // 并行查询优化
+  // 优化查询性能
   const [totalComments, commentsList] = await Promise.all([
-    comments.countDocuments(), // 使用精确计数
+    // 使用估算计数提高性能
+    comments.estimatedDocumentCount(),
     comments
       .find({}, {
         projection: {
@@ -43,12 +44,24 @@ exports.handler = asyncHandler(async (event, context) => {
       .toArray()
   ]);
 
-  // 格式化评论数据
-  const formattedComments = commentsList.map(comment => ({
-    ...comment,
-    avatar: comment.avatar || '/images/avatar.svg',
-    createdAt: comment.createdAt.toISOString()
-  }));
+  // 格式化评论数据并优化头像URL
+  const formattedComments = commentsList.map(comment => {
+    let avatarUrl = comment.avatar || '/images/avatar.svg';
+    
+    // 优化头像URL处理
+    if (avatarUrl && avatarUrl.includes('/get-avatar/')) {
+      // 确保头像URL是完整的
+      if (!avatarUrl.startsWith('http')) {
+        avatarUrl = `https://clever-mermaid-713c96.netlify.app/.netlify/functions${avatarUrl}`;
+      }
+    }
+    
+    return {
+      ...comment,
+      avatar: avatarUrl,
+      createdAt: comment.createdAt.toISOString()
+    };
+  });
 
   // 缓存控制
   const cacheControl = isForceRefresh ? 

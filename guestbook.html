@@ -778,8 +778,32 @@
          updateLoadMoreButton();
        }
        
+       // 预加载头像缓存
+       function preloadAvatars(comments) {
+         if (!window.avatarCache) {
+           window.avatarCache = new Map();
+         }
+         
+         comments.forEach(comment => {
+           const avatarSrc = comment.avatar || './images/avatar.svg';
+           if (!window.avatarCache.has(avatarSrc)) {
+             const preloadImg = new Image();
+             preloadImg.onload = function() {
+               window.avatarCache.set(avatarSrc, avatarSrc);
+             };
+             preloadImg.onerror = function() {
+               window.avatarCache.set(avatarSrc, './images/avatar.svg');
+             };
+             preloadImg.src = avatarSrc;
+           }
+         });
+       }
+       
        // 渲染评论到页面（优化版本）
        function renderComments() {
+         // 预加载头像
+         preloadAvatars(allComments);
+         
          // 清空现有评论列表（保留加载状态元素）
          const loadingElement = document.getElementById('comments-loading');
          commentList.innerHTML = '';
@@ -843,31 +867,34 @@
          avatarImg.alt = '用户头像';
          avatarImg.style.cssText = 'background-color: #f0f0f0;';
          
-         // 懒加载实现
+         // 优化的头像加载实现
          const avatarSrc = avatar || './images/avatar.svg';
-         if ('IntersectionObserver' in window) {
-           avatarImg.dataset.src = avatarSrc;
-           avatarImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg=='; // 占位符
-           
-           const imageObserver = new IntersectionObserver((entries, observer) => {
-             entries.forEach(entry => {
-               if (entry.isIntersecting) {
-                 const img = entry.target;
-                 img.src = img.dataset.src;
-                 img.onerror = function() {
-                   this.src = './images/avatar.svg';
-                 };
-                 observer.unobserve(img);
-               }
-             });
-           });
-           imageObserver.observe(avatarImg);
+         
+         // 头像缓存机制
+         if (!window.avatarCache) {
+           window.avatarCache = new Map();
+         }
+         
+         // 检查缓存
+         if (window.avatarCache.has(avatarSrc)) {
+           avatarImg.src = window.avatarCache.get(avatarSrc);
          } else {
-           // 降级处理：直接加载
-           avatarImg.src = avatarSrc;
-           avatarImg.onerror = function() {
-             this.src = './images/avatar.svg';
+           // 设置占位符
+           avatarImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg==';
+           
+           // 预加载头像
+           const preloadImg = new Image();
+           preloadImg.onload = function() {
+             // 缓存成功加载的头像
+             window.avatarCache.set(avatarSrc, avatarSrc);
+             avatarImg.src = avatarSrc;
            };
+           preloadImg.onerror = function() {
+             // 缓存默认头像
+             window.avatarCache.set(avatarSrc, './images/avatar.svg');
+             avatarImg.src = './images/avatar.svg';
+           };
+           preloadImg.src = avatarSrc;
          }
          
          // 设置评论HTML内容，完全匹配现有评论的结构
