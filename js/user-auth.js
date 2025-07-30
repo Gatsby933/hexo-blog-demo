@@ -95,8 +95,8 @@ const UserManager = {
       }
       
       // 检查并修复头像URL格式
-      if (user.avatar && user.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-        user.avatar = user.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+      if (user.avatar && user.avatar.startsWith('https://blog.hanverse.pub/')) {
+        user.avatar = user.avatar.replace('https://blog.hanverse.pub', '');
         // 更新localStorage中的数据
         localStorage.setItem('currentUser', JSON.stringify(user));
         console.log('已修复localStorage中的头像URL格式');
@@ -139,8 +139,8 @@ const UserManager = {
         localStorage.setItem('token', data.token);
         // 处理头像URL，确保保存相对路径
         const userData = { ...data.user };
-        if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-          userData.avatar = userData.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+        if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/')) {
+          userData.avatar = userData.avatar.replace('https://blog.hanverse.pub', '');
         }
         localStorage.setItem('currentUser', JSON.stringify(userData));
       } else if (data?.username) {
@@ -148,8 +148,8 @@ const UserManager = {
         if (existingToken) {
           // 处理头像URL，确保保存相对路径
           const userData = { ...data };
-          if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-            userData.avatar = userData.avatar.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+          if (userData.avatar && userData.avatar.startsWith('https://blog.hanverse.pub/')) {
+            userData.avatar = userData.avatar.replace('https://blog.hanverse.pub', '');
           }
           localStorage.setItem('currentUser', JSON.stringify(userData));
         }
