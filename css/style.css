@@ -342,13 +342,30 @@ ul, ol {
 }
 
 /* 修复留言板头像全屏问题 */
-.user-avatar img,
-.comment-avatar img {
+.user-avatar img {
   max-width: 64px;
   max-height: 64px;
   width: auto !important;
   height: auto !important;
   object-fit: cover;
+}
+
+.comment-avatar img {
+  max-width: 64px;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}
+
+/* 移动端头像样式优先级 */
+@media (max-width: 768px) {
+  .comment-avatar img {
+    max-width: 38px !important;
+    max-height: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
 }
 
 .social-links {

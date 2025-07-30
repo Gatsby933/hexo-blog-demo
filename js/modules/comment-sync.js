@@ -13,12 +13,19 @@ class CommentSync {
    * @param {number} limit 获取评论数量，默认3条
    * @returns {Promise<Array>} 评论数组
    */
-  async getLatestComments(limit = 3) {
+  async getLatestComments(limit = 3, forceRefresh = false) {
     try {
       const apiUrl = `${this.apiBaseUrl}/get-comments?page=1&limit=${limit}`;
-      console.log('获取最新评论API URL:', apiUrl);
+      console.log('获取最新评论API URL:', apiUrl, forceRefresh ? '(强制刷新)' : '');
       
-      const response = await fetch(apiUrl);
+      const headers = {};
+      if (forceRefresh) {
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
+      }
+      
+      const response = await fetch(apiUrl, { headers });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -122,9 +129,9 @@ class CommentSync {
   /**
    * 初始化主页评论显示
    */
-  async initHomepageComments() {
+  async initHomepageComments(forceRefresh = false) {
     try {
-      const comments = await this.getLatestComments(3);
+      const comments = await this.getLatestComments(3, forceRefresh);
       this.renderCommentsToHomepage(comments);
     } catch (error) {
       console.error('初始化主页评论失败:', error);
@@ -135,7 +142,7 @@ class CommentSync {
    * 刷新主页评论
    */
   async refreshHomepageComments() {
-    await this.initHomepageComments();
+    await this.initHomepageComments(true);
   }
 }
 

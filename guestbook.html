@@ -224,21 +224,18 @@
     .comment-form-container {
       position: static;
       background-color: transparent;
-      padding: 15px 0;
-      margin-top: 20px;
-      margin-bottom: 30px;
+      padding: 15px 0 5px 0 !important;
+      margin-top: 20px !important;
+      margin-bottom: 5px !important;
     }
     
     .comment-form {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px 20px 20px 25px; /* 增加左侧内边距 */
-      border-radius: 15px;
-      width: 100%; /* 与评论列表等宽 */
-      position: relative; /* 为绝对定位的按钮提供参考 */
-      min-height: 150px; /* 确保有足够的高度放置按钮和头像 */
-      padding-bottom: 50px; /* 为固定在底部的按钮留出空间 */
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px; /* 上移元素 */
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 25px;
+      padding: 8px 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+      margin: 0;
     }
     
     .loading {
@@ -305,10 +302,200 @@
         left: auto;
         display: inline-block;
         margin-bottom: 1rem;
+        margin-left: 15px;
+        margin-top: 10px;
+      }
+      
+      /* 手机端评论区优化 */
+      .comments-container {
+        padding: 25px 20px 10px 25px !important;
+        margin: 20px 5px !important;
+        border-radius: 12px !important;
+      }
+      
+      /* 手机端分页样式 */
+      .pagination {
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+      }
+      
+      nav[aria-label="评论分页"] {
+        margin-top: 0 !important;
+      }
+      
+      /* 缩小头像 */
+      .comment-avatar {
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 50% !important;
+      }
+      
+      /* 优化评论项布局 - 变扁 */
+      .comment-item {
+        padding: 10px 8px !important;
+        margin-bottom: 12px !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        min-height: auto !important;
+      }
+      
+      .comment-item:last-child {
+        border-bottom: none !important;
+      }
+      
+      /* 评论头部：作者名和时间居中对齐 */
+      .comment-header {
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 5px !important;
+        gap: 8px !important;
+        justify-content: flex-start !important;
+      }
+      
+      .comment-author {
+        display: inline !important;
+        margin: 0 !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+      }
+      
+      /* 时间字体缩小，与名字居中对齐 */
+      .comment-meta small {
+        font-size: 10px !important;
+        color: #999 !important;
+        margin: 0 !important;
+      }
+      
+      /* 按钮布局调整 */
+      .comment-meta {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        margin-top: 5px !important;
+      }
+      
+      .comment-time {
+        font-size: 10px !important;
+        flex-shrink: 0 !important;
+        color: #999 !important;
+      }
+      
+      .comment-actions {
+        display: flex !important;
+        gap: 10px !important;
+        flex-shrink: 0 !important;
+      }
+      
+      /* 按钮只保留图标 */
+      .comment-actions .btn {
+        padding: 4px !important;
+        font-size: 14px !important;
+        min-width: auto !important;
+        border: none !important;
+        background: transparent !important;
+        color: #666 !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      .comment-actions .btn:hover {
+        background: transparent !important;
+        color: #333 !important;
+        border: none !important;
+      }
+      
+      .comment-actions .btn .btn-text {
+        display: none !important;
+      }
+      
+      /* 评论内容下方左对齐 */
+      .comment-content {
+        margin: 8px 0 !important;
+        line-height: 1.4 !important;
+        padding: 0 !important;
+        text-align: left !important;
+        font-size: 14px !important;
       }
       
       .comment-form {
-        width: 80%;
+        width: 95%;
+        margin: 0 auto;
+      }
+      
+      /* 评论表单容器优化 */
+       .comment-form-container {
+         padding: 10px 0 5px 0 !important;
+         margin-top: 15px !important;
+         margin-bottom: 10px !important;
+       }
+       
+       /* 评论表单条状设计 */
+       .comment-form {
+         border-radius: 20px !important;
+         padding: 6px 12px !important;
+         margin: 0 !important;
+       }
+      
+      #commentForm {
+        gap: 8px !important;
+      }
+      
+      /* 当前用户头像 */
+      #currentUserAvatar {
+        width: 32px !important;
+        height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+      }
+      
+      /* 评论输入框 */
+      #commentContent {
+        font-size: 13px !important;
+        padding: 6px 0 !important;
+        border: none !important;
+        background: transparent !important;
+        resize: none !important;
+        height: auto !important;
+        line-height: 1.3 !important;
+        min-height: 20px !important;
+      }
+      
+      /* 发表评论按钮 */
+      .comment-form button[type="submit"] {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        font-size: 11px !important;
+      }
+      
+      /* 移动端刷新按钮优化 */
+      #refresh-guestbook-comments {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+      }
+      
+      /* 移动端标题调整 */
+      .comments-container h4 {
+        font-size: 1.1rem !important;
+        margin-left: 2px !important;
+      }
+      
+      /* 移动端容器等长优化 */
+      .comments-container,
+      .comment-form-container {
+        margin-left: 5px !important;
+        margin-right: 5px !important;
+        width: calc(100% - 10px) !important;
+      }
+      
+      .comment-form {
+        width: 100% !important;
+        margin: 0 !important;
       }
     }
   </style>
@@ -348,44 +535,30 @@
           </div>
         </div>
         
-        <!-- 分页导航 -->
-        <nav aria-label="评论分页" class="mt-4">
-          <ul class="pagination justify-content-center" style="margin-top: 20px; margin-bottom: 20px;">
-            <!-- 分页按钮将通过JavaScript动态生成 -->
-            <li class="page-item disabled">
-              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#" style="background-color: #000; border-color: #000;">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#">下一页</a>
-            </li>
-          </ul>
-        </nav>
+        <!-- 显示更多按钮 -->
+        <div class="text-center mt-4 mb-4" id="loadMoreContainer">
+          <button id="loadMoreBtn" class="btn" style="background: rgba(255, 255, 255, 0.9); border: 1px solid #e0e0e0; border-radius: 25px; padding: 8px 20px; font-size: 14px; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+            <i class="fa fa-ellipsis-h" style="margin-right: 8px;"></i>显示更多
+          </button>
+        </div>
       </div>
       
       <!-- 评论表单 -->
       <div class="comment-form-container">
-        <div class="comment-form" style="background: rgba(255, 255, 255, 0.8); border-radius: 15px;">
-            <h5 style="color: #333; margin-top: 0; margin-bottom: 20px; margin-left: 5px;">发表评论</h5>
-            <form id="commentForm">
-              <div class="d-flex">
-                <!-- 左侧头像和用户名 -->
-                <div class="comment-avatar me-3"> <!-- 增加右边距，使头像与文本框有更好的间隔 -->
-                  <img id="currentUserAvatar" src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="width: 64px; height: 64px; background-color: #f0f0f0; margin-top: 0px; margin-left: 12px;">
-                  <div id="currentUserName" class="mt-2" style="font-size: 0.9rem; font-weight: bold; text-align: right; margin-right: 3px;">当前用户</div>
+        <div class="comment-form" style="background: rgba(255, 255, 255, 0.9); border-radius: 25px; padding: 8px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
+            <form id="commentForm" class="d-flex align-items-center gap-3">
+                <!-- 左侧头像 -->
+                <div class="comment-avatar flex-shrink-0">
+                  <img id="currentUserAvatar" src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="background-color: #f0f0f0; width: 40px; height: 40px;">
                 </div>
-                <!-- 右侧评论框 -->
-                <div class="flex-grow-1" style="padding-right: 15px; padding-left: 10px;"> <!-- 增加左右内边距 -->
-                  <div class="mb-2">
-                    <textarea class="form-control" id="commentContent" rows="2" placeholder="写下您的评论..." required style="margin-bottom: 15px;"></textarea>
-                  </div>
+                <!-- 中间评论框 -->
+                <div class="flex-grow-1">
+                    <textarea class="form-control" id="commentContent" rows="1" placeholder="写下您的评论..." required style="border: none; background: transparent; resize: none; padding: 8px 0; font-size: 14px; line-height: 1.4;"></textarea>
                 </div>
-              </div>
-              <button type="submit" class="btn btn-sm" style="position: absolute; bottom: 15px; right: 25px; border-radius: 20px; transition: all 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background-color: #333; color: white;">
-                <i class="fa fa-paper-plane"></i> 发表评论
-              </button>
+                <!-- 右侧发送按钮 -->
+                <button type="submit" class="btn btn-sm flex-shrink-0" style="border-radius: 50%; width: 36px; height: 36px; background-color: #333; color: white; border: none; display: flex; align-items: center; justify-content: center;">
+                  <i class="fa fa-paper-plane" style="font-size: 12px;"></i>
+                </button>
             </form>
         </div>
       </div>
@@ -408,11 +581,10 @@
        const commentList = document.querySelector('.comment-list');
        const pagination = document.querySelector('.pagination');
        
-       // 分页相关变量
-       let currentPage = 1;
-       const commentsPerPage = 10;
+       // 显示更多相关变量
+       let displayedComments = 10; // 当前显示的评论数量
+       const commentsPerLoad = 10; // 每次加载的评论数量
        let totalComments = 0;
-       let totalPages = 1;
        let allComments = []; // 存储所有评论数据
        
        // 缓存相关函数
@@ -469,6 +641,12 @@
        // 初始化：加载评论数据
        loadComments();
        
+       // 初始化显示更多功能
+       totalComments = document.querySelectorAll('.comment-item').length;
+       setupLoadMoreButton();
+       showComments();
+       updateLoadMoreButton();
+       
        // 初始化留言板评论刷新按钮
        const refreshGuestbookBtn = document.getElementById('refresh-guestbook-comments');
        if (refreshGuestbookBtn) {
@@ -497,7 +675,6 @@
            // 使用缓存数据立即显示
            allComments = cachedData.comments;
            totalComments = cachedData.pagination.totalComments;
-           totalPages = cachedData.pagination.totalPages;
            
            // 隐藏加载状态
            const loadingElement = document.getElementById('comments-loading');
@@ -507,8 +684,8 @@
            
            // 渲染缓存的评论
            renderComments();
-           updatePagination();
-           showCommentsForPage(currentPage);
+           showComments();
+           updateLoadMoreButton();
          } else {
            // 没有缓存时显示加载状态
            const loadingElement = document.getElementById('comments-loading');
@@ -519,10 +696,18 @@
          
          // 后台更新数据
          try {
-           console.log('从API加载评论');
+           console.log('从API加载评论', forceRefresh ? '(强制刷新)' : '');
            const apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
            console.log('API URL:', apiUrl);
-           const response = await fetch(apiUrl);
+           
+           const headers = {};
+           if (forceRefresh) {
+             headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+             headers['Pragma'] = 'no-cache';
+             headers['Expires'] = '0';
+           }
+           
+           const response = await fetch(apiUrl, { headers });
            console.log('API响应状态:', response.status, response.statusText);
            
            const responseText = await response.text();
@@ -541,21 +726,20 @@
            }
            
            if (response.ok) {
-             // 检查数据是否有更新
+             // 检查数据是否有更新或者是强制刷新
              const hasUpdate = !cachedData || 
                JSON.stringify(data.comments) !== JSON.stringify(cachedData.comments) ||
                data.pagination.totalComments !== cachedData.pagination.totalComments;
              
-             if (hasUpdate) {
-               console.log('检测到评论更新，刷新显示');
+             if (hasUpdate || forceRefresh) {
+               console.log(forceRefresh ? '强制刷新评论显示' : '检测到评论更新，刷新显示');
                allComments = data.comments;
                totalComments = data.pagination.totalComments;
-               totalPages = data.pagination.totalPages;
                
                // 渲染新数据
                renderComments();
-               updatePagination();
-               showCommentsForPage(currentPage);
+               showComments();
+               updateLoadMoreButton();
              } else {
                console.log('评论数据无变化');
              }
@@ -594,9 +778,8 @@
        // 回退到静态评论
        function fallbackToStaticComments() {
          totalComments = document.querySelectorAll('.comment-item').length;
-         totalPages = Math.ceil(totalComments / commentsPerPage);
-         updatePagination();
-         showCommentsForPage(currentPage);
+         showComments();
+         updateLoadMoreButton();
        }
        
        // 渲染评论到页面
@@ -659,19 +842,22 @@
          newComment.innerHTML = `
            <div class="d-flex">
              <div class="comment-avatar me-3">
-               <img src="${avatar}" alt="用户头像" class="rounded-circle" style="width: 48px; height: 48px; background-color: #f0f0f0;">
+               <img src="${avatar}" alt="用户头像" class="rounded-circle" style="background-color: #f0f0f0;">
              </div>
              <div class="flex-grow-1">
-               <div class="comment-author fw-bold">${username}</div>
+               <div class="comment-header d-flex align-items-center">
+                 <div class="comment-author fw-bold">${username}</div>
+                 <small class="text-muted ms-2">${formattedDate}</small>
+               </div>
                <div class="comment-content mt-2">${content}</div>
                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
-                 <small class="text-muted">${formattedDate}</small>
+                 <div></div>
                  <div class="comment-actions">
                    <button class="btn btn-sm btn-outline-secondary me-2 like-btn" data-liked="false" style="border-radius: 20px; padding: 2px 10px;">
-                     <i class="fa fa-thumbs-up"></i> 点赞
+                     <i class="fa fa-heart"></i><span class="btn-text"> 点赞</span>
                    </button>
                    <button class="btn btn-sm btn-outline-secondary reply-btn" style="border-radius: 20px; padding: 2px 10px;">
-                     <i class="fa fa-reply"></i> 回复
+                     <i class="fa fa-reply"></i><span class="btn-text"> 回复</span>
                    </button>
                  </div>
                </div>
@@ -729,10 +915,10 @@
              // 强制重新加载评论列表，跳过缓存
              await loadComments(true);
              
-             // 跳转到最后一页显示新评论
-             currentPage = totalPages;
-             updatePagination();
-             showCommentsForPage(currentPage);
+             // 确保新评论能够显示（增加显示数量以包含新评论）
+             displayedComments = Math.max(displayedComments, totalComments);
+             showComments();
+             updateLoadMoreButton();
              
              // 通知主页刷新评论（如果主页已打开）
              try {
@@ -799,90 +985,55 @@
          setupReplyButton(commentItem.querySelector('.reply-btn'));
        }
        
-       // 更新分页导航
-       function updatePagination() {
-         // 重新计算总页数
-         totalComments = document.querySelectorAll('.comment-item').length;
-         totalPages = Math.max(1, Math.ceil(totalComments / commentsPerPage));
+       // 更新显示更多按钮
+       function updateLoadMoreButton() {
+         const loadMoreBtn = document.getElementById('loadMoreBtn');
+         const loadMoreContainer = document.getElementById('loadMoreContainer');
          
-         // 清空分页导航
-         pagination.innerHTML = '';
+         if (!loadMoreBtn || !loadMoreContainer) return;
          
-         // 添加上一页按钮
-         const prevLi = document.createElement('li');
-         prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-         prevLi.innerHTML = `<a class="page-link" href="#" tabindex="-1" aria-disabled="${currentPage === 1}">上一页</a>`;
-         pagination.appendChild(prevLi);
-         
-         // 添加页码按钮
-         for (let i = 1; i <= totalPages; i++) {
-           const pageLi = document.createElement('li');
-           pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
-           const pageLink = document.createElement('a');
-           pageLink.className = 'page-link';
-           pageLink.href = '#';
-           pageLink.textContent = i;
-           
-           // 为选中的页码设置黑色样式
-           if (i === currentPage) {
-             pageLink.style.backgroundColor = '#333';
-             pageLink.style.borderColor = '#333';
-             pageLink.style.color = 'white';
-           }
-           
-           pageLi.appendChild(pageLink);
-           pagination.appendChild(pageLi);
+         // 如果已显示所有评论，隐藏按钮
+         if (displayedComments >= totalComments) {
+           loadMoreContainer.style.display = 'none';
+         } else {
+           loadMoreContainer.style.display = 'block';
          }
-         
-         // 添加下一页按钮
-         const nextLi = document.createElement('li');
-         nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-         nextLi.innerHTML = `<a class="page-link" href="#" tabindex="-1" aria-disabled="${currentPage === totalPages}">下一页</a>`;
-         pagination.appendChild(nextLi);
-         
-         // 为分页按钮添加事件监听
-         document.querySelectorAll('.pagination .page-link').forEach((link, index) => {
-           link.addEventListener('click', function(e) {
-             e.preventDefault();
-             
-             // 上一页按钮
-             if (index === 0 && currentPage > 1) {
-               currentPage--;
-               updatePagination();
-               showCommentsForPage(currentPage);
-             }
-             // 页码按钮
-             else if (index > 0 && index < totalPages + 1) {
-               currentPage = index;
-               updatePagination();
-               showCommentsForPage(currentPage);
-             }
-             // 下一页按钮
-             else if (index === totalPages + 1 && currentPage < totalPages) {
-               currentPage++;
-               updatePagination();
-               showCommentsForPage(currentPage);
-             }
-             
-             // 滚动到评论列表顶部
-             document.querySelector('.comments-container').scrollIntoView({ behavior: 'smooth' });
-           });
-         });
        }
        
-       // 显示指定页的评论
-       function showCommentsForPage(page) {
+       // 设置显示更多按钮事件
+       function setupLoadMoreButton() {
+         const loadMoreBtn = document.getElementById('loadMoreBtn');
+         if (loadMoreBtn) {
+           loadMoreBtn.addEventListener('click', function() {
+             displayedComments += commentsPerLoad;
+             showComments();
+             updateLoadMoreButton();
+           });
+           
+           // 添加悬停效果
+           loadMoreBtn.addEventListener('mouseenter', function() {
+             this.style.background = 'rgba(51, 51, 51, 0.1)';
+             this.style.transform = 'translateY(-1px)';
+           });
+           
+           loadMoreBtn.addEventListener('mouseleave', function() {
+             this.style.background = 'rgba(255, 255, 255, 0.9)';
+             this.style.transform = 'translateY(0)';
+           });
+         }
+       }
+       
+       // 显示评论（根据displayedComments数量）
+       function showComments() {
          const comments = document.querySelectorAll('.comment-item');
-         const startIndex = (page - 1) * commentsPerPage;
-         const endIndex = Math.min(startIndex + commentsPerPage, totalComments);
          
          // 隐藏所有评论
          comments.forEach(comment => {
            comment.style.display = 'none';
          });
          
-         // 显示当前页的评论
-         for (let i = startIndex; i < endIndex; i++) {
+         // 显示前displayedComments个评论
+         for (let i = 0; i < Math.min(displayedComments, comments.length); i++) {
            if (comments[i]) {
              comments[i].style.display = 'block';
            }
