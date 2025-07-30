@@ -549,7 +549,7 @@
             <form id="commentForm" class="d-flex align-items-center gap-3">
                 <!-- 左侧头像 -->
                 <div class="comment-avatar flex-shrink-0">
-                  <img id="currentUserAvatar" src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="background-color: #f0f0f0; width: 40px; height: 40px;">
+                  <img id="currentUserAvatar" src="./images/avatar.svg" alt="用户头像" class="rounded-circle" style="background-color: #f0f0f0; width: 38px; height: 38px; object-fit: cover;">
                 </div>
                 <!-- 中间评论框 -->
                 <div class="flex-grow-1">
@@ -867,7 +867,7 @@
          const avatarImg = document.createElement('img');
          avatarImg.className = 'rounded-circle';
          avatarImg.alt = '用户头像';
-         avatarImg.style.cssText = 'background-color: #f0f0f0;';
+         avatarImg.style.cssText = 'background-color: #f0f0f0; width: 38px; height: 38px; object-fit: cover;';
          
          // 优化的头像加载实现
          let avatarSrc = avatar || './images/avatar.svg';
