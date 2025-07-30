@@ -93,11 +93,12 @@ exports.handler = async (event, context) => {
       }
 
       // 更新用户头像并获取更新后的用户信息
-      const updatedUser = await users.findOneAndUpdate(
+      const updatedUserResult = await users.findOneAndUpdate(
         { _id: new ObjectId(decoded.userId) },
         { $set: { avatar: avatarUrl, updatedAt: new Date() } },
         { returnDocument: 'after' }
       );
+      const updatedUser = updatedUserResult.value;
 
       // 删除旧头像文件（异步执行，不影响响应）
       if (currentUser.avatar && currentUser.avatar !== avatarUrl) {
