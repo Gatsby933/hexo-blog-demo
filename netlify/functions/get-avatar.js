@@ -30,7 +30,7 @@ exports.handler = asyncHandler(async (event, context) => {
   }
 
   // 验证头像ID格式（安全检查）
-  if (!/^[a-f0-9]+_[a-f0-9]+$/i.test(avatarId)) {
+  if (!/^[a-fA-F0-9]+_[a-fA-F0-9]+$/.test(avatarId)) {
     return createErrorResponse('无效的头像ID格式', 400, null, event);
   }
 
