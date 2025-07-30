@@ -283,8 +283,17 @@ function initAuthModals() {
         if (currentUser.avatar) {
           // 处理头像URL，确保使用相对路径适配当前环境
           let avatarUrl = currentUser.avatar;
-          if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-            avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+          // 根据当前环境调整头像URL
+          if (window.location.hostname === 'blog.hanverse.pub') {
+            // 在自定义域名环境下，将完整URL转换为相对路径
+            if (avatarUrl.startsWith('https://blog.hanverse.pub/')) {
+              avatarUrl = avatarUrl.replace('https://blog.hanverse.pub', '');
+            }
+          } else {
+            // 在其他环境下，确保使用完整的自定义域名URL
+            if (avatarUrl.startsWith('/.netlify/functions/')) {
+              avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
+            }
           }
           // 添加时间戳避免缓存问题
           avatarUrl = avatarUrl + '?t=' + Date.now();
@@ -340,17 +349,26 @@ function initAuthModals() {
               console.log('发现localStorage中有有效用户数据，恢复登录状态');
               // 恢复用户数据而不是清除
               if (parsedUser.avatar) {
-                // 处理头像URL，确保使用相对路径适配当前环境
-                let avatarUrl = parsedUser.avatar;
-                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+              // 处理头像URL，确保使用相对路径适配当前环境
+              let avatarUrl = parsedUser.avatar;
+              // 根据当前环境调整头像URL
+              if (window.location.hostname === 'blog.hanverse.pub') {
+                // 在自定义域名环境下，将完整URL转换为相对路径
+                if (avatarUrl.startsWith('https://blog.hanverse.pub/')) {
+                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub', '');
                 }
-                // 添加时间戳避免缓存问题
-                avatarUrl = avatarUrl + '?t=' + Date.now();
-                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
               } else {
-                settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+                // 在其他环境下，确保使用完整的自定义域名URL
+                if (avatarUrl.startsWith('/.netlify/functions/')) {
+                  avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
+                }
               }
+              // 添加时间戳避免缓存问题
+              avatarUrl = avatarUrl + '?t=' + Date.now();
+              settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+            } else {
+              settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+            }
               settingsBtn.title = `当前用户：${parsedUser.username}`;
               console.log('已恢复用户头像显示');
               return; // 提前返回，不执行下面的清除逻辑
@@ -414,8 +432,17 @@ function initAuthModals() {
             if (currentUser.avatar) {
               // 处理头像URL，确保使用相对路径适配当前环境
               let avatarUrl = currentUser.avatar;
-              if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-                avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+              // 根据当前环境调整头像URL
+              if (window.location.hostname === 'blog.hanverse.pub') {
+                // 在自定义域名环境下，将完整URL转换为相对路径
+                if (avatarUrl.startsWith('https://blog.hanverse.pub/')) {
+                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub', '');
+                }
+              } else {
+                // 在其他环境下，确保使用完整的自定义域名URL
+                if (avatarUrl.startsWith('/.netlify/functions/')) {
+                  avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
+                }
               }
               // 添加时间戳避免缓存问题
               avatarUrl = avatarUrl + '?t=' + Date.now();
@@ -779,8 +806,17 @@ function initAuthModals() {
               if (settingsBtn && currentUser.avatar) {
                 // 处理头像URL，确保使用相对路径适配当前环境
                 let avatarUrl = currentUser.avatar;
-                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
+                // 根据当前环境调整头像URL
+                if (window.location.hostname === 'blog.hanverse.pub') {
+                  // 在自定义域名环境下，将完整URL转换为相对路径
+                  if (avatarUrl.startsWith('https://blog.hanverse.pub/')) {
+                    avatarUrl = avatarUrl.replace('https://blog.hanverse.pub', '');
+                  }
+                } else {
+                  // 在其他环境下，确保使用完整的自定义域名URL
+                  if (avatarUrl.startsWith('/.netlify/functions/')) {
+                    avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
+                  }
                 }
                 // 添加时间戳避免缓存问题
                 avatarUrl = avatarUrl + '?t=' + Date.now();
@@ -1019,17 +1055,26 @@ async function restoreUserAuth() {
             const settingsBtn = document.getElementById('settingsBtn');
             if (settingsBtn) {
               if (parsedUser.avatar) {
-                // 处理头像URL，确保使用相对路径适配当前环境
-                let avatarUrl = parsedUser.avatar;
-                if (avatarUrl.startsWith('https://blog.hanverse.pub/.netlify/functions/')) {
-                  avatarUrl = avatarUrl.replace('https://blog.hanverse.pub/.netlify/functions/', '/.netlify/functions/');
-                }
-                // 添加时间戳避免缓存问题
-                avatarUrl = avatarUrl + '?t=' + Date.now();
-                settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
-              } else {
-                settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+            // 处理头像URL，确保使用相对路径适配当前环境
+            let avatarUrl = parsedUser.avatar;
+            // 根据当前环境调整头像URL
+            if (window.location.hostname === 'blog.hanverse.pub') {
+              // 在自定义域名环境下，将完整URL转换为相对路径
+              if (avatarUrl.startsWith('https://blog.hanverse.pub/')) {
+                avatarUrl = avatarUrl.replace('https://blog.hanverse.pub', '');
               }
+            } else {
+              // 在其他环境下，确保使用完整的自定义域名URL
+              if (avatarUrl.startsWith('/.netlify/functions/')) {
+                avatarUrl = 'https://blog.hanverse.pub' + avatarUrl;
+              }
+            }
+            // 添加时间戳避免缓存问题
+            avatarUrl = avatarUrl + '?t=' + Date.now();
+            settingsBtn.innerHTML = `<img src="${avatarUrl}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+          } else {
+            settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
+          }
               settingsBtn.title = `当前用户：${parsedUser.username}`;
             }
           }, 500);
