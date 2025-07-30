@@ -786,7 +786,7 @@
          comments.forEach(comment => {
            let avatarSrc = comment.avatar || './images/avatar.svg';
            
-           // 使用相对路径，通过Cloudflare路由到正确的服务
+           // 头像现在是base64数据或默认路径，直接使用
            
            if (!window.avatarCache.has(avatarSrc)) {
              const preloadImg = new Image();
@@ -872,7 +872,7 @@
          // 优化的头像加载实现
          let avatarSrc = avatar || './images/avatar.svg';
          
-         // 使用相对路径，通过Cloudflare路由到正确的服务
+         // 头像现在是base64数据或默认路径，直接使用
          
          // 头像缓存机制
          if (!window.avatarCache) {
@@ -1208,11 +1208,8 @@
               // 更新头像
               if (currentUserAvatar) {
                 if (currentUser.avatar && currentUser.avatar !== './images/avatar.svg') {
-                   let avatarUrl = currentUser.avatar;
-                   
-                   // 使用相对路径，通过Cloudflare路由到正确的服务
-                   
-                   currentUserAvatar.src = avatarUrl;
+                   // 头像现在是base64数据，直接使用
+                   currentUserAvatar.src = currentUser.avatar;
                 } else {
                   currentUserAvatar.src = './images/avatar.svg';
                 }

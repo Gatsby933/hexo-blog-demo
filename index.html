@@ -2407,7 +2407,7 @@ function updateDynamicAvatars() {
     if (currentUserStr) {
       const currentUser = JSON.parse(currentUserStr);
       if (currentUser && currentUser.avatar) {
-        const avatarUrl = currentUser.avatar + '?t=' + new Date().getTime();
+        const avatarUrl = currentUser.avatar; // 头像现在是base64数据，直接使用
         const welcomeAvatar = document.getElementById('welcomeAvatar');
         const sidebarAvatar = document.getElementById('sidebarAvatar');
         const welcomeUsername = document.getElementById('welcomeUsername');
