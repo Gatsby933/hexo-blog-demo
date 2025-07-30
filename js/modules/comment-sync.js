@@ -15,7 +15,10 @@ class CommentSync {
    */
   async getLatestComments(limit = 3, forceRefresh = false) {
     try {
-      const apiUrl = `${this.apiBaseUrl}/get-comments?page=1&limit=${limit}`;
+      let apiUrl = `${this.apiBaseUrl}/get-comments?page=1&limit=${limit}`;
+      if (forceRefresh) {
+        apiUrl += `&_t=${Date.now()}`;
+      }
       console.log('获取最新评论API URL:', apiUrl, forceRefresh ? '(强制刷新)' : '');
       
       const headers = {};

@@ -658,11 +658,11 @@
            
            // 强制刷新评论
            loadComments(true).finally(() => {
-             // 移除动画并恢复按钮
+             // 移除动画并恢复按钮，增加延迟让用户感受到刷新过程
              setTimeout(() => {
                icon.classList.remove('fa-spin');
                this.disabled = false;
-             }, 500);
+             }, 1000);
            });
          });
        }
@@ -697,7 +697,10 @@
          // 后台更新数据
          try {
            console.log('从API加载评论', forceRefresh ? '(强制刷新)' : '');
-           const apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
+           let apiUrl = `${window.API_CONFIG.baseUrl}/get-comments`;
+           if (forceRefresh) {
+             apiUrl += `?_t=${Date.now()}`;
+           }
            console.log('API URL:', apiUrl);
            
            const headers = {};

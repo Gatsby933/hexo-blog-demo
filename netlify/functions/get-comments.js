@@ -46,13 +46,20 @@ exports.handler = async (event, context) => {
       createdAt: comment.createdAt.toISOString() // 保留完整的ISO时间格式
     }));
 
+    // 检查是否为强制刷新请求
+    const isForceRefresh = event.queryStringParameters && event.queryStringParameters._t;
+    const cacheControl = isForceRefresh ? 
+      'no-cache, no-store, must-revalidate' : 
+      'public, max-age=300, s-maxage=600';
+    
     return addCorsHeaders({
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300, s-maxage=600', // 客户端5分钟，CDN10分钟
+        'Cache-Control': cacheControl,
         'ETag': `"comments-${totalComments}-${page}"`, // 基于评论数量和页码生成ETag
-        'Last-Modified': formattedComments.length > 0 ? new Date(formattedComments[0].createdAt).toUTCString() : new Date().toUTCString()
+        'Last-Modified': formattedComments.length > 0 ? new Date(formattedComments[0].createdAt).toUTCString() : new Date().toUTCString(),
+        ...(isForceRefresh && { 'Pragma': 'no-cache', 'Expires': '0' })
       },
       body: JSON.stringify({
         comments: formattedComments,

@@ -2339,11 +2339,11 @@
           // 强制刷新评论
           if (window.CommentSync) {
             window.CommentSync.refreshHomepageComments().finally(() => {
-              // 移除动画并恢复按钮
+              // 移除动画并恢复按钮，增加延迟让用户感受到刷新过程
               setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 this.disabled = false;
-              }, 500);
+              }, 1000);
             });
           } else {
             // 如果CommentSync未加载，延迟恢复按钮状态
