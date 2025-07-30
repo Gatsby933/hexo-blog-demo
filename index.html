@@ -2104,13 +2104,19 @@
      let touchStartY = 0;
      let touchEndY = 0;
      let isWelcomeActive = true;
+     let hasEnteredMainPage = false; // 新增：标记是否已经进入过主页面
      
      function handleSwipe() {
        const swipeDistance = touchStartY - touchEndY;
        
-       // 只允许向上滑动进入主页面
+       // 只允许向上滑动进入主页面，且只在欢迎页激活时
        if (swipeDistance > 50 && isWelcomeActive) {
          hideWelcomeScreen();
+       }
+       // 如果已经进入过主页面，阻止向下滑动回到欢迎页
+       else if (swipeDistance < -50 && !isWelcomeActive && hasEnteredMainPage) {
+         // 不执行任何操作，阻止回到欢迎页
+         console.log('已阻止向下滑动回到欢迎页');
        }
      }
      
@@ -2125,20 +2131,20 @@
          topRightIcon.style.display = 'block';
        }
        isWelcomeActive = false;
+       hasEnteredMainPage = true; // 标记已经进入过主页面
+       
+       // 记录用户已访问过主页面（会话级别，关闭浏览器后重置）
+       sessionStorage.setItem('hasVisitedMainPage', 'true');
      }
      
-     // 触摸事件监听 - 只在欢迎页面激活时监听
+     // 触摸事件监听 - 现在在整个页面上监听，但根据状态处理
      document.addEventListener('touchstart', function(e) {
-       if (isWelcomeActive) {
-         touchStartY = e.changedTouches[0].screenY;
-       }
+       touchStartY = e.changedTouches[0].screenY;
      });
      
      document.addEventListener('touchend', function(e) {
-       if (isWelcomeActive) {
-         touchEndY = e.changedTouches[0].screenY;
-         handleSwipe();
-       }
+       touchEndY = e.changedTouches[0].screenY;
+       handleSwipe();
      });
      
      // 点击箭头也可以进入
@@ -2161,20 +2167,31 @@
       const mainContent = document.querySelector('main.container');
       const topRightIcon = document.querySelector('.top-right-icon');
       
-      if (isMobileDevice()) {
+      // 检查是否已经进入过主页面（使用sessionStorage记录会话状态）
+      const hasVisitedMainPage = sessionStorage.getItem('hasVisitedMainPage');
+      
+      if (isMobileDevice() && !hasVisitedMainPage) {
+        // 只有在移动端且未访问过主页面时才显示欢迎页
         welcomeScreen.style.display = 'flex';
         mainContent.classList.remove('mobile-show');
         if (topRightIcon) {
           topRightIcon.style.display = 'none';
         }
         isWelcomeActive = true;
+        hasEnteredMainPage = false;
       } else {
+        // 桌面端或已访问过主页面，直接显示主页面
         welcomeScreen.style.display = 'none';
         mainContent.classList.add('mobile-show');
         if (topRightIcon) {
           topRightIcon.style.display = 'block';
         }
         isWelcomeActive = false;
+        hasEnteredMainPage = true;
+        // 如果是移动端且已访问过，记录状态
+        if (isMobileDevice() && hasVisitedMainPage) {
+          sessionStorage.setItem('hasVisitedMainPage', 'true');
+        }
       }
     }
     

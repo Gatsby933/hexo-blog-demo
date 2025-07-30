@@ -52,7 +52,7 @@ exports.handler = asyncHandler(async (event, context) => {
     if (avatarUrl && avatarUrl.includes('/get-avatar/')) {
       // 确保头像URL是完整的
       if (!avatarUrl.startsWith('http')) {
-        avatarUrl = `https://clever-mermaid-713c96.netlify.app/.netlify/functions${avatarUrl}`;
+        avatarUrl = `https://blog.hanverse.pub/.netlify/functions${avatarUrl}`;
       }
     }
     

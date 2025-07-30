@@ -658,7 +658,7 @@
            // 构建API请求URL - 动态检测本地或线上环境
            let limit = 5;
            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-           const apiBaseUrl = isLocal ? '/.netlify/functions' : 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+           const apiBaseUrl = isLocal ? 'https://blog.hanverse.pub/.netlify/functions' : 'https://blog.hanverse.pub/.netlify/functions';
            let apiUrl = `${apiBaseUrl}/get-comments?page=${page}&limit=${limit}`;
            console.log('检测到环境:', isLocal ? '本地开发' : '线上部署', 'API基础URL:', apiBaseUrl);
            if (forceRefresh) {

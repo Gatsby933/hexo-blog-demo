@@ -8,8 +8,8 @@ const corsHeaders = (origin) => {
         'http://127.0.0.1:51537',
         'http://127.0.0.1:9999',
         'http://127.0.0.1:8888',
-        'https://clever-mermaid-713c96.netlify.app',
-        'https://blog.hanverse.pub'
+        'https://blog.hanverse.pub',
+        'https://clever-mermaid-713c96.netlify.app'  // 保留原域名作为备用
     ];
     
     // 检查origin是否在允许列表中，或者是否为netlify.app域名

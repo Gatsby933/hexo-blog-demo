@@ -5,7 +5,7 @@
 
 class CommentSync {
   constructor() {
-    this.apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+    this.apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
   }
 
   /**

@@ -67,8 +67,8 @@ async function saveBase64Avatar(base64Data, userId) {
       size: Buffer.from(matches[2], 'base64').length
     });
     
-    // 返回头像URL - 使用正确的Netlify函数路径
-    return `https://clever-mermaid-713c96.netlify.app/.netlify/functions/get-avatar/${avatarId}`;
+    // 返回头像URL - 使用自定义域名
+    return `https://blog.hanverse.pub/.netlify/functions/get-avatar/${avatarId}`;
     
   } catch (error) {
     console.error('保存头像数据错误:', error);

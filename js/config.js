@@ -4,16 +4,16 @@ window.API_CONFIG = {
     baseUrl: (() => {
         const hostname = window.location.hostname;
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            // 本地开发环境也使用线上API，避免需要本地运行Netlify Dev
-            return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+            // 本地开发环境使用自定义域名的API，通过Cloudflare加速
+            return 'https://blog.hanverse.pub/.netlify/functions';
         } else if (hostname === 'blog.hanverse.pub') {
-            // GitHub Pages使用Netlify的API
-            return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+            // 自定义域名使用相对路径，通过Cloudflare加速
+            return '/.netlify/functions';
         } else {
-            // Netlify部署
-            return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+            // 其他环境（如原Netlify域名）使用自定义域名
+            return 'https://blog.hanverse.pub/.netlify/functions';
         }
     })(),
-    // GitHub Pages域名
-    githubPagesUrl: 'https://blog.hanverse.pub'
+    // 主域名
+    mainUrl: 'https://blog.hanverse.pub'
 };
