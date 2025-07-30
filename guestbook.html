@@ -651,10 +651,8 @@
        }
        
        // 初始化显示更多功能
-       totalComments = document.querySelectorAll('.comment-item').length;
        setupLoadMoreButton();
-       showComments();
-       updateLoadMoreButton();
+       // 注意：showComments和updateLoadMoreButton会在loadComments完成后调用
        
        // 初始化留言板评论刷新按钮
        const refreshGuestbookBtn = document.getElementById('refresh-guestbook-comments');
@@ -801,8 +799,19 @@
        
        // 回退到静态评论
        function fallbackToStaticComments() {
-         totalComments = document.querySelectorAll('.comment-item').length;
-         showComments();
+         const existingComments = document.querySelectorAll('.comment-item');
+         totalComments = existingComments.length;
+         console.log('回退到静态评论，找到评论数:', totalComments);
+         
+         if (totalComments === 0) {
+           // 如果没有评论，显示空状态提示
+           const commentListElement = document.querySelector('.comment-list');
+           if (commentListElement && commentListElement.children.length === 0) {
+             commentListElement.innerHTML = '<div class="text-center text-muted py-4">暂无评论，快来发表第一条评论吧！</div>';
+           }
+         } else {
+           showComments();
+         }
          updateLoadMoreButton();
        }
        
