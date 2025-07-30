@@ -583,10 +583,51 @@ function initAuthModals() {
         return;
       }
 
-      // 将图片转换为base64
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const avatarData = e.target.result;
+      // 预处理图片：压缩和优化
+      const processImage = (file) => {
+        return new Promise((resolve, reject) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          
+          img.onload = function() {
+            // 设置最大尺寸
+            const maxSize = 300;
+            let { width, height } = img;
+            
+            // 计算新尺寸，保持宽高比
+            if (width > height) {
+              if (width > maxSize) {
+                height = (height * maxSize) / width;
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width = (width * maxSize) / height;
+                height = maxSize;
+              }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 绘制压缩后的图片
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // 转换为base64，使用JPEG格式以减小文件大小
+            const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+            resolve(compressedData);
+          };
+          
+          img.onerror = reject;
+          img.src = URL.createObjectURL(file);
+        });
+      };
+      
+      try {
+        console.log('开始处理图片...');
+        const avatarData = await processImage(file);
+        console.log('图片处理完成，开始上传...');
         
         try {
           // 上传头像到服务器 - 增加超时和重试机制
@@ -728,9 +769,10 @@ function initAuthModals() {
           avatarInput.value = '';
           previewContainer.classList.add('d-none');
         }, 300);
-      };
-      
-      reader.readAsDataURL(file);
+      } catch (processError) {
+        console.error('图片处理失败:', processError);
+        alert('图片处理失败，请选择其他图片或重试');
+      }
     } catch (error) {
       console.error('头像上传失败：', error);
       alert('头像上传失败，请重试');
