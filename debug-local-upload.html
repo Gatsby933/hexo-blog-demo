@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地头像上传调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .result.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        #preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .url-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>本地头像上传调试工具 (端口9999)</h1>
+    <p>专门用于调试本地Netlify Dev环境下的头像上传问题</p>
+    
+    <div class="test-section">
+        <h3>1. 环境检查</h3>
+        <button onclick="checkEnvironment()">检查本地环境</button>
+        <div id="envResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. API端点测试</h3>
+        <input type="text" id="apiUrl" class="url-input" value="http://localhost:9999/.netlify/functions/upload-avatar" placeholder="API端点URL">
+        <button onclick="testApiEndpoint()">测试API端点</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 登录状态检查</h3>
+        <button onclick="checkLoginStatus()">检查登录状态</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 头像上传测试</h3>
+        <input type="file" id="avatarFile" accept="image/*" onchange="previewImage()">
+        <br>
+        <img id="preview" style="display: none;">
+        <br>
+        <button onclick="uploadAvatar()">上传头像 (本地)</button>
+        <div id="uploadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. 详细请求调试</h3>
+        <button onclick="debugRequest()">发送调试请求</button>
+        <div id="debugResult" class="result"></div>
+    </div>
+
+    <script>
+        async function checkEnvironment() {
+            const result = document.getElementById('envResult');
+            result.textContent = '检查环境中...';
+            result.className = 'result info';
+            
+            const checks = {
+                '当前URL': window.location.href,
+                '用户代理': navigator.userAgent,
+                'localStorage可用': typeof(Storage) !== "undefined",
+                'fetch API可用': typeof(fetch) !== "undefined",
+                '本地存储token': !!localStorage.getItem('token'),
+                '本地存储用户': !!localStorage.getItem('currentUser')
+            };
+            
+            result.textContent = Object.entries(checks)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+            result.className = 'result info';
+        }
+        
+        async function testApiEndpoint() {
+            const result = document.getElementById('apiResult');
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            result.textContent = '测试API端点...';
+            result.className = 'result info';
+            
+            try {
+                // 测试OPTIONS请求
+                const optionsResponse = await fetch(apiUrl, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type, Authorization'
+                    }
+                });
+                
+                result.textContent = `OPTIONS请求结果:\n状态码: ${optionsResponse.status}\n状态文本: ${optionsResponse.statusText}\n\n响应头:\n${Array.from(optionsResponse.headers.entries()).map(([k,v]) => `${k}: ${v}`).join('\n')}`;
+                
+                if (optionsResponse.ok) {
+                    result.className = 'result success';
+                } else {
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.textContent = `API端点测试失败:\n${error.message}\n\n这可能表明Netlify Dev服务器未正确启动或端点不可访问`;
+                result.className = 'result error';
+            }
+        }
+        
+        function checkLoginStatus() {
+            const result = document.getElementById('loginResult');
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('currentUser');
+            
+            if (!token) {
+                result.textContent = '未登录：没有找到token\n请先在主页面登录后再进行测试';
+                result.className = 'result error';
+                return;
+            }
+            
+            try {
+                const userData = user ? JSON.parse(user) : null;
+                result.textContent = `登录状态检查:\nToken存在: ✓\nToken长度: ${token.length}\nToken前缀: ${token.substring(0, 20)}...\n\n用户数据:\n${userData ? JSON.stringify(userData, null, 2) : '无用户数据'}`;
+                result.className = 'result success';
+            } catch (e) {
+                result.textContent = `登录数据解析错误:\n${e.message}`;
+                result.className = 'result error';
+            }
+        }
+        
+        function previewImage() {
+            const file = document.getElementById('avatarFile').files[0];
+            const preview = document.getElementById('preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        async function uploadAvatar() {
+            const file = document.getElementById('avatarFile').files[0];
+            const result = document.getElementById('uploadResult');
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            if (!file) {
+                result.textContent = '请先选择一个图片文件';
+                result.className = 'result error';
+                return;
+            }
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                result.textContent = '请先登录';
+                result.className = 'result error';
+                return;
+            }
+            
+            try {
+                result.textContent = '正在处理图片...';
+                result.className = 'result info';
+                
+                // 处理图片
+                const avatarData = await processImage(file);
+                
+                result.textContent = `图片处理完成\n原始大小: ${file.size} bytes\n处理后大小: ${avatarData.length} chars\n\n正在上传到本地服务器...`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ avatar: avatarData })
+                });
+                
+                result.textContent += `\n\n响应状态: ${response.status} ${response.statusText}\n响应头:\n${Array.from(response.headers.entries()).map(([k,v]) => `${k}: ${v}`).join('\n')}\n\n`;
+                
+                // 获取响应文本
+                const responseText = await response.text();
+                result.textContent += `响应内容 (前500字符):\n${responseText.substring(0, 500)}${responseText.length > 500 ? '...' : ''}`;
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        result.textContent += `\n\n解析后的JSON:\n${JSON.stringify(data, null, 2)}`;
+                        result.className = 'result success';
+                        
+                        // 更新localStorage
+                        if (data.user) {
+                            localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        }
+                    } catch (jsonError) {
+                        result.textContent += `\n\nJSON解析失败: ${jsonError.message}`;
+                        result.className = 'result error';
+                    }
+                } else {
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.textContent = `上传过程中发生错误:\n${error.message}\n\n错误堆栈:\n${error.stack}`;
+                result.className = 'result error';
+            }
+        }
+        
+        function processImage(file) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    const maxSize = 300;
+                    let { width, height } = img;
+                    
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height = (height * maxSize) / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width = (width * maxSize) / height;
+                            height = maxSize;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                    resolve(compressedData);
+                };
+                
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+        
+        async function debugRequest() {
+            const result = document.getElementById('debugResult');
+            const apiUrl = document.getElementById('apiUrl').value;
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                result.textContent = '需要token进行调试';
+                result.className = 'result error';
+                return;
+            }
+            
+            result.textContent = '发送调试请求...';
+            result.className = 'result info';
+            
+            try {
+                // 发送一个简单的测试请求
+                const testPayload = {
+                    avatar: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A'
+                };
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testPayload)
+                });
+                
+                const responseText = await response.text();
+                
+                result.textContent = `调试请求结果:\n\n请求URL: ${apiUrl}\n请求方法: POST\n\n请求头:\nAuthorization: Bearer ${token.substring(0, 20)}...\nContent-Type: application/json\nAccept: application/json\n\n响应状态: ${response.status} ${response.statusText}\n\n响应头:\n${Array.from(response.headers.entries()).map(([k,v]) => `${k}: ${v}`).join('\n')}\n\n响应内容:\n${responseText}`;
+                
+                if (response.ok) {
+                    result.className = 'result success';
+                } else {
+                    result.className = 'result error';
+                }
+                
+                // 尝试解析JSON
+                try {
+                    const data = JSON.parse(responseText);
+                    result.textContent += `\n\n解析后的JSON:\n${JSON.stringify(data, null, 2)}`;
+                } catch (jsonError) {
+                    result.textContent += `\n\nJSON解析失败: ${jsonError.message}\n这表明服务器返回的不是有效的JSON格式`;
+                }
+                
+            } catch (error) {
+                result.textContent = `调试请求失败:\n${error.message}\n\n错误堆栈:\n${error.stack}`;
+                result.className = 'result error';
+            }
+        }
+        
+        // 页面加载时自动检查环境
+        window.onload = function() {
+            checkEnvironment();
+        };
+    </script>
+</body>
+</html>
