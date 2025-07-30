@@ -111,9 +111,9 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({
           message: '头像更新成功',
           user: {
-            id: updatedUser.value._id,
-            username: updatedUser.value.username,
-            avatar: updatedUser.value.avatar
+            id: updatedUser._id,
+            username: updatedUser.username,
+            avatar: updatedUser.avatar
           }
         })
       }, event);
