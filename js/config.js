@@ -4,7 +4,8 @@ window.API_CONFIG = {
     baseUrl: (() => {
         const hostname = window.location.hostname;
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:9999/.netlify/functions';
+            // 本地开发环境也使用线上API，避免需要本地运行Netlify Dev
+            return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
         } else if (hostname === 'blog.hanverse.pub') {
             // GitHub Pages使用Netlify的API
             return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';

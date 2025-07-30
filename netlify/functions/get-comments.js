@@ -1,99 +1,97 @@
 const { connectToDatabase } = require('./utils/mongodb');
-const { addCorsHeaders, handleOptions } = require('./utils/cors');
+const { handleOptions } = require('./utils/cors');
+const { createSuccessResponse, createErrorResponse, validateHttpMethod, asyncHandler } = require('./utils/response');
+const crypto = require('crypto');
 
-exports.handler = async (event, context) => {
+exports.handler = asyncHandler(async (event, context) => {
   // 处理OPTIONS请求
   if (event.httpMethod === 'OPTIONS') {
     return handleOptions(event);
   }
 
-  // 只允许GET请求
-  if (event.httpMethod !== 'GET') {
-    return addCorsHeaders({
-      statusCode: 405,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message: '方法不允许' })
-    }, event);
-  }
+  // 验证HTTP方法
+  const methodError = validateHttpMethod(event.httpMethod, 'GET', event);
+  if (methodError) return methodError;
 
-  try {
-    // 检查环境变量
-    console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-    console.log('MONGODB_DB_NAME:', process.env.MONGODB_DB_NAME);
-    
-    // 获取查询参数
-    const queryParams = event.queryStringParameters || {};
-    const page = parseInt(queryParams.page) || 1;
-    const limit = parseInt(queryParams.limit) || 10;
-    const skip = (page - 1) * limit;
+  // 获取查询参数
+  const queryParams = event.queryStringParameters || {};
+  const page = Math.max(1, parseInt(queryParams.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(queryParams.limit) || 10)); // 限制每页最多50条
+  const skip = (page - 1) * limit;
+  const isForceRefresh = !!queryParams._t;
 
-    console.log('尝试连接数据库...');
-    // 连接数据库
-    const { db } = await connectToDatabase();
-    console.log('数据库连接成功');
-    const comments = db.collection('comments');
+  // 连接数据库
+  const { db } = await connectToDatabase();
+  const comments = db.collection('comments');
 
-    // 获取评论总数
-    const totalComments = await comments.countDocuments();
-
-    // 获取评论列表（按创建时间倒序排列，最新的在前）
-    const commentsList = await comments
-      .find({})
+  // 并行查询优化
+  const [totalComments, commentsList] = await Promise.all([
+    comments.countDocuments(), // 使用精确计数
+    comments
+      .find({}, {
+        projection: {
+          _id: 0,
+          username: 1,
+          content: 1,
+          createdAt: 1,
+          avatar: 1
+        }
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .toArray();
+      .toArray()
+  ]);
 
-    // 格式化日期，保留完整的时间信息
-    const formattedComments = commentsList.map(comment => ({
-      ...comment,
-      createdAt: comment.createdAt.toISOString() // 保留完整的ISO时间格式
-    }));
+  // 格式化评论数据
+  const formattedComments = commentsList.map(comment => ({
+    ...comment,
+    avatar: comment.avatar || '/images/avatar.svg',
+    createdAt: comment.createdAt.toISOString()
+  }));
 
-    // 检查是否为强制刷新请求
-    const isForceRefresh = event.queryStringParameters && event.queryStringParameters._t;
-    const cacheControl = isForceRefresh ? 
-      'no-cache, no-store, must-revalidate' : 
-      'public, max-age=300, s-maxage=600';
-    
-    return addCorsHeaders({
-      statusCode: 200,
+  // 缓存控制
+  const cacheControl = isForceRefresh ? 
+    'no-cache, no-store, must-revalidate' : 
+    'public, max-age=300';
+  
+  // ETag生成
+  const etag = `"${crypto.createHash('md5')
+    .update(JSON.stringify(formattedComments) + totalComments)
+    .digest('hex')}"`;
+  
+  // 检查客户端缓存
+  if (event.headers['if-none-match'] === etag && !isForceRefresh) {
+    return {
+      statusCode: 304,
       headers: {
-        'Content-Type': 'application/json',
         'Cache-Control': cacheControl,
-        'ETag': `"comments-${totalComments}-${page}"`, // 基于评论数量和页码生成ETag
-        'Last-Modified': formattedComments.length > 0 ? new Date(formattedComments[0].createdAt).toUTCString() : new Date().toUTCString(),
-        ...(isForceRefresh && { 'Pragma': 'no-cache', 'Expires': '0' })
-      },
-      body: JSON.stringify({
-        comments: formattedComments,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(totalComments / limit),
-          totalComments,
-          hasNextPage: page < Math.ceil(totalComments / limit),
-          hasPrevPage: page > 1
-        }
-      })
-    }, event);
-
-  } catch (error) {
-    console.error('获取评论错误:', error.message);
-    console.error('错误堆栈:', error.stack);
-    // 新增调试输出
-    console.error('event.queryStringParameters:', event.queryStringParameters);
-    console.error('event.headers:', event.headers);
-    return addCorsHeaders({
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        message: '服务器错误',
-        error: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误'
-      })
-    }, event);
+        'ETag': etag
+      }
+    };
   }
-};
+
+  // 构建响应数据
+  const responseData = {
+    comments: formattedComments,
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(totalComments / limit),
+      totalComments,
+      hasNextPage: page < Math.ceil(totalComments / limit),
+      hasPrevPage: page > 1
+    }
+  };
+
+  // 响应头
+  const headers = {
+    'Cache-Control': cacheControl,
+    'ETag': etag,
+    'Last-Modified': formattedComments.length > 0 ? 
+      new Date(formattedComments[0].createdAt).toUTCString() : 
+      new Date().toUTCString(),
+    ...(isForceRefresh && { 'Pragma': 'no-cache', 'Expires': '0' })
+  };
+
+  return createSuccessResponse(responseData, 200, headers, event);
+});

@@ -588,6 +588,11 @@
        let totalComments = 0;
        let allComments = []; // 存储所有评论数据
        
+       // 防抖变量和缓存机制
+       let loadingInProgress = false;
+       let commentsCache = new Map(); // 页面级缓存
+       let cacheTimestamp = 0;
+       const CACHE_DURATION = 30000; // 缓存30秒
 
        
        // 初始化：加载评论数据
@@ -620,20 +625,60 @@
        
        // 从服务器加载评论数据（支持缓存）
        async function loadComments(forceRefresh = false, page = 1, append = false) {
+         // 防止重复请求
+         if (loadingInProgress) {
+           console.log('评论加载中，跳过重复请求');
+           return;
+         }
+         
+         // 检查缓存（非强制刷新且缓存未过期）
+         const cacheKey = `page_${page}`;
+         const now = Date.now();
+         if (!forceRefresh && commentsCache.has(cacheKey) && (now - cacheTimestamp) < CACHE_DURATION) {
+           const cachedData = commentsCache.get(cacheKey);
+           console.log('使用缓存数据');
+           
+           if (append) {
+             allComments = allComments.concat(cachedData.comments);
+           } else {
+             allComments = cachedData.comments;
+             currentPage = page;
+           }
+           totalComments = cachedData.total;
+           showComments();
+           updateLoadMoreButton();
+           return;
+         }
+         
+         loadingInProgress = true;
+         
          try {
            console.log('开始加载评论，页码:', page, '追加模式:', append);
            
-           // 构建API请求URL - 强制使用线上API避免本地服务器问题
+           // 构建API请求URL - 动态检测本地或线上环境
            let limit = 5;
-           const apiBaseUrl = 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+           const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+           const apiBaseUrl = isLocal ? '/.netlify/functions' : 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
            let apiUrl = `${apiBaseUrl}/get-comments?page=${page}&limit=${limit}`;
+           console.log('检测到环境:', isLocal ? '本地开发' : '线上部署', 'API基础URL:', apiBaseUrl);
            if (forceRefresh) {
              apiUrl += `&_t=${Date.now()}`;
            }
            console.log('请求评论API:', apiUrl);
            
-           // 使用URL参数防止缓存，避免CORS问题
-           const response = await fetch(apiUrl);
+           // 优化：添加请求超时和更好的错误处理
+           const controller = new AbortController();
+           const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超时
+           
+           const response = await fetch(apiUrl, {
+             signal: controller.signal,
+             headers: {
+               'Accept': 'application/json',
+               'Cache-Control': forceRefresh ? 'no-cache' : 'max-age=300'
+             }
+           });
+           
+           clearTimeout(timeoutId);
            console.log('API响应状态:', response.status, response.statusText);
            
            if (!response.ok) {
@@ -658,6 +703,13 @@
            
            console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
            
+           // 存储到缓存
+           commentsCache.set(cacheKey, {
+             comments: data.comments || [],
+             total: data.pagination?.totalComments || (data.comments || []).length
+           });
+           cacheTimestamp = now;
+           
            if (append && page > 1) {
              // 追加模式：只渲染新评论
              const newComments = data.comments || [];
@@ -680,6 +732,12 @@
            
          } catch (error) {
            console.error('加载评论失败:', error);
+           
+           // 处理超时错误
+           if (error.name === 'AbortError') {
+             console.error('请求超时，请检查网络连接');
+           }
+           
            // 直接回退到静态评论，不使用缓存
            hideLoadingAndFallback();
            
@@ -687,6 +745,9 @@
            if (loadingElement) {
              loadingElement.style.display = 'none';
            }
+         } finally {
+           // 重置加载状态
+           loadingInProgress = false;
          }
        }
        
@@ -717,7 +778,7 @@
          updateLoadMoreButton();
        }
        
-       // 渲染评论到页面
+       // 渲染评论到页面（优化版本）
        function renderComments() {
          // 清空现有评论列表（保留加载状态元素）
          const loadingElement = document.getElementById('comments-loading');
@@ -726,10 +787,13 @@
            commentList.appendChild(loadingElement);
          }
          
+         // 使用文档片段批量添加DOM元素，提高性能
+         const fragment = document.createDocumentFragment();
          allComments.forEach(comment => {
            const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
-           commentList.appendChild(commentElement);
+           fragment.appendChild(commentElement);
          });
+         commentList.appendChild(fragment);
        }
        
        // 格式化时间显示，精确到分钟
@@ -773,11 +837,43 @@
          newComment.className = 'comment-item mb-4 p-3';
          newComment.style.cssText = 'background: rgba(240, 240, 240, 0.5); border-radius: 10px;';
          
+         // 创建头像元素（懒加载优化）
+         const avatarImg = document.createElement('img');
+         avatarImg.className = 'rounded-circle';
+         avatarImg.alt = '用户头像';
+         avatarImg.style.cssText = 'background-color: #f0f0f0;';
+         
+         // 懒加载实现
+         const avatarSrc = avatar || './images/avatar.svg';
+         if ('IntersectionObserver' in window) {
+           avatarImg.dataset.src = avatarSrc;
+           avatarImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg=='; // 占位符
+           
+           const imageObserver = new IntersectionObserver((entries, observer) => {
+             entries.forEach(entry => {
+               if (entry.isIntersecting) {
+                 const img = entry.target;
+                 img.src = img.dataset.src;
+                 img.onerror = function() {
+                   this.src = './images/avatar.svg';
+                 };
+                 observer.unobserve(img);
+               }
+             });
+           });
+           imageObserver.observe(avatarImg);
+         } else {
+           // 降级处理：直接加载
+           avatarImg.src = avatarSrc;
+           avatarImg.onerror = function() {
+             this.src = './images/avatar.svg';
+           };
+         }
+         
          // 设置评论HTML内容，完全匹配现有评论的结构
          newComment.innerHTML = `
            <div class="d-flex">
              <div class="comment-avatar me-3">
-               <img src="${avatar}" alt="用户头像" class="rounded-circle" style="background-color: #f0f0f0;">
              </div>
              <div class="flex-grow-1">
                <div class="comment-header d-flex align-items-center">
@@ -800,6 +896,10 @@
            </div>
          `;
          
+         // 将头像元素插入到评论中
+         const avatarContainer = newComment.querySelector('.comment-avatar');
+         avatarContainer.appendChild(avatarImg);
+         
          // 为新添加的点赞按钮添加事件监听
          setupLikeButton(newComment.querySelector('.like-btn'));
          
@@ -813,7 +913,7 @@
        async function addNewComment(username, avatar, content) {
          try {
            console.log('保存评论到API');
-           const apiUrl = `https://clever-mermaid-713c96.netlify.app/.netlify/functions/save-comment`;
+           const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
            console.log('保存评论API URL:', apiUrl);
            const response = await fetch(apiUrl, {
              method: 'POST',

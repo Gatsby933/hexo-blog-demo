@@ -1,6 +1,7 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const { addCorsHeaders, handleOptions } = require('./utils/cors');
+const { saveBase64Avatar, deleteOldAvatar } = require('./save-avatar');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = process.env.MONGODB_DB_NAME || 'hexo_blog';
@@ -71,18 +72,38 @@ exports.handler = async (event, context) => {
       const db = client.db(DB_NAME);
       const users = db.collection('users');
 
-      // 更新用户头像并获取更新后的用户信息
-      const updatedUser = await users.findOneAndUpdate(
-        { _id: new ObjectId(decoded.userId) },
-        { $set: { avatar: avatar, updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-
-      if (!updatedUser.value) {
+      // 获取当前用户信息（用于删除旧头像）
+      const currentUser = await users.findOne({ _id: new ObjectId(decoded.userId) });
+      if (!currentUser) {
         return addCorsHeaders({
           statusCode: 404,
           body: JSON.stringify({ message: '用户不存在' })
         }, event);
+      }
+
+      // 将base64头像转换为文件URL
+      let avatarUrl;
+      try {
+        avatarUrl = await saveBase64Avatar(avatar, decoded.userId);
+      } catch (avatarError) {
+        return addCorsHeaders({
+          statusCode: 400,
+          body: JSON.stringify({ message: avatarError.message })
+        }, event);
+      }
+
+      // 更新用户头像并获取更新后的用户信息
+      const updatedUser = await users.findOneAndUpdate(
+        { _id: new ObjectId(decoded.userId) },
+        { $set: { avatar: avatarUrl, updatedAt: new Date() } },
+        { returnDocument: 'after' }
+      );
+
+      // 删除旧头像文件（异步执行，不影响响应）
+      if (currentUser.avatar && currentUser.avatar !== avatarUrl) {
+        deleteOldAvatar(currentUser.avatar).catch(err => {
+          console.error('删除旧头像失败:', err);
+        });
       }
 
       return addCorsHeaders({

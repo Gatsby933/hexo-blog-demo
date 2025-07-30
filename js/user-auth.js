@@ -3,57 +3,57 @@
  * 包含用户登录、注册、令牌验证和界面更新等功能
  */
 
+// API请求工具函数
+const apiRequest = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
+  
+  try {
+    const response = await fetch(`${window.API_CONFIG.baseUrl}${url}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      credentials: 'include',
+      mode: 'cors',
+      signal: controller.signal,
+      ...options
+    });
+    
+    clearTimeout(timeoutId);
+    
+    let data;
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      console.error('解析响应失败:', jsonError);
+      throw new Error('服务器响应格式错误');
+    }
+    
+    if (!response.ok) {
+      throw new Error(data.message || '请求失败');
+    }
+    
+    return data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('请求超时，请检查网络连接');
+    }
+    throw error;
+  }
+};
+
 // 用户管理对象
 const UserManager = {
   // 注册新用户
   async saveUser(username, password) {
     try {
-      // 创建带超时的fetch请求
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
-      
-      const response = await fetch(`${window.API_CONFIG.baseUrl}/register`, {
+      return await apiRequest('/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include',
-        mode: 'cors',
-        signal: controller.signal
+        body: JSON.stringify({ username, password })
       });
-      
-      clearTimeout(timeoutId);
-
-      // 尝试解析JSON响应
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        console.error('解析注册响应失败:', jsonError);
-        // 尝试获取响应文本，检查是否包含特定错误信息
-        try {
-          const textResponse = await response.clone().text();
-          console.log('响应文本内容:', textResponse);
-          if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
-            throw new Error('数据库连接超时，请稍后再试');
-          }
-        } catch (textError) {
-          console.error('获取响应文本失败:', textError);
-        }
-        throw new Error('服务器响应格式错误');
-      }
-      
-      if (!response.ok) {
-        throw new Error(data.message || '注册失败');
-      }
-
-      return data;
     } catch (error) {
-      if (error.name === 'AbortError') {
-        throw new Error('注册失败：请求超时，请检查网络连接');
-      }
       throw new Error('注册失败：' + error.message);
     }
   },
@@ -65,81 +65,20 @@ const UserManager = {
         throw new Error('用户名和密码不能为空');
       }
 
-      const requestUrl = `${window.API_CONFIG.baseUrl}/login`;
-      console.log(`发送登录请求到: ${requestUrl}`);
-      
-      const requestBody = JSON.stringify({ username, password });
-      console.log('请求体:', { username, password: '******' });
-      
-      // 创建一个可以超时的fetch请求
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
-      
-      const response = await fetch(requestUrl, {
+      const data = await apiRequest('/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: requestBody,
-        credentials: 'include',
-        mode: 'cors',
-        signal: controller.signal
+        body: JSON.stringify({ username, password })
       });
-      
-      clearTimeout(timeoutId);
 
-      console.log('登录响应状态:', response.status);
-      
-      // 在尝试解析JSON之前先克隆Response对象
-      const responseClone = response.clone();
-      
-      let data;
-      try {
-        data = await response.json();
-        console.log('登录响应数据:', { ...data, token: data.token ? data.token.substring(0, 10) + '...' : null });
-      } catch (error) {
-        console.error('解析响应数据失败：', error);
-        // 使用之前克隆的Response对象获取文本
-        try {
-          const textResponse = await responseClone.text();
-          console.log('响应文本内容:', textResponse);
-          if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
-            throw new Error('登录失败：数据库连接超时，请稍后再试');
-          }
-        } catch (textError) {
-          console.error('获取响应文本失败:', textError);
-        }
-        throw new Error('登录失败：服务器响应格式错误');
-      }
-
-      if (!response.ok) {
-        console.error('登录请求失败：', data);
-        // 检查是否包含特定的错误信息
-        if (data?.error && (data.error.includes('timed out') || data.error.includes('TimeoutError'))) {
-          throw new Error('登录失败：数据库连接超时，请稍后再试');
-        } else {
-          throw new Error(data?.message || '登录失败');
-        }
-      }
-
-      if (!data || typeof data !== 'object' || !data.user || typeof data.user !== 'object' || !data.user.username || !data.token) {
-        console.error('无效的登录响应数据：', data);
-        throw new Error('登录失败：服务器返回的数据格式不正确');
+      // 验证响应数据格式
+      if (!data || !data.user || !data.user.username || !data.token) {
+        throw new Error('服务器返回的数据格式不正确');
       }
 
       return data;
     } catch (error) {
       console.error('登录错误：', error);
-      if (error.name === 'AbortError') {
-        throw new Error('登录失败：请求超时，请检查网络连接或稍后再试');
-      } else if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
-        throw new Error('登录失败：网络错误，请检查网络连接');
-      } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        throw new Error('登录失败：无法连接到服务器，请检查网络连接或稍后再试');
-      } else {
-        throw new Error('登录失败：' + (error.message || '服务器错误'));
-      }
+      throw new Error('登录失败：' + error.message);
     }
   },
   
@@ -148,11 +87,15 @@ const UserManager = {
     try {
       const userStr = localStorage.getItem('currentUser');
       if (!userStr) return null;
+      
       const user = JSON.parse(userStr);
-      return user || null;
+      if (!user?.username) {
+        localStorage.removeItem('currentUser');
+        return null;
+      }
+      return user;
     } catch (error) {
       console.error('获取用户数据失败：', error);
-      // 清除可能损坏的数据
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
       return null;
@@ -161,76 +104,39 @@ const UserManager = {
   
   // 获取令牌
   getToken() {
-    const token = localStorage.getItem('token');
-    console.log('从localStorage获取令牌:', token ? token.substring(0, 10) + '...' : 'null');
-    return token;
+    try {
+      return localStorage.getItem('token') || null;
+    } catch (error) {
+      console.error('获取token失败：', error);
+      return null;
+    }
   },
   
   // 设置当前登录用户
   setCurrentUser(data) {
     try {
-      console.log('设置当前用户，接收到的数据:', data);
       if (data === null) {
-        // 添加额外验证，防止意外清除
-        const currentUser = this.getCurrentUser();
-        const currentToken = this.getToken();
-        
-        // 如果当前有有效的用户数据，需要额外确认才能清除
-        if (currentUser && currentUser.username && currentToken) {
-          console.warn('警告：尝试清除有效的用户登录状态');
-          console.log('当前用户:', currentUser.username);
-          
-          // 检查调用栈，看是否是从logout函数调用的
-          const stack = new Error().stack;
-          if (stack && stack.includes('logout')) {
-            console.log('确认是从logout函数调用，允许清除用户数据');
-            localStorage.removeItem('token');
-            localStorage.removeItem('currentUser');
-            return;
-          } else {
-            console.log('不是从logout函数调用，拒绝清除用户数据，保持登录状态');
-            return;
-          }
+        // 检查调用栈，看是否是从logout函数调用的
+        const stack = new Error().stack;
+        if (stack?.includes('logout')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
         }
-        
-        // 如果没有有效用户数据，正常清除
-        console.log('清除用户数据');
-        localStorage.removeItem('token');
-        localStorage.removeItem('currentUser');
         return;
       }
       
       // 处理两种数据格式：{token, user} 或直接的用户对象
-      if (data && data.token && data.user && typeof data.user === 'object') {
-        // 格式：{token, user}
-        console.log('解析的令牌:', data.token ? data.token.substring(0, 10) + '...' : 'null');
-        console.log('解析的用户数据:', data.user);
-        
+      if (data?.token && data?.user?.username) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('currentUser', JSON.stringify(data.user));
-        
-        console.log('用户数据已保存到localStorage');
-        console.log('保存的令牌:', localStorage.getItem('token').substring(0, 10) + '...');
-        console.log('保存的用户数据:', localStorage.getItem('currentUser'));
-      } else if (data && typeof data === 'object' && (data.username || data.id)) {
-        // 格式：直接的用户对象
-        console.log('接收到直接的用户对象:', data);
+      } else if (data?.username) {
         const existingToken = localStorage.getItem('token');
         if (existingToken) {
           localStorage.setItem('currentUser', JSON.stringify(data));
-          console.log('用户数据已更新到localStorage，保持现有令牌');
-        } else {
-          console.error('没有现有令牌，无法保存用户数据');
         }
-      } else {
-        console.error('无效的用户数据格式:', data);
-        // 不要立即清除数据，可能是临时错误
-        console.log('保持现有登录状态');
       }
     } catch (error) {
       console.error('保存用户数据失败：', error);
-      // 不要因为保存失败就清除现有数据，可能只是临时错误
-      console.log('保持现有登录状态，稍后重试');
     }
   },
   
@@ -242,162 +148,33 @@ const UserManager = {
       return null;
     }
 
-    console.log('开始验证令牌:', token.substring(0, 10) + '...');
-    
-    // 增加超时和重试机制
-    let retryCount = 0;
-    const maxRetries = 2; // 通用验证减少重试次数
-    
-    while (retryCount < maxRetries) {
-      try {
-        console.log(`令牌验证尝试 ${retryCount + 1}/${maxRetries}`);
-        
-        const url = `${window.API_CONFIG.baseUrl}/verify-token`;
-        console.log('验证令牌请求URL:', url);
-        
-        const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        };
-        console.log('验证令牌请求头:', headers);
-        
-        // 创建带超时的fetch请求
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
-        
-        const response = await fetch(url, {
-          headers,
-          credentials: 'include',
-          mode: 'cors',
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        console.log('验证令牌响应状态:', response.status, response.statusText);
-        
-        // 在尝试解析JSON之前先克隆Response对象
-        const responseClone = response.clone();
-        
-        let data;
-        try {
-          data = await response.json();
-          console.log('验证令牌响应数据:', data);
-        } catch (jsonError) {
-          console.error('解析令牌验证响应失败:', jsonError);
-          // 使用之前克隆的Response对象获取文本
-          try {
-            const textResponse = await responseClone.text();
-            console.log('响应文本内容:', textResponse);
-            if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
-              console.warn('数据库连接超时，保持当前登录状态');
-              return this.getCurrentUser(); // 返回当前用户数据
-            }
-          } catch (textError) {
-            console.error('获取响应文本失败:', textError);
-          }
-          
-          if (retryCount === maxRetries - 1) {
-            this.logout();
-            return null;
-          }
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          continue;
+    try {
+      const data = await apiRequest('/verify-token', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        
-        if (!response.ok) {
-          if (response.status === 401 || response.status === 403) {
-            // 认证失败，不需要重试
-            console.error('令牌验证失败:', data?.message, data?.error || '');
-            this.logout();
-            return null;
-          } else if (response.status === 500) {
-            // 服务器错误（如超时），不要退出登录，保持当前状态
-            if (data?.error && (data.error.includes('timed out') || data.error.includes('TimeoutError'))) {
-              console.warn('数据库连接超时，保持当前登录状态');
-            } else {
-              console.warn(`服务器暂时不可用（状态码: ${response.status}），保持当前登录状态`);
-            }
-            return this.getCurrentUser(); // 返回当前用户数据
-          } else if (retryCount < maxRetries - 1) {
-            // 其他错误，可能是网络问题，继续重试
-            console.warn(`令牌验证失败，状态码: ${response.status}，准备重试...`);
-            retryCount++;
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            continue;
-          } else {
-            // 最后一次重试失败，但如果是网络问题不要退出登录
-            console.error('令牌验证最终失败:', data?.message, data?.error || '');
-            if (response.status >= 500) {
-              console.warn('服务器错误，保持当前登录状态');
-              return this.getCurrentUser();
-            }
-            this.logout();
-            return null;
-          }
-        }
-        
-        // 确保返回的用户数据有效
-        if (!data.user || typeof data.user !== 'object' || !data.user.username) {
-          console.error('令牌验证返回的用户数据无效:', data);
-          if (retryCount === maxRetries - 1) {
-            this.logout();
-            return null;
-          }
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          continue;
-        }
-        
-        // 额外检查用户ID
-        if (!data.user.id) {
-          console.error('令牌验证返回的用户数据缺少ID:', data.user);
-          if (retryCount === maxRetries - 1) {
-            this.logout();
-            return null;
-          }
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          continue;
-        }
-        
+      });
+      
+      if (data?.user?.username && data?.user?.id) {
         console.log('令牌验证成功，用户数据:', data.user);
         return data.user;
-        
-      } catch (error) {
-        console.error(`令牌验证请求失败 (尝试 ${retryCount + 1}):`, error.message);
-        
-        // 检查是否是网络超时或连接错误
-        const isNetworkError = error.name === 'AbortError' || 
-                              error.message.includes('timeout') || 
-                              error.message.includes('network') ||
-                              error.message.includes('fetch');
-        
-        if (retryCount === maxRetries - 1) {
-          if (isNetworkError) {
-            console.warn('网络连接问题，保持当前登录状态');
-            return this.getCurrentUser();
-          }
-          console.error('令牌验证最终失败，清除登录状态');
-          this.logout();
-          return null;
-        }
-        retryCount++;
-        console.log(`等待1秒后重试...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      } else {
+        console.error('令牌验证返回的用户数据无效:', data);
+        this.logout();
+        return null;
       }
+    } catch (error) {
+      console.error('令牌验证失败:', error.message);
+      
+      // 网络错误时保持当前登录状态
+      if (error.message.includes('超时') || error.message.includes('网络')) {
+        console.warn('网络问题，保持当前登录状态');
+        return this.getCurrentUser();
+      }
+      
+      this.logout();
+      return null;
     }
-    
-    // 如果所有重试都失败了，检查是否是网络问题
-    console.error('令牌验证所有重试都失败');
-    const currentUser = this.getCurrentUser();
-    if (currentUser) {
-      console.warn('保持当前登录状态，稍后会自动重试');
-      return currentUser;
-    }
-    this.logout();
-    return null;
   },
   
   // 退出登录
@@ -405,7 +182,6 @@ const UserManager = {
     console.log('执行退出登录操作');
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
-    console.log('已清除localStorage中的用户数据');
     this.setCurrentUser(null);
     console.log('退出登录完成');
   }
@@ -423,8 +199,8 @@ function initAuthModals() {
   const registerForm = document.getElementById('registerForm');
   
   // 检查必要的DOM元素是否存在
-  if (!loginModalElement || !registerModalElement) {
-    console.warn('登录或注册模态框元素不存在，无法初始化认证功能');
+  if (!loginModalElement || !registerModalElement || !loginForm || !registerForm) {
+    console.warn('认证相关元素不存在，无法初始化认证功能');
     return;
   }
   
@@ -1023,104 +799,89 @@ function initAuthModals() {
   }
 
   // 登录表单提交
-  if (loginForm && loginModal) {
-    loginForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      console.log('登录表单提交');
-      const usernameInput = this.querySelector('#loginUsername');
-      const passwordInput = this.querySelector('#loginPassword');
+  loginForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    
+    if (!username || !password) {
+      alert('请填写用户名和密码');
+      return;
+    }
+    
+    try {
+      submitBtn.textContent = '登录中...';
+      submitBtn.disabled = true;
       
-      if (!usernameInput || !passwordInput) {
-        alert('登录表单字段不完整');
-        return;
+      const result = await UserManager.verifyUser(username, password);
+      
+      if (result?.user && result?.token) {
+        UserManager.setCurrentUser(result);
+        updateAuthUI();
+        loginModal.hide();
+        alert(`欢迎回来，${result.user.username}！`);
+      } else {
+        throw new Error('登录响应数据格式错误');
       }
-      
-      const username = usernameInput.value;
-      const password = passwordInput.value;
-      
-      console.log('用户名:', username);
-      console.log('密码长度:', password ? password.length : 0);
-      
-      // 验证必填字段
-      if (!username || !password) {
-        console.log('用户名或密码为空');
-        alert('请填写用户名和密码');
-        return;
-      }
-
-      try {
-        console.log('开始验证用户:', username);
-        const data = await UserManager.verifyUser(username, password);
-        console.log('验证用户响应数据:', data);
-        
-        if (data && typeof data === 'object' && data.user && typeof data.user === 'object' && data.user.username && data.token) {
-          console.log('登录成功，设置当前用户:', data.user.username);
-          console.log('令牌:', data.token.substring(0, 10) + '...');
-          UserManager.setCurrentUser(data);
-          
-          // 验证数据是否正确保存到localStorage
-          const savedToken = localStorage.getItem('token');
-          const savedUser = localStorage.getItem('currentUser');
-          console.log('保存到localStorage的令牌:', savedToken ? savedToken.substring(0, 10) + '...' : 'null');
-          console.log('保存到localStorage的用户:', savedUser);
-          
-          console.log('更新UI...');
-          updateAuthUI();
-          console.log('隐藏登录模态框...');
-          loginModal.hide();
-          console.log('显示欢迎消息...');
-          alert(`欢迎回来，${data.user.username}！`);
-        } else {
-          console.error('登录失败：无效的响应数据', data);
-          throw new Error('登录失败：服务器返回的数据格式不正确');
-        }
-      } catch (error) {
-        console.error('登录失败：', error);
-        alert(error.message || '登录失败，请稍后重试');
-      }
-    });
-  }
+    } catch (error) {
+      console.error('登录失败:', error);
+      alert(error.message || '登录失败，请重试');
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
 
   // 注册表单提交
-  if (registerForm && registerModal && loginModal) {
-    registerForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const usernameInput = this.querySelector('#registerUsername');
-      const passwordInput = this.querySelector('#registerPassword');
+  registerForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('registerUsername').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    
+    if (!username || !password || !confirmPassword) {
+      alert('请填写所有字段');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      alert('两次输入的密码不一致');
+      return;
+    }
+    
+    if (password.length < 6) {
+      alert('密码长度至少6位');
+      return;
+    }
+    
+    try {
+      submitBtn.textContent = '注册中...';
+      submitBtn.disabled = true;
       
-      if (!usernameInput || !passwordInput) {
-        alert('注册表单字段不完整');
-        return;
-      }
+      const result = await UserManager.saveUser(username, password);
       
-      const username = usernameInput.value;
-      const password = passwordInput.value;
-      
-      const confirmPasswordInput = this.querySelector('#confirmPassword');
-      if (!confirmPasswordInput) {
-        alert('注册表单字段不完整');
-        return;
-      }
-      const confirmPassword = confirmPasswordInput.value;
-
-      if (password !== confirmPassword) {
-        alert('两次输入的密码不一致');
-        return;
-      }
-
-      try {
-        const user = await UserManager.saveUser(username, password);
-        // 注册成功后需要登录
+      if (result?.success) {
+        alert('注册成功！请登录');
         registerModal.hide();
-        alert('注册成功！请登录您的账号。');
-        setTimeout(() => {
-          loginModal.show();
-        }, 300);
-      } catch (error) {
-        alert(error.message);
+        setTimeout(() => loginModal.show(), 300);
+        registerForm.reset();
+      } else {
+        throw new Error(result?.message || '注册失败');
       }
-    });
-  }
+    } catch (error) {
+      console.error('注册失败:', error);
+      alert(error.message || '注册失败，请重试');
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
   
   // 切换到登录模态框
   if (showLoginBtn && registerModal && loginModal) {
@@ -1141,111 +902,46 @@ function initAuthModals() {
 
 // 恢复用户登录状态
 async function restoreUserAuth() {
-  console.log('开始恢复用户登录状态...');
   try {
-    // 检查localStorage中是否有token
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('currentUser');
-    console.log('localStorage中的令牌:', storedToken ? storedToken.substring(0, 10) + '...' : 'null');
-    console.log('localStorage中的用户数据:', storedUser);
     
     if (!storedToken) {
-      console.log('没有找到存储的令牌，无需恢复登录状态');
       return;
     }
     
-    // 验证令牌
-    console.log('开始验证令牌有效性...');
     const user = await UserManager.verifyToken();
     if (user) {
-      console.log('用户登录状态已恢复:', user.username);
-      // 确保用户数据和令牌都存在于localStorage中
-      const token = UserManager.getToken();
-      if (token) {
-        // 设置当前用户数据，触发UI更新
-        console.log('重新设置当前用户数据...');
-        // 直接保存用户数据到localStorage，不调用setCurrentUser避免清除数据
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('token', token);
-        
-        // 等待DOM完全加载
-        console.log('等待DOM完全加载...');
-        setTimeout(() => {
-          console.log('开始更新UI...');
-          // 尝试获取并调用全局的updateAuthUI函数
-          if (typeof window.updateAuthUI === 'function') {
-            console.log('调用全局updateAuthUI函数');
-            window.updateAuthUI();
-          } else if (typeof updateAuthUI === 'function') {
-            console.log('调用局部updateAuthUI函数');
-            updateAuthUI();
-          } else {
-            console.log('updateAuthUI函数不存在，使用内联更新');
-            // 如果全局函数不存在，使用内联更新
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      localStorage.setItem('token', UserManager.getToken());
+      
+      setTimeout(() => {
+        if (typeof window.updateAuthUI === 'function') {
+          window.updateAuthUI();
+        } else if (typeof updateAuthUI === 'function') {
+          updateAuthUI();
+        }
+      }, 500);
+    } else if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser?.username) {
+          setTimeout(() => {
             const settingsBtn = document.getElementById('settingsBtn');
             if (settingsBtn) {
-              console.log('更新设置按钮...');
-              settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
-              settingsBtn.title = `当前用户：${user.username}`;
-              
-              // 更新设置下拉菜单
-              const settingsDropdown = document.getElementById('settingsDropdown');
-              const loginOption = document.getElementById('loginOption');
-              const logoutBtn = document.getElementById('logoutBtn');
-              const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-              const userInfoDisplay = document.getElementById('userInfoDisplay');
-              
-              if (settingsDropdown) {
-                console.log('更新设置下拉菜单...');
-                if (loginOption) loginOption.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'block';
-                if (changeAvatarBtn) changeAvatarBtn.style.display = 'block';
-                if (userInfoDisplay) {
-                  userInfoDisplay.style.display = 'block';
-                  userInfoDisplay.textContent = `欢迎，${user.username}`;
-                }
-              } else {
-                console.log('未找到设置下拉菜单元素');
-              }
-            } else {
-              console.log('未找到设置按钮元素');
+              settingsBtn.innerHTML = parsedUser.avatar ? 
+                `<img src="${parsedUser.avatar}" alt="用户头像">` : 
+                '<i class="fa fa-user"></i>';
+              settingsBtn.title = `当前用户：${parsedUser.username}`;
             }
-          }
-          console.log('UI更新完成');
-        }, 500); // 延迟500毫秒确保DOM已加载
-      } else {
-        console.error('令牌验证成功但获取令牌失败');
-      }
-    } else {
-      console.log('令牌验证失败，但检查是否有本地用户数据可以恢复');
-      // 即使验证失败，也尝试从localStorage恢复基本的UI显示
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser && parsedUser.username) {
-            console.log('从localStorage恢复用户UI显示:', parsedUser.username);
-            setTimeout(() => {
-              const settingsBtn = document.getElementById('settingsBtn');
-              if (settingsBtn) {
-                if (parsedUser.avatar) {
-                  settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像">`;
-                } else {
-                  settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
-                }
-                settingsBtn.title = `当前用户：${parsedUser.username}`;
-                console.log('已从localStorage恢复用户头像显示');
-              }
-            }, 500);
-          }
-        } catch (parseError) {
-          console.error('解析localStorage用户数据失败:', parseError);
+          }, 500);
         }
+      } catch (parseError) {
+        console.error('解析localStorage用户数据失败:', parseError);
       }
     }
   } catch (error) {
     console.error('验证登录状态失败:', error);
-    // 不要因为验证过程中的错误就退出登录，可能只是网络问题
-    console.log('保持现有登录状态，稍后会自动重试验证');
   }
 }
 

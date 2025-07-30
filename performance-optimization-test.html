@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评论加载性能测试</title>
+    <link href="lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .loading {
+            color: #007bff;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="text-center mb-4">评论加载性能测试</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>数据库优化</h5>
+                    </div>
+                    <div class="card-body">
+                        <button id="createIndexes" class="btn btn-primary mb-3">创建数据库索引</button>
+                        <div id="indexResult" class="result-box" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>评论加载测试</h5>
+                    </div>
+                    <div class="card-body">
+                        <button id="testLoad" class="btn btn-success mb-3">测试评论加载</button>
+                        <div id="loadResult" class="result-box" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>性能对比</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <button id="testMultiple" class="btn btn-warning mb-3">连续测试5次</button>
+                    </div>
+                    <div class="col-md-8">
+                        <div id="multipleResult" class="result-box" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h6>优化说明：</h6>
+            <ul>
+                <li>数据库查询优化：并行执行总数查询和列表查询</li>
+                <li>字段投影：只查询必要字段，减少数据传输</li>
+                <li>数据库索引：为createdAt字段创建索引，提高排序性能</li>
+                <li>前端优化：使用文档片段批量DOM操作</li>
+                <li>请求优化：添加超时控制和防抖机制</li>
+                <li>缓存策略：合理使用HTTP缓存头</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
+        
+        // 创建数据库索引
+        document.getElementById('createIndexes').addEventListener('click', async function() {
+            const button = this;
+            const resultDiv = document.getElementById('indexResult');
+            
+            button.disabled = true;
+            button.textContent = '创建中...';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">正在创建数据库索引...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/ensure-indexes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let html = '<div class="success">索引创建完成！</div><ul>';
+                    data.results.forEach(result => {
+                        const indexName = JSON.stringify(result.index);
+                        html += `<li>${indexName}: ${result.status}</li>`;
+                    });
+                    html += '</ul>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">创建失败: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">请求失败: ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '创建数据库索引';
+            }
+        });
+        
+        // 测试评论加载
+        document.getElementById('testLoad').addEventListener('click', async function() {
+            await testCommentLoad(document.getElementById('loadResult'));
+        });
+        
+        // 连续测试
+        document.getElementById('testMultiple').addEventListener('click', async function() {
+            const button = this;
+            const resultDiv = document.getElementById('multipleResult');
+            
+            button.disabled = true;
+            button.textContent = '测试中...';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">正在进行5次连续测试...</div>';
+            
+            const results = [];
+            
+            for (let i = 1; i <= 5; i++) {
+                resultDiv.innerHTML += `<div>第${i}次测试...</div>`;
+                const result = await testCommentLoad(null, true);
+                results.push(result);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 间隔1秒
+            }
+            
+            // 计算平均值
+            const avgTime = results.reduce((sum, r) => sum + r.totalTime, 0) / results.length;
+            const avgNetworkTime = results.reduce((sum, r) => sum + r.networkTime, 0) / results.length;
+            
+            let html = '<div class="success">测试完成！</div>';
+            html += `<div><strong>平均总时间:</strong> ${avgTime.toFixed(0)}ms</div>`;
+            html += `<div><strong>平均网络时间:</strong> ${avgNetworkTime.toFixed(0)}ms</div>`;
+            html += '<div><strong>详细结果:</strong></div><ul>';
+            results.forEach((result, index) => {
+                html += `<li>第${index + 1}次: 总时间 ${result.totalTime}ms, 网络 ${result.networkTime}ms</li>`;
+            });
+            html += '</ul>';
+            
+            resultDiv.innerHTML = html;
+            button.disabled = false;
+            button.textContent = '连续测试5次';
+        });
+        
+        // 测试评论加载函数
+        async function testCommentLoad(resultDiv, silent = false) {
+            if (!silent && resultDiv) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="loading">正在测试评论加载...</div>';
+            }
+            
+            const startTime = performance.now();
+            
+            try {
+                const networkStart = performance.now();
+                const response = await fetch(`${API_BASE_URL}/get-comments?page=1&limit=5&_t=${Date.now()}`);
+                const networkEnd = performance.now();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const parseStart = performance.now();
+                const data = await response.json();
+                const parseEnd = performance.now();
+                
+                const endTime = performance.now();
+                
+                const totalTime = Math.round(endTime - startTime);
+                const networkTime = Math.round(networkEnd - networkStart);
+                const parseTime = Math.round(parseEnd - parseStart);
+                
+                const result = {
+                    totalTime,
+                    networkTime,
+                    parseTime,
+                    commentCount: data.comments?.length || 0
+                };
+                
+                if (!silent && resultDiv) {
+                    let html = '<div class="success">加载成功！</div>';
+                    html += `<div><strong>总耗时:</strong> ${totalTime}ms</div>`;
+                    html += `<div><strong>网络请求:</strong> ${networkTime}ms</div>`;
+                    html += `<div><strong>JSON解析:</strong> ${parseTime}ms</div>`;
+                    html += `<div><strong>评论数量:</strong> ${result.commentCount}条</div>`;
+                    
+                    if (totalTime < 1000) {
+                        html += '<div class="text-success">✓ 性能良好</div>';
+                    } else if (totalTime < 3000) {
+                        html += '<div class="text-warning">⚠ 性能一般</div>';
+                    } else {
+                        html += '<div class="text-danger">✗ 性能较差</div>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                }
+                
+                return result;
+                
+            } catch (error) {
+                const endTime = performance.now();
+                const totalTime = Math.round(endTime - startTime);
+                
+                if (!silent && resultDiv) {
+                    resultDiv.innerHTML = `<div class="error">加载失败: ${error.message}</div><div>耗时: ${totalTime}ms</div>`;
+                }
+                
+                return { totalTime, networkTime: 0, parseTime: 0, commentCount: 0, error: error.message };
+            }
+        }
+    </script>
+</body>
+</html>
