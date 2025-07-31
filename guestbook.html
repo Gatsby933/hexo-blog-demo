@@ -1161,9 +1161,25 @@
                }
                console.error('点赞操作失败:', data.message);
              } else {
-               // 服务器返回成功，使用服务器返回的准确数据更新UI
-               likeCountElement.textContent = data.likes;
-               this.setAttribute('data-liked', data.hasLiked);
+               // 服务器返回成功，验证数据一致性
+               console.log('服务器返回数据:', data);
+               console.log('前端预期状态:', { likes: newCount, hasLiked: newLiked });
+               
+               // 只有当服务器数据与前端预期不一致时才更新
+               if (data.likes !== newCount || data.hasLiked !== newLiked) {
+                 console.warn('服务器数据与前端预期不一致，使用服务器数据');
+                 likeCountElement.textContent = data.likes;
+                 this.setAttribute('data-liked', data.hasLiked);
+                 
+                 // 更新按钮样式
+                 if (data.hasLiked) {
+                   this.classList.remove('btn-outline-secondary');
+                   this.classList.add('btn-danger');
+                 } else {
+                   this.classList.remove('btn-danger');
+                   this.classList.add('btn-outline-secondary');
+                 }
+               }
              }
            } catch (error) {
              // 网络错误，回滚UI状态
