@@ -9,6 +9,8 @@ class CommentSync {
     this.cache = new Map(); // 添加缓存机制
     this.cacheTimestamp = 0;
     this.CACHE_DURATION = 30000; // 缓存30秒
+    this.version = '1.1.0'; // 版本标识，用于调试
+    console.log('CommentSync初始化，版本:', this.version);
   }
 
   /**
@@ -162,6 +164,7 @@ class CommentSync {
         const timeAgo = this.formatCommentTime(comment.createdAt);
         const shortContent = this.truncateContent(comment.content);
         const safeUsername = this.escapeHtml(comment.username);
+        console.log('渲染评论用户名:', safeUsername, '(无@符号)');
         
         return `
           <div class="mb-3">
