@@ -1081,6 +1081,146 @@
       border-color: #2c2c2c;
     }
     
+    /* 点赞按钮特殊样式 */
+    .like-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
+      color: white !important;
+      border: none !important;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .like-btn:hover {
+      background: linear-gradient(135deg, #ff5252, #d63031) !important;
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+    
+    /* 点赞动画效果 */
+    .like-animation {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 2rem;
+      animation: likeFloat 2s ease-out forwards;
+    }
+    
+    @keyframes likeFloat {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        opacity: 0.8;
+        transform: translateY(-50px) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0.8);
+      }
+    }
+    
+    /* 点击波纹效果 */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.6);
+      transform: scale(0);
+      animation: rippleEffect 0.6s linear;
+    }
+    
+    @keyframes rippleEffect {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    /* 心形跳动效果 */
+    .heart-beat {
+      animation: heartBeat 0.6s ease-in-out;
+    }
+    
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.1); }
+      50% { transform: scale(1.2); }
+      75% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* 粒子效果 */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 6px;
+      height: 6px;
+      background: #ff6b6b;
+      border-radius: 50%;
+    }
+    
+    @keyframes particleFloat {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--x, 0), var(--y, -80px)) scale(0);
+      }
+    }
+    
+    @keyframes floatAndScale {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-30px) scale(1.5);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.5);
+      }
+    }
+    
+    @keyframes rainbowSpray {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+      }
+      50% {
+        transform: translate(calc(var(--end-x) * 0.7), calc(var(--end-y) * 0.7)) scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--end-x), var(--end-y)) scale(0.3) rotate(360deg);
+      }
+    }
+    
+    @keyframes messagePopup {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.1);
+      }
+      40% {
+        transform: translateY(0) scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: translateY(-5px) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+      }
+    }
+    
     /* 站点统计 */
     .site-stats {
       display: grid;
@@ -1723,7 +1863,6 @@
     <div class="sidebar-content">
       <a href="hanverse.pub" class="sidebar-link">首页</a>
       <a href="#" class="sidebar-link">专题</a>
-      <a href="#" class="sidebar-link">好友</a>
       <a href="guestbook.html" class="sidebar-link">留言</a>
     </div>
   </div>
@@ -1777,10 +1916,8 @@
       <!-- 导航按钮 -->
       <div class="nav-buttons">
         <a href="hanverse.pub" class="nav-btn">首页</a>
-        <a href="#" class="nav-btn">专题</a>
-        <a href="#" class="nav-btn">好友</a>
         <a href="guestbook.html" class="nav-btn">留言</a>
-
+        <button id="likeBtn" class="nav-btn like-btn">点赞</button>
       </div>
       
       <!-- 站点统计 -->
@@ -1871,59 +2008,10 @@
       
       <!-- 移动端博客文章列表 -->
       <div id="mobile-posts-container">
-        <div class="mobile-post">
-          <div class="mobile-post-meta">
-            <span class="mobile-post-time">2025-03-15</span>
-            <span class="mobile-post-category">技术开发</span>
-          </div>
-          <div class="mobile-post-card">
-            <h5 class="mobile-post-title">JavaScript基础知识总结</h5>
-            <p class="mobile-post-excerpt">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一...</p>
-          </div>
-        </div>
-        
-        <div class="mobile-post">
-          <div class="mobile-post-meta">
-            <span class="mobile-post-time">2025-03-10</span>
-            <span class="mobile-post-category">技术开发</span>
-          </div>
-          <div class="mobile-post-card">
-            <h5 class="mobile-post-title">CSS布局技巧分享</h5>
-            <p class="mobile-post-excerpt">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观...</p>
-          </div>
-        </div>
-        
-        <div class="mobile-post">
-          <div class="mobile-post-meta">
-            <span class="mobile-post-time">2025-03-05</span>
-            <span class="mobile-post-category">学习笔记</span>
-          </div>
-          <div class="mobile-post-card">
-            <h5 class="mobile-post-title">Node.js入门指南</h5>
-            <p class="mobile-post-excerpt">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码...</p>
-          </div>
-        </div>
-        
-        <div class="mobile-post">
-          <div class="mobile-post-meta">
-            <span class="mobile-post-time">2025-02-28</span>
-            <span class="mobile-post-category">生活随笔</span>
-          </div>
-          <div class="mobile-post-card">
-            <h5 class="mobile-post-title">旅行中的小确幸</h5>
-            <p class="mobile-post-excerpt">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静...</p>
-          </div>
-        </div>
-        
-        <div class="mobile-post">
-          <div class="mobile-post-meta">
-            <span class="mobile-post-time">2025-02-20</span>
-            <span class="mobile-post-category">杂谈</span>
-          </div>
-          <div class="mobile-post-card">
-            <h5 class="mobile-post-title">关于效率与专注的思考</h5>
-            <p class="mobile-post-excerpt">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题...</p>
-          </div>
+        <!-- 移动端博客文章将在这里动态加载 -->
+        <div class="text-center py-5">
+          <h5 class="text-muted">博客文章即将上线</h5>
+          <p class="text-muted">敬请期待精彩内容...</p>
         </div>
       </div>
       
@@ -1938,64 +2026,10 @@
       
       <!-- 桌面端博客文章列表 -->
       <div id="desktop-posts-container">
-        <!-- 博客文章1 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">JavaScript基础知识总结</h5>
-            <p class="card-text">JavaScript是一种轻量级的解释型或即时编译型的编程语言，是世界上最流行的脚本语言之一。它具有动态类型、弱类型、基于原型的面向对象等特点，被广泛应用于Web开发、移动应用开发、桌面应用开发等领域...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">2025-03-15</small>
-              <span class="badge bg-secondary">技术开发</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 博客文章2 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">CSS布局技巧分享</h5>
-            <p class="card-text">CSS布局是前端开发中的重要部分，掌握好CSS布局技巧可以让你的网页设计更加灵活和美观。本文将分享一些实用的CSS布局技巧，包括Flexbox、Grid、定位等方法的使用场景和最佳实践...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">2025-03-10</small>
-              <span class="badge bg-secondary">技术开发</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 博客文章3 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">Node.js入门指南</h5>
-            <p class="card-text">Node.js是一个基于Chrome V8引擎的JavaScript运行环境，使开发者可以使用JavaScript来编写服务器端的代码。它具有事件驱动、非阻塞I/O等特点，非常适合构建高性能的网络应用...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">2025-03-05</small>
-              <span class="badge bg-secondary">学习笔记</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 博客文章4 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">旅行中的小确幸</h5>
-            <p class="card-text">上周末去了一趟山区，感受了久违的宁静与自然之美。在繁忙的工作之余，这样的短暂逃离让我重新找回了内心的平静。山间的清新空气、潺潺的溪水声、还有那些不知名的野花，都让人心情愉悦...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">2025-02-28</small>
-              <span class="badge bg-secondary">生活随笔</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 博客文章5 -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <h5 class="card-title">关于效率与专注的思考</h5>
-            <p class="card-text">在信息爆炸的时代，如何保持专注和提高效率成为了现代人面临的重要课题。本文分享一些个人在工作和学习中总结的经验，希望能对大家有所帮助。专注力是一种可以训练的能力...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">2025-02-20</small>
-              <span class="badge bg-secondary">杂谈</span>
-            </div>
-          </div>
+        <!-- 博客文章将在这里动态加载 -->
+        <div class="text-center py-5">
+          <h4 class="text-muted">博客文章即将上线</h4>
+          <p class="text-muted">敬请期待精彩内容...</p>
         </div>
         
         <!-- 桌面端分页 -->
@@ -2558,9 +2592,217 @@ async function updateCommentsCount() {
   }
 }
 
+// 点赞按钮动画效果
+function initLikeButton() {
+  const likeBtn = document.getElementById('likeBtn');
+  if (!likeBtn) return;
+  
+  likeBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // 添加心跳动画
+    this.classList.add('heart-beat');
+    setTimeout(() => {
+      this.classList.remove('heart-beat');
+    }, 600);
+    
+    // 创建波纹效果
+    createRippleEffect(e, this);
+    
+    // 创建随机动画效果
+    const animations = [
+      createCanvasParticleExplosion,
+      createFloatingNumbers,
+      createRainbowHearts,
+      createRandomMessage
+    ];
+    const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+    randomAnimation(e);
+  });
+}
+
+// 创建波纹效果
+function createRippleEffect(e, button) {
+  const rect = button.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+  
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+  
+  button.appendChild(ripple);
+  
+  setTimeout(() => {
+    ripple.remove();
+  }, 600);
+}
+
+// 1. Canvas粒子爆炸效果
+function createCanvasParticleExplosion(e) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 300;
+  canvas.height = 300;
+  canvas.style.position = 'fixed';
+  canvas.style.left = (e.clientX - 150) + 'px';
+  canvas.style.top = (e.clientY - 150) + 'px';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '9999';
+  document.body.appendChild(canvas);
+  
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  
+  // 创建粒子
+  for (let i = 0; i < 30; i++) {
+    particles.push({
+      x: 150,
+      y: 150,
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10,
+      life: 1,
+      decay: Math.random() * 0.02 + 0.01,
+      size: Math.random() * 4 + 2,
+      color: `hsl(${Math.random() * 60 + 300}, 100%, 60%)`
+    });
+  }
+  
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((particle, index) => {
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.life -= particle.decay;
+      particle.vy += 0.1; // 重力
+      
+      if (particle.life <= 0) {
+        particles.splice(index, 1);
+        return;
+      }
+      
+      ctx.save();
+      ctx.globalAlpha = particle.life;
+      ctx.fillStyle = particle.color;
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+    
+    if (particles.length > 0) {
+      requestAnimationFrame(animate);
+    } else {
+      canvas.remove();
+    }
+  }
+  
+  animate();
+}
+
+// 2. 数字上浮+缩放效果
+function createFloatingNumbers(e) {
+  const numbers = ['+1', '♥', '★', '✨', '💖'];
+  const number = numbers[Math.floor(Math.random() * numbers.length)];
+  
+  const element = document.createElement('div');
+  element.textContent = number;
+  element.style.cssText = `
+    position: fixed;
+    left: ${e.clientX}px;
+    top: ${e.clientY}px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff6b6b;
+    pointer-events: none;
+    z-index: 9999;
+    animation: floatAndScale 2s ease-out forwards;
+  `;
+  
+  document.body.appendChild(element);
+  
+  setTimeout(() => {
+    element.remove();
+  }, 2000);
+}
+
+// 3. 彩虹喷射爱心效果
+function createRainbowHearts(e) {
+  const hearts = ['💖', '💕', '💗', '💓', '💝', '💘', '💞', '💟'];
+  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+  
+  for (let i = 0; i < 12; i++) {
+    const heart = document.createElement('div');
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    heart.style.cssText = `
+      position: fixed;
+      left: ${e.clientX}px;
+      top: ${e.clientY}px;
+      font-size: 1.5rem;
+      color: ${colors[i % colors.length]};
+      pointer-events: none;
+      z-index: 9999;
+      animation: rainbowSpray 2s ease-out forwards;
+      animation-delay: ${i * 0.1}s;
+    `;
+    
+    // 设置随机方向
+    const angle = (Math.PI * 2 * i) / 12;
+    const distance = 80 + Math.random() * 40;
+    heart.style.setProperty('--end-x', Math.cos(angle) * distance + 'px');
+    heart.style.setProperty('--end-y', Math.sin(angle) * distance + 'px');
+    
+    document.body.appendChild(heart);
+    
+    setTimeout(() => {
+      heart.remove();
+    }, 2000 + i * 100);
+  }
+}
+
+// 4. 弹出句子/提示词效果
+function createRandomMessage(e) {
+  const messages = [
+    '太棒了！', '你真厉害！', '继续加油！', '超赞的！',
+    'Amazing!', 'Awesome!', '点赞成功！', '感谢支持！',
+    '你是最棒的！', '非常感谢！', '真是太好了！', '完美！'
+  ];
+  
+  const message = messages[Math.floor(Math.random() * messages.length)];
+  
+  const element = document.createElement('div');
+  element.textContent = message;
+  element.style.cssText = `
+    position: fixed;
+    left: ${e.clientX}px;
+    top: ${e.clientY - 30}px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: messagePopup 2.5s ease-out forwards;
+    transform-origin: center;
+  `;
+  
+  document.body.appendChild(element);
+  
+  setTimeout(() => {
+    element.remove();
+  }, 2500);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   updateDynamicAvatars();
   updateCommentsCount();
+  initLikeButton();
 });
 </script>
 </body>
