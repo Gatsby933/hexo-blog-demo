@@ -46,8 +46,17 @@ exports.handler = asyncHandler(async (event, context) => {
     };
 
     // 更新父评论，添加回复到replies数组
+    let parentId;
+    try {
+      // 尝试转换为ObjectId，如果失败则直接使用字符串
+      const { ObjectId } = require('mongodb');
+      parentId = ObjectId.isValid(parentCommentId) ? new ObjectId(parentCommentId) : parentCommentId;
+    } catch (error) {
+      parentId = parentCommentId;
+    }
+
     const updateResult = await comments.updateOne(
-      { _id: new require('mongodb').ObjectId(parentCommentId) },
+      { _id: parentId },
       { 
         $push: { replies: replyData },
         $setOnInsert: { replies: [] } // 如果replies字段不存在则创建
