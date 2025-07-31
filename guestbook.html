@@ -931,18 +931,18 @@
            avatarImg.src = avatarSrc;
          }
          
-         // 设置回复HTML内容
-         const replyToText = replyToUser ? `回复 <span style="color: #007bff;">@${replyToUser}</span>: ` : '';
+         // 设置回复HTML内容 - 修改用户名显示格式
+         const authorText = replyToUser ? `${username} 回复 <span style="color: #007bff;">${replyToUser}</span>` : username;
          replyElement.innerHTML = `
            <div class="d-flex">
              <div class="reply-avatar me-2">
              </div>
              <div class="flex-grow-1">
                <div class="reply-header d-flex align-items-center">
-                 <div class="reply-author fw-bold" style="font-size: 0.85em;">${username}</div>
+                 <div class="reply-author fw-bold" style="font-size: 0.85em;">${authorText}</div>
                  <small class="text-muted ms-2" style="font-size: 0.75em;">${formattedDate}</small>
                </div>
-               <div class="reply-content mt-1" style="font-size: 0.85em; line-height: 1.3;">${replyToText}${content}</div>
+               <div class="reply-content mt-1" style="font-size: 0.85em; line-height: 1.3;">${content}</div>
                <div class="reply-meta d-flex justify-content-between align-items-center mt-1">
                  <div></div>
                  <div class="reply-actions">
@@ -1307,65 +1307,90 @@
           const commentId = this.getAttribute('data-comment-id') || commentElement.getAttribute('data-comment-id');
           const userName = commentElement.querySelector('.comment-author').textContent;
           
-          showReplyModal(commentId, userName);
+          showReplyForm(commentElement, commentId, userName);
         });
       }
       
-      // 显示回复模态框
-      function showReplyModal(parentCommentId, replyToUser) {
-        // 创建模态框HTML
-        const modalHtml = `
-          <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="replyModalLabel">回复 ${replyToUser}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      // 显示回复表单
+      function showReplyForm(commentElement, parentCommentId, replyToUser) {
+        // 检查是否已经有回复表单存在
+        const existingForm = commentElement.querySelector('.reply-form-container');
+        if (existingForm) {
+          existingForm.remove();
+          return;
+        }
+        
+        // 移除其他可能存在的回复表单
+        document.querySelectorAll('.reply-form-container').forEach(form => form.remove());
+        
+        const currentUser = getCurrentUser();
+        const userAvatar = currentUser.avatar || './images/avatar.svg';
+        
+        // 创建回复表单HTML
+        const replyFormHtml = `
+          <div class="reply-form-container" style="margin-top: 15px; padding: 15px; background: rgba(248, 249, 250, 0.8); border-radius: 15px; border: 1px solid #e0e0e0;">
+            <div class="reply-form-header mb-2">
+              <small class="text-muted">回复 ${replyToUser}</small>
+            </div>
+            <div class="reply-form" style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 8px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
+              <form class="d-flex align-items-center gap-3">
+                <!-- 左侧头像 -->
+                <div class="reply-avatar flex-shrink-0">
+                  <img src="${userAvatar}" alt="用户头像" class="rounded-circle" style="width: 32px; height: 32px; background-color: #f0f0f0; object-fit: cover;">
                 </div>
-                <div class="modal-body">
-                  <form id="replyForm">
-                    <div class="mb-3">
-                      <label for="replyContent" class="form-label">回复内容</label>
-                      <textarea class="form-control" id="replyContent" rows="4" placeholder="写下你的回复..." required></textarea>
-                    </div>
-                  </form>
+                <!-- 中间回复框 -->
+                <div class="flex-grow-1">
+                  <textarea class="form-control reply-content" rows="1" placeholder="写下你的回复..." required style="border: none; background: transparent; resize: none; padding: 8px 0; font-size: 14px; line-height: 1.4;"></textarea>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                  <button type="button" class="btn btn-primary" id="submitReply">发表回复</button>
+                <!-- 右侧按钮组 -->
+                <div class="reply-actions d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary cancel-reply" style="border-radius: 15px; padding: 4px 12px; font-size: 12px;">取消</button>
+                  <button type="button" class="btn btn-sm btn-primary submit-reply" style="border-radius: 15px; padding: 4px 12px; font-size: 12px;">回复</button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         `;
         
-        // 移除已存在的模态框
-        const existingModal = document.getElementById('replyModal');
-        if (existingModal) {
-          existingModal.remove();
-        }
+        // 将回复表单插入到评论下方
+        commentElement.insertAdjacentHTML('afterend', replyFormHtml);
         
-        // 添加新模态框到页面
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const replyFormContainer = commentElement.nextElementSibling;
+        const textarea = replyFormContainer.querySelector('.reply-content');
+        const submitBtn = replyFormContainer.querySelector('.submit-reply');
+        const cancelBtn = replyFormContainer.querySelector('.cancel-reply');
         
-        // 显示模态框
-        const modal = new bootstrap.Modal(document.getElementById('replyModal'));
-        modal.show();
+        // 自动聚焦到文本框
+        textarea.focus();
         
-        // 绑定提交事件
-        document.getElementById('submitReply').addEventListener('click', function() {
-          submitReply(parentCommentId, replyToUser, modal);
+        // 绑定取消事件
+        cancelBtn.addEventListener('click', function() {
+          replyFormContainer.remove();
         });
         
-        // 模态框关闭时清理
-        document.getElementById('replyModal').addEventListener('hidden.bs.modal', function() {
-          this.remove();
+        // 绑定提交事件
+        submitBtn.addEventListener('click', function() {
+          submitReply(parentCommentId, replyToUser, replyFormContainer, textarea, submitBtn);
+        });
+        
+        // 支持Enter键提交（Shift+Enter换行）
+        textarea.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitBtn.click();
+          }
+        });
+        
+        // 自动调整文本框高度
+        textarea.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
       }
       
       // 提交回复
-      async function submitReply(parentCommentId, replyToUser, modal) {
-        const replyContent = document.getElementById('replyContent').value.trim();
+      async function submitReply(parentCommentId, replyToUser, replyFormContainer, textarea, submitButton) {
+        const replyContent = textarea.value.trim();
         if (!replyContent) {
           alert('请填写回复内容');
           return;
@@ -1376,8 +1401,6 @@
           alert('请先登录后再回复');
           return;
         }
-        
-        const submitButton = document.getElementById('submitReply');
         const originalText = submitButton.textContent;
         submitButton.textContent = '发表中...';
         submitButton.disabled = true;
@@ -1414,8 +1437,8 @@
           const result = await response.json();
           console.log('回复提交成功:', result);
           
-          // 关闭模态框
-          modal.hide();
+          // 移除回复表单
+          replyFormContainer.remove();
           
           // 刷新评论列表
           commentsCache.clear();
