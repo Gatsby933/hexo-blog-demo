@@ -1205,7 +1205,7 @@
          button.addEventListener('click', function() {
            const userName = this.closest('.flex-grow-1').querySelector('strong').textContent;
            const commentInput = document.getElementById('commentContent');
-           commentInput.value = `@${userName} `;
+           commentInput.value = `${userName} `;
            commentInput.focus();
            
            // 滚动到评论框
