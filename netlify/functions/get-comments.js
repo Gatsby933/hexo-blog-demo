@@ -1,5 +1,6 @@
 const { connectToDatabase } = require('./utils/mongodb');
 const { handleOptions } = require('./utils/cors');
+const { getTokenFromHeader, verifyToken } = require('./utils/auth');
 const { createSuccessResponse, createErrorResponse, validateHttpMethod, asyncHandler } = require('./utils/response');
 const crypto = require('crypto');
 
@@ -20,6 +21,16 @@ exports.handler = asyncHandler(async (event, context) => {
   const skip = (page - 1) * limit;
   const isForceRefresh = !!queryParams._t;
 
+  // 获取当前用户信息（如果已登录）
+  let currentUserId = null;
+  const token = getTokenFromHeader(event.headers);
+  if (token) {
+    const tokenResult = verifyToken(token);
+    if (tokenResult.valid) {
+      currentUserId = tokenResult.decoded.userId;
+    }
+  }
+
   // 连接数据库
   const { db } = await connectToDatabase();
   const comments = db.collection('comments');
@@ -31,11 +42,13 @@ exports.handler = asyncHandler(async (event, context) => {
     comments
       .find({}, {
         projection: {
-          _id: 0,
+          _id: 1,
           username: 1,
           content: 1,
           createdAt: 1,
-          avatar: 1
+          avatar: 1,
+          likes: 1,
+          likedBy: 1
         }
       })
       .sort({ createdAt: -1 })
@@ -51,9 +64,13 @@ exports.handler = asyncHandler(async (event, context) => {
     // 头像现在是base64数据或默认路径，直接使用
     
     return {
-      ...comment,
+      _id: comment._id,
+      username: comment.username,
+      content: comment.content,
       avatar: avatarUrl,
-      createdAt: comment.createdAt.toISOString()
+      createdAt: comment.createdAt.toISOString(),
+      likes: comment.likes || 0,
+      hasLiked: currentUserId ? (comment.likedBy || []).includes(currentUserId) : false
     };
   });
 

@@ -513,3 +513,50 @@ ul, ol {
     margin: 10px 0;
   }
 }
+
+/* 点赞爱心动画 */
+.heart-animation {
+  position: relative;
+  display: inline-block;
+}
+
+.floating-heart {
+  position: absolute;
+  color: #ff6b6b;
+  font-size: 20px;
+  pointer-events: none;
+  animation: floatUp 1.5s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-30px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.8);
+  }
+}
+
+/* 点赞按钮点击时的缩放动画 */
+.like-btn-clicked {
+  animation: likeButtonPulse 0.3s ease-out;
+}
+
+@keyframes likeButtonPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

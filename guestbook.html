@@ -432,6 +432,24 @@
         display: none !important;
       }
       
+      /* 移动端点赞数字显示 */
+      .comment-actions .btn .like-count {
+        display: inline !important;
+        font-size: 12px !important;
+        margin-left: 2px !important;
+      }
+      
+      /* 点赞按钮已点赞状态 */
+      .comment-actions .btn-danger {
+        color: #dc3545 !important;
+        background: transparent !important;
+      }
+      
+      .comment-actions .btn-danger:hover {
+        color: #b02a37 !important;
+        background: transparent !important;
+      }
+      
       /* 评论内容下方左对齐 */
       .comment-content {
         margin: 8px 0 !important;
@@ -693,12 +711,21 @@
            const controller = new AbortController();
            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒超时
            
+           // 构建请求头，包含认证信息（如果用户已登录）
+           const headers = {
+             'Accept': 'application/json',
+             'Cache-Control': forceRefresh ? 'no-cache' : 'max-age=300'
+           };
+           
+           // 如果用户已登录，添加认证头
+           const token = window.UserAuth?.UserManager?.getToken();
+           if (token) {
+             headers['Authorization'] = `Bearer ${token}`;
+           }
+           
            const response = await fetch(apiUrl, {
              signal: controller.signal,
-             headers: {
-               'Accept': 'application/json',
-               'Cache-Control': forceRefresh ? 'no-cache' : 'max-age=300'
-             }
+             headers: headers
            });
            
            clearTimeout(timeoutId);
@@ -840,7 +867,7 @@
          // 使用文档片段批量添加DOM元素，提高性能
          const fragment = document.createDocumentFragment();
          allComments.forEach(comment => {
-           const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
+           const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked);
            fragment.appendChild(commentElement);
          });
          commentList.appendChild(fragment);
@@ -871,7 +898,7 @@
        }
        
        // 创建评论元素
-       function createCommentElement(username, avatar, content, dateString) {
+       function createCommentElement(username, avatar, content, dateString, commentId, likes = 0, hasLiked = false) {
          // 格式化时间显示，精确到分钟
          let formattedDate;
          if (!dateString) {
@@ -939,8 +966,8 @@
                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
                  <div></div>
                  <div class="comment-actions">
-                   <button class="btn btn-sm btn-outline-secondary me-2 like-btn" data-liked="false" style="border-radius: 20px; padding: 2px 10px;">
-                     <i class="fa fa-heart"></i><span class="btn-text"> 点赞</span>
+                   <button class="btn btn-sm ${hasLiked ? 'btn-danger' : 'btn-outline-secondary'} me-2 like-btn" data-liked="${hasLiked}" data-comment-id="${commentId || ''}" style="border-radius: 20px; padding: 2px 10px;">
+                     <i class="fa fa-heart"></i><span class="btn-text like-count">${likes}</span><span class="btn-text d-none d-md-inline"> 点赞</span>
                    </button>
                    <button class="btn btn-sm btn-outline-secondary reply-btn" style="border-radius: 20px; padding: 2px 10px;">
                      <i class="fa fa-reply"></i><span class="btn-text"> 回复</span>
@@ -1031,20 +1058,77 @@
        // 设置点赞按钮事件
        function setupLikeButton(button) {
          if (!button) return;
-         button.addEventListener('click', function() {
+         button.addEventListener('click', async function() {
+           // 检查用户是否已登录
+           const currentUser = getCurrentUser();
+           if (!currentUser) {
+             alert('请先登录后再点赞');
+             return;
+           }
+
+           const commentId = this.getAttribute('data-comment-id');
+           if (!commentId) {
+             alert('评论ID无效');
+             return;
+           }
+
            const liked = this.getAttribute('data-liked') === 'true';
-           const likeCount = this.querySelector('.like-count');
+           const likeCountElement = this.querySelector('.like-count');
+           const action = liked ? 'unlike' : 'like';
            
-           if (liked) {
-             likeCount.textContent = parseInt(likeCount.textContent) - 1;
-             this.setAttribute('data-liked', 'false');
-             this.classList.remove('btn-secondary');
-             this.classList.add('btn-outline-secondary');
-           } else {
-             likeCount.textContent = parseInt(likeCount.textContent) + 1;
-             this.setAttribute('data-liked', 'true');
-             this.classList.remove('btn-outline-secondary');
-             this.classList.add('btn-secondary');
+           // 禁用按钮防止重复点击
+           this.disabled = true;
+           
+           try {
+             const token = window.UserAuth?.UserManager?.getToken();
+             if (!token) {
+               alert('登录状态已过期，请重新登录');
+               return;
+             }
+
+             const response = await fetch(`${window.API_CONFIG.baseUrl}/like-comment`, {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${token}`
+               },
+               body: JSON.stringify({
+                 commentId: commentId,
+                 action: action
+               })
+             });
+             
+             const data = await response.json();
+             
+             if (response.ok && data.success) {
+               // 更新UI状态
+               likeCountElement.textContent = data.likes;
+               this.setAttribute('data-liked', data.hasLiked);
+               
+               if (data.hasLiked) {
+                 this.classList.remove('btn-outline-secondary');
+                 this.classList.add('btn-danger');
+                 
+                 // 添加按钮点击动画
+                 this.classList.add('like-btn-clicked');
+                 setTimeout(() => {
+                   this.classList.remove('like-btn-clicked');
+                 }, 300);
+                 
+                 // 创建爱心动画
+                 createHeartAnimation(this);
+               } else {
+                 this.classList.remove('btn-danger');
+                 this.classList.add('btn-outline-secondary');
+               }
+             } else {
+               alert(data.message || '操作失败，请重试');
+             }
+           } catch (error) {
+             console.error('点赞操作失败:', error);
+             alert('网络错误，请重试');
+           } finally {
+             this.disabled = false;
            }
          });
        }
@@ -1062,6 +1146,37 @@
            const commentFormContainer = document.querySelector('.comment-form-container');
            commentFormContainer.scrollIntoView({ behavior: 'smooth' });
          });
+       }
+       
+       // 创建爱心动画效果
+       function createHeartAnimation(button) {
+         // 创建爱心元素
+         const heart = document.createElement('div');
+         heart.innerHTML = '❤️';
+         heart.className = 'floating-heart';
+         
+         // 获取按钮位置
+         const buttonRect = button.getBoundingClientRect();
+         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+         
+         // 设置爱心初始位置（相对于按钮中心）
+         heart.style.left = (buttonRect.left + scrollLeft + buttonRect.width / 2 - 10) + 'px';
+         heart.style.top = (buttonRect.top + scrollTop + buttonRect.height / 2 - 10) + 'px';
+         
+         // 添加随机偏移，让爱心从不同位置飞出
+         const randomOffset = (Math.random() - 0.5) * 40;
+         heart.style.transform = `translateX(${randomOffset}px)`;
+         
+         // 将爱心添加到页面
+         document.body.appendChild(heart);
+         
+         // 动画结束后移除元素
+         setTimeout(() => {
+           if (heart.parentNode) {
+             heart.parentNode.removeChild(heart);
+           }
+         }, 1500);
        }
        
        // 为现有的评论添加事件监听
