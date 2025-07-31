@@ -655,6 +655,9 @@
   
   <!-- JavaScript -->
   <script>
+    // 全局变量定义
+    let isLoading = false; // 用于跟踪评论加载状态
+    
     // 当页面加载完成后执行
      document.addEventListener('DOMContentLoaded', function() {
        // 获取评论表单和评论列表容器
@@ -708,13 +711,16 @@
            });
          });
        }
-       
-       // 从服务器加载评论数据（支持缓存）
-       async function loadComments(forceRefresh = false, page = 1, append = false) {
+         
+         // 从服务器加载评论数据（支持缓存）
+         async function loadComments(forceRefresh = false, page = 1, append = false) {
          // 防止重复请求
          if (isLoading) {
            return;
          }
+         
+         // 设置加载状态为true
+         isLoading = true;
          
          // 检查缓存（非强制刷新且缓存未过期）
          const cacheKey = `page_${page}`;
@@ -731,6 +737,9 @@
            totalComments = cachedData.total;
            showComments();
            updateLoadMoreButton();
+           
+           // 重置加载状态
+           isLoading = false;
            return;
          }
          
@@ -825,6 +834,7 @@
          } finally {
            // 重置加载状态
            loadingInProgress = false;
+           isLoading = false;
          }
        }
        
