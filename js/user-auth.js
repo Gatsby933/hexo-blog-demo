@@ -45,6 +45,24 @@ const apiRequest = async (url, options = {}) => {
 
 // 用户管理对象
 const UserManager = {
+  // 内存缓存，减少localStorage访问
+  _tokenCache: null,
+  _userCache: null,
+  _cacheTimestamp: 0,
+  _cacheTimeout: 60000, // 1分钟缓存
+  
+  // 清除缓存
+  _clearCache() {
+    this._tokenCache = null;
+    this._userCache = null;
+    this._cacheTimestamp = 0;
+  },
+  
+  // 检查缓存是否有效
+  _isCacheValid() {
+    return this._cacheTimestamp > 0 && (Date.now() - this._cacheTimestamp) < this._cacheTimeout;
+  },
+  
   // 注册新用户
   async saveUser(username, password) {
     try {
@@ -83,21 +101,33 @@ const UserManager = {
   // 获取当前登录用户
   getCurrentUser() {
     try {
+      // 优先使用缓存
+      if (this._isCacheValid() && this._userCache !== null) {
+        return this._userCache;
+      }
+      
       const userStr = localStorage.getItem('currentUser');
-      if (!userStr) return null;
+      if (!userStr) {
+        this._userCache = null;
+        return null;
+      }
       
       const user = JSON.parse(userStr);
       if (!user?.username) {
         localStorage.removeItem('currentUser');
+        this._userCache = null;
         return null;
       }
       
-      // 头像现在直接存储为base64数据，无需URL处理
+      // 更新缓存
+      this._userCache = user;
+      this._cacheTimestamp = Date.now();
       
       return user;
     } catch (error) {
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
+      this._clearCache();
       return null;
     }
   },
@@ -105,8 +135,20 @@ const UserManager = {
   // 获取令牌
   getToken() {
     try {
-      return localStorage.getItem('token') || null;
+      // 优先使用缓存
+      if (this._isCacheValid() && this._tokenCache !== null) {
+        return this._tokenCache;
+      }
+      
+      const token = localStorage.getItem('token') || null;
+      
+      // 更新缓存
+      this._tokenCache = token;
+      this._cacheTimestamp = Date.now();
+      
+      return token;
     } catch (error) {
+      this._tokenCache = null;
       return null;
     }
   },
