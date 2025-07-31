@@ -877,26 +877,21 @@
            commentList.appendChild(loadingElement);
          }
          
-         // 分离主评论和回复评论
-         const mainComments = allComments.filter(comment => !comment.parentCommentId);
-         const replyComments = allComments.filter(comment => comment.parentCommentId);
-         
          // 使用文档片段批量添加DOM元素，提高性能
          const fragment = document.createDocumentFragment();
          
-         mainComments.forEach(comment => {
+         allComments.forEach(comment => {
            // 创建主评论元素
            const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked);
            fragment.appendChild(commentElement);
            
-           // 查找并添加该评论的回复
-           const replies = replyComments.filter(reply => reply.parentCommentId === comment._id);
-           if (replies.length > 0) {
+           // 添加该评论的回复（如果有）
+           if (comment.replies && comment.replies.length > 0) {
              const repliesContainer = document.createElement('div');
              repliesContainer.className = 'replies-container';
              repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
              
-             replies.forEach(reply => {
+             comment.replies.forEach(reply => {
                const replyElement = createReplyElement(reply.username, reply.avatar, reply.content, reply.createdAt, reply._id, reply.likes, reply.hasLiked, reply.replyToUser, comment._id);
                repliesContainer.appendChild(replyElement);
              });
@@ -1488,58 +1483,22 @@
           // 移除回复表单
           replyFormContainer.remove();
           
-          // 直接在当前位置插入新回复，而不是重新加载整个评论列表
-          const newReply = result.comment || {
-            _id: result.id || Date.now().toString(),
-            username: currentUser.username,
-            avatar: currentUser.avatar,
-            content: replyContent,
-            createdAt: new Date().toISOString(),
-            likes: 0,
-            hasLiked: false,
-            replyToUser: replyToUser
-          };
+          // 由于数据结构已改为嵌套结构，需要重新加载评论来获取最新数据
+          commentsCache.clear();
+          cacheTimestamp = 0;
+          await loadComments(true);
           
-          // 找到父评论元素
-          const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
-          if (parentCommentElement) {
-            // 查找或创建回复容器
-            let repliesContainer = parentCommentElement.nextElementSibling;
-            if (!repliesContainer || !repliesContainer.classList.contains('replies-container')) {
-              repliesContainer = document.createElement('div');
-              repliesContainer.className = 'replies-container';
-              repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
-              parentCommentElement.insertAdjacentElement('afterend', repliesContainer);
+          // 保存新回复的位置信息，用于页面刷新后定位
+          const replyId = result.id || result.comment?._id || Date.now().toString();
+          sessionStorage.setItem('scrollToReply', replyId);
+          
+          // 滚动到父评论位置
+          setTimeout(() => {
+            const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
+            if (parentCommentElement) {
+              parentCommentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            
-            // 创建并插入新回复元素
-            const replyElement = createReplyElement(
-              newReply.username,
-              newReply.avatar,
-              newReply.content,
-              newReply.createdAt,
-              newReply._id,
-              newReply.likes,
-              newReply.hasLiked,
-              newReply.replyToUser,
-              parentCommentId
-            );
-            repliesContainer.appendChild(replyElement);
-            
-            // 保存新回复的位置信息，用于页面刷新后定位
-            const replyId = newReply._id || Date.now().toString();
-            sessionStorage.setItem('scrollToReply', replyId);
-            
-            // 滚动到新回复
-            setTimeout(() => {
-              replyElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
-          } else {
-            // 如果找不到父评论，则刷新整个评论列表
-            commentsCache.clear();
-            cacheTimestamp = 0;
-            await loadComments(true);
-          }
+          }, 500);
           
           alert('回复发表成功！');
           

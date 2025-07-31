@@ -32,38 +32,71 @@ exports.handler = asyncHandler(async (event, context) => {
   const { db } = await connectToDatabase();
   const comments = db.collection('comments');
 
-  // 创建新评论
-  const newComment = {
-    username: username.trim(),
-    avatar: avatar || '/images/avatar.svg',
-    content: content.trim(),
-    createdAt: createdAt ? new Date(createdAt) : new Date(),
-    likes: 0,
-    likedBy: []
-  };
-  
-  // 如果是回复评论，添加回复相关字段
+  // 如果是回复评论，添加到父评论的replies数组中
   if (parentCommentId) {
-    newComment.parentCommentId = parentCommentId;
-    if (replyToUser) {
-      newComment.replyToUser = replyToUser.trim();
+    const replyData = {
+      _id: new Date().getTime().toString(), // 生成唯一ID
+      username: username.trim(),
+      avatar: avatar || '/images/avatar.svg',
+      content: content.trim(),
+      createdAt: createdAt ? new Date(createdAt) : new Date(),
+      likes: 0,
+      likedBy: [],
+      replyToUser: replyToUser ? replyToUser.trim() : ''
+    };
+
+    // 更新父评论，添加回复到replies数组
+    const updateResult = await comments.updateOne(
+      { _id: new require('mongodb').ObjectId(parentCommentId) },
+      { 
+        $push: { replies: replyData },
+        $setOnInsert: { replies: [] } // 如果replies字段不存在则创建
+      },
+      { upsert: false }
+    );
+
+    if (updateResult.matchedCount === 0) {
+      return createErrorResponse('父评论不存在', 404, null, event);
     }
+
+    // 响应头
+    const headers = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
+
+    return createSuccessResponse({
+      message: '回复保存成功',
+      comment: replyData
+    }, 201, headers, event);
+  } else {
+    // 创建新的主评论
+    const newComment = {
+      username: username.trim(),
+      avatar: avatar || '/images/avatar.svg',
+      content: content.trim(),
+      createdAt: createdAt ? new Date(createdAt) : new Date(),
+      likes: 0,
+      likedBy: [],
+      replies: [] // 初始化replies数组
+    };
+
+    const result = await comments.insertOne(newComment);
+
+    // 响应头
+    const headers = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
+
+    return createSuccessResponse({
+      message: '评论保存成功',
+      comment: {
+        _id: result.insertedId,
+        ...newComment
+      }
+    }, 201, headers, event);
   }
-
-  const result = await comments.insertOne(newComment);
-
-  // 响应头
-  const headers = {
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  };
-
-  return createSuccessResponse({
-    message: '评论保存成功',
-    comment: {
-      _id: result.insertedId,
-      ...newComment
-    }
-  }, 201, headers, event);
 });

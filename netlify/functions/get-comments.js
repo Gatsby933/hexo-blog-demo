@@ -49,8 +49,7 @@ exports.handler = asyncHandler(async (event, context) => {
           avatar: 1,
           likes: 1,
           likedBy: 1,
-          parentCommentId: 1,
-          replyToUser: 1
+          replies: 1
         }
       })
       .sort({ createdAt: -1 })
@@ -65,6 +64,18 @@ exports.handler = asyncHandler(async (event, context) => {
     
     // 头像现在是base64数据或默认路径，直接使用
     
+    // 处理回复数据
+    const replies = (comment.replies || []).map(reply => ({
+      _id: reply._id,
+      username: reply.username,
+      content: reply.content,
+      avatar: reply.avatar || '/images/avatar.svg',
+      createdAt: reply.createdAt.toISOString ? reply.createdAt.toISOString() : new Date(reply.createdAt).toISOString(),
+      likes: reply.likes || 0,
+      hasLiked: currentUserId ? (reply.likedBy || []).includes(currentUserId) : false,
+      replyToUser: reply.replyToUser || ''
+    }));
+
     return {
       _id: comment._id,
       username: comment.username,
@@ -73,8 +84,7 @@ exports.handler = asyncHandler(async (event, context) => {
       createdAt: comment.createdAt.toISOString(),
       likes: comment.likes || 0,
       hasLiked: currentUserId ? (comment.likedBy || []).includes(currentUserId) : false,
-      parentCommentId: comment.parentCommentId,
-      replyToUser: comment.replyToUser
+      replies: replies
     };
   });
 
