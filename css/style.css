@@ -361,10 +361,10 @@ ul, ol {
 /* 移动端头像样式优先级 */
 @media (max-width: 768px) {
   .comment-avatar img {
-    max-width: 38px !important;
-    max-height: 38px !important;
-    width: 38px !important;
-    height: 38px !important;
+    max-width: 30px !important;
+    max-height: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
 }
 

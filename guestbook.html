@@ -325,9 +325,21 @@
       
       /* 缩小头像 */
       .comment-avatar {
-        width: 38px !important;
-        height: 38px !important;
+        width: 30px !important;
+        height: 30px !important;
         border-radius: 50% !important;
+      }
+      
+      /* 移动端进一步缩小头像 */
+      @media (max-width: 768px) {
+        .comment-avatar {
+          width: 28px !important;
+          height: 28px !important;
+        }
+        .comment-avatar img {
+          width: 28px !important;
+          height: 28px !important;
+        }
       }
       
       /* 优化评论项布局 - 变扁 */
@@ -596,10 +608,8 @@
 
        
        // 初始化：加载评论数据
-       // 页面首次加载时强制刷新，确保获取最新评论
-       const isPageLoad = !window.guestbookInitialized;
-       window.guestbookInitialized = true;
-       loadComments(isPageLoad);
+       // 页面加载时优先使用缓存，提高加载速度
+       loadComments();
        
        // 初始化显示更多功能
        setupLoadMoreButton();
