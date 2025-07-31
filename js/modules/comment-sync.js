@@ -20,7 +20,9 @@ class CommentSync {
       
       if (forceRefresh) {
         apiUrl += `&_t=${Date.now()}`;
-        headers['Cache-Control'] = 'no-cache';
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
       }
       
       console.log('正在获取评论，API地址:', apiUrl);

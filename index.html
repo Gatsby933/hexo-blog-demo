@@ -2133,8 +2133,8 @@
        isWelcomeActive = false;
        hasEnteredMainPage = true; // 标记已经进入过主页面
        
-       // 记录用户已访问过主页面（会话级别，关闭浏览器后重置）
-       sessionStorage.setItem('hasVisitedMainPage', 'true');
+       // 记录用户已访问过主页面（持久存储，但可通过刷新重置）
+       localStorage.setItem('hasVisitedMainPage', 'true');
      }
      
      // 触摸事件监听 - 现在在整个页面上监听，但根据状态处理
@@ -2167,8 +2167,14 @@
       const mainContent = document.querySelector('main.container');
       const topRightIcon = document.querySelector('.top-right-icon');
       
-      // 检查是否已经进入过主页面（使用sessionStorage记录会话状态）
-      const hasVisitedMainPage = sessionStorage.getItem('hasVisitedMainPage');
+      // 检查是否已经进入过主页面（使用localStorage记录持久状态，但允许手动重置）
+      const hasVisitedMainPage = localStorage.getItem('hasVisitedMainPage');
+      const isPageRefresh = performance.navigation && performance.navigation.type === 1;
+      
+      // 如果是页面刷新且之前没有访问过主页，清除访问记录以重新显示欢迎页
+      if (isPageRefresh && !hasVisitedMainPage) {
+        localStorage.removeItem('hasVisitedMainPage');
+      }
       
       if (isMobileDevice() && !hasVisitedMainPage) {
         // 只有在移动端且未访问过主页面时才显示欢迎页
@@ -2188,10 +2194,6 @@
         }
         isWelcomeActive = false;
         hasEnteredMainPage = true;
-        // 如果是移动端且已访问过，记录状态
-        if (isMobileDevice() && hasVisitedMainPage) {
-          sessionStorage.setItem('hasVisitedMainPage', 'true');
-        }
       }
     }
     

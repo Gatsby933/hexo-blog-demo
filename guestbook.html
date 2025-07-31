@@ -592,7 +592,7 @@
        let loadingInProgress = false;
        let commentsCache = new Map(); // 页面级缓存
        let cacheTimestamp = 0;
-       const CACHE_DURATION = 30000; // 缓存30秒
+       const CACHE_DURATION = 300000; // 缓存5分钟（300秒）
 
        
        // 初始化：加载评论数据
@@ -612,7 +612,11 @@
            icon.classList.add('fa-spin');
            this.disabled = true;
            
-           // 强制刷新评论
+           // 强制刷新评论，清除所有缓存
+           commentsCache.clear();
+           cacheTimestamp = 0;
+           currentPage = 1;
+           allComments = [];
            loadComments(true).finally(() => {
              // 移除动画并恢复按钮，增加延迟让用户感受到刷新过程
              setTimeout(() => {
