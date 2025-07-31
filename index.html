@@ -2521,7 +2521,47 @@ function updateDynamicAvatars() {
 
 }
 
-window.addEventListener('DOMContentLoaded', updateDynamicAvatars);
+// 获取并更新留言总数
+async function updateCommentsCount() {
+  try {
+    const response = await fetch('/.netlify/functions/get-comments-count');
+    if (response.ok) {
+      const data = await response.json();
+      const totalCount = data.totalCount || 0;
+      
+      // 更新桌面端留言数字
+      const desktopStatNumbers = document.querySelectorAll('.site-stats .stat-box');
+      desktopStatNumbers.forEach((statBox, index) => {
+        const label = statBox.querySelector('.stat-label');
+        if (label && label.textContent.trim() === '留言') {
+          const numberElement = statBox.querySelector('.stat-number');
+          if (numberElement) {
+            numberElement.textContent = totalCount;
+          }
+        }
+      });
+      
+      // 更新移动端留言数字
+      const mobileStatItems = document.querySelectorAll('.mobile-stat-item');
+      mobileStatItems.forEach((statItem) => {
+        const label = statItem.querySelector('.mobile-stat-label');
+        if (label && label.textContent.trim() === '留言') {
+          const numberElement = statItem.querySelector('.mobile-stat-number');
+          if (numberElement) {
+            numberElement.textContent = totalCount;
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('获取留言数量失败:', error);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  updateDynamicAvatars();
+  updateCommentsCount();
+});
 </script>
 </body>
 </html>
