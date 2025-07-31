@@ -5,12 +5,32 @@
 
 class CommentSync {
   constructor() {
-    this.apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
+    // 确保使用正确的API域名
+    const hostname = window.location.hostname;
+    let baseUrl;
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // 本地开发环境使用自定义域名
+      baseUrl = 'https://blog.hanverse.pub/.netlify/functions';
+    } else if (hostname === 'blog.hanverse.pub') {
+      // 自定义域名使用相对路径
+      baseUrl = '/.netlify/functions';
+    } else {
+      // 其他环境强制使用自定义域名
+      baseUrl = 'https://blog.hanverse.pub/.netlify/functions';
+    }
+    
+    this.apiBaseUrl = baseUrl;
     this.cache = new Map(); // 添加缓存机制
     this.cacheTimestamp = 0;
     this.CACHE_DURATION = 30000; // 缓存30秒
-    this.version = '1.1.0'; // 版本标识，用于调试
+    this.version = '1.1.1'; // 版本标识，用于调试
     console.log('CommentSync初始化，版本:', this.version);
+    console.log('API配置检查:', {
+      'hostname': hostname,
+      'baseUrl': this.apiBaseUrl,
+      'window.API_CONFIG': window.API_CONFIG
+    });
   }
 
   /**
