@@ -2133,8 +2133,8 @@
        isWelcomeActive = false;
        hasEnteredMainPage = true; // 标记已经进入过主页面
        
-       // 记录用户已访问过主页面（会话级别，刷新后重置）
-       sessionStorage.setItem('hasVisitedMainPage', 'true');
+       // 记录用户已访问过主页面（页面级别，刷新后重置）
+       window.hasVisitedMainPageInSession = true;
      }
      
      // 触摸事件监听 - 现在在整个页面上监听，但根据状态处理
@@ -2167,11 +2167,12 @@
       const mainContent = document.querySelector('main.container');
       const topRightIcon = document.querySelector('.top-right-icon');
       
-      // 检查是否已经进入过主页面（使用sessionStorage记录会话状态）
-      const hasVisitedMainPage = sessionStorage.getItem('hasVisitedMainPage');
+      // 检查是否在当前页面会话中已经进入过主页面
+      // 使用页面级变量而不是存储，确保每次刷新都重新显示欢迎页
+      const hasVisitedInThisSession = window.hasVisitedMainPageInSession || false;
       
-      if (isMobileDevice() && !hasVisitedMainPage) {
-        // 只有在移动端且未访问过主页面时才显示欢迎页
+      if (isMobileDevice() && !hasVisitedInThisSession) {
+        // 只有在移动端且在当前会话中未访问过主页面时才显示欢迎页
         welcomeScreen.style.display = 'flex';
         mainContent.classList.remove('mobile-show');
         if (topRightIcon) {

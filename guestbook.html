@@ -596,8 +596,10 @@
 
        
        // 初始化：加载评论数据
-       // 初始化加载评论
-       loadComments();
+       // 页面首次加载时强制刷新，确保获取最新评论
+       const isPageLoad = !window.guestbookInitialized;
+       window.guestbookInitialized = true;
+       loadComments(isPageLoad);
        
        // 初始化显示更多功能
        setupLoadMoreButton();
