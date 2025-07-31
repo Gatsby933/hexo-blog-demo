@@ -8,7 +8,7 @@ class CommentSync {
     this.apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
     this.cache = new Map(); // 添加缓存机制
     this.cacheTimestamp = 0;
-    this.CACHE_DURATION = 300000; // 缓存5分钟
+    this.CACHE_DURATION = 30000; // 缓存30秒
   }
 
   /**
