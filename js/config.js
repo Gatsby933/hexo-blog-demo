@@ -1,4 +1,4 @@
-// API配置
+// API配置 - 版本 1.1
 window.API_CONFIG = {
     // 根据当前主机名判断环境
     baseUrl: (() => {
