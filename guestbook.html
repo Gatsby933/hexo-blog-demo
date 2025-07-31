@@ -1148,7 +1148,7 @@
              
              const data = await response.json();
              
-             if (!response.ok || !data.success) {
+             if (!response.ok) {
                // 服务器请求失败，回滚UI状态
                likeCountElement.textContent = originalCount;
                this.setAttribute('data-liked', originalLiked);
