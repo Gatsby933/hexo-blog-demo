@@ -6,6 +6,9 @@
 class CommentSync {
   constructor() {
     this.apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
+    this.cache = new Map(); // 添加缓存机制
+    this.cacheTimestamp = 0;
+    this.CACHE_DURATION = 300000; // 缓存5分钟
   }
 
   /**
@@ -15,6 +18,15 @@ class CommentSync {
    */
   async getLatestComments(limit = 3, forceRefresh = false) {
     try {
+      const cacheKey = `comments_${limit}`;
+      const now = Date.now();
+      
+      // 检查缓存（非强制刷新且缓存未过期）
+      if (!forceRefresh && this.cache.has(cacheKey) && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
+        console.log('使用缓存的评论数据');
+        return this.cache.get(cacheKey);
+      }
+      
       let apiUrl = `${this.apiBaseUrl}/get-comments?page=1&limit=${limit}`;
       const headers = {};
       
@@ -41,8 +53,14 @@ class CommentSync {
         return [];
       }
       
-      console.log('成功获取评论数量:', data.comments.length);
-      return data.comments || [];
+      const comments = data.comments || [];
+      
+      // 存储到缓存
+      this.cache.set(cacheKey, comments);
+      this.cacheTimestamp = now;
+      
+      console.log('成功获取评论数量:', comments.length);
+      return comments;
     } catch (error) {
       console.error('获取最新评论失败:', error);
       console.error('错误详情:', {
@@ -193,6 +211,10 @@ class CommentSync {
    * 刷新主页评论
    */
   async refreshHomepageComments() {
+    // 清除缓存，确保获取最新数据
+    this.cache.clear();
+    this.cacheTimestamp = 0;
+    console.log('已清除评论缓存，开始强制刷新');
     await this.initHomepageComments(true);
   }
 }
