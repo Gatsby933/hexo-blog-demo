@@ -7,8 +7,8 @@ window.API_CONFIG = {
             // 本地开发环境使用本地API
             return '/.netlify/functions';
         } else if (hostname === 'blog.hanverse.pub') {
-            // 自定义域名使用相对路径，通过域名路由到正确的服务
-            return '/.netlify/functions';
+            // GitHub Pages上的自定义域名，需要调用Netlify的绝对URL
+            return 'https://clever-mermaid-713c96.netlify.app/.netlify/functions';
         } else {
             // 其他环境（如原Netlify域名）使用自定义域名
             return 'https://blog.hanverse.pub/.netlify/functions';
