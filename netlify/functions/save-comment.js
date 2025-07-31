@@ -82,7 +82,12 @@ exports.handler = asyncHandler(async (event, context) => {
        }
      } catch (replyError) {
        console.error('处理回复时发生错误:', replyError);
-       throw replyError;
+       // 检查是否是数据库操作错误还是其他错误
+       if (replyError.message && replyError.message.includes('父评论不存在')) {
+         return createErrorResponse('父评论不存在', 404, null, event);
+       }
+       // 对于其他错误，返回更具体的错误信息
+       return createErrorResponse('回复保存失败，请稍后重试', 500, replyError, event);
      }
 
     // 响应头

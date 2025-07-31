@@ -1663,8 +1663,16 @@
         } catch (error) {
           console.error('回复提交错误:', error);
           if (!apiSuccess) {
-            // API调用失败
-            alert('回复发表失败，请稍后重试');
+            // API调用失败，但可能回复已经保存成功
+            // 检查错误信息，如果是500错误，可能是保存成功但返回错误
+            if (error.message && error.message.includes('500')) {
+              alert('回复可能已经发表成功，页面将自动刷新以确认。');
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            } else {
+              alert('回复发表失败，请稍后重试');
+            }
           } else {
             // API成功但UI更新失败
             alert('回复发表成功！页面将自动刷新以显示最新内容。');
