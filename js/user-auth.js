@@ -660,6 +660,8 @@ function initAuthModals() {
               const uploadController = new AbortController();
               const uploadTimeoutId = setTimeout(() => uploadController.abort(), 60000); // 60秒超时
               
+              console.log('当前API端点:', window.API_CONFIG.baseUrl);
+              console.log('完整上传URL:', `${window.API_CONFIG.baseUrl}/upload-avatar`);
               uploadResponse = await fetch(`${window.API_CONFIG.baseUrl}/upload-avatar`, {
                 method: 'POST',
                 headers: {
