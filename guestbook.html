@@ -1712,50 +1712,21 @@
             throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
           }
           
-<<<<<<< HEAD
-          if (response.ok || (response.status === 500 && responseData && responseData.message && responseData.message.includes('成功'))) {
-            // 成功：更新临时回复的ID为真实ID
-            apiSuccess = true;
-            result = responseData;
-            
-            if (optimisticReplyElement && responseData && responseData.comment && responseData.comment._id) {
-              optimisticReplyElement.setAttribute('data-reply-id', responseData.comment._id);
-              const replyLikeBtn = optimisticReplyElement.querySelector('.reply-like-btn');
-              if (replyLikeBtn) {
-                // 更新回复点赞按钮的属性
-                const replyIndex = Array.from(optimisticReplyElement.parentNode.children).indexOf(optimisticReplyElement);
-                replyLikeBtn.setAttribute('data-reply-index', replyIndex);
-              }
-            }
-            
-            // 清除评论缓存，确保下次加载时获取最新数据
-=======
           result = await response.json();
           apiSuccess = true;
           
           // 移除回复表单
           replyFormContainer.remove();
           
-          // 尝试更新UI
-          try {
-            // 由于数据结构已改为嵌套结构，需要重新加载评论来获取最新数据
->>>>>>> parent of e0919f8 (Update guestbook.html)
-            commentsCache.clear();
-            cacheTimestamp = 0;
-            
-            console.log('回复发表成功');
-          } else {
-            throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
-          }
+          // 清除评论缓存，确保下次加载时获取最新数据
+          commentsCache.clear();
+          cacheTimestamp = 0;
+          
+          console.log('回复发表成功');
           
         } catch (error) {
           console.error('回复提交错误:', error);
-<<<<<<< HEAD
           
-          // API调用失败，移除乐观更新的回复元素
-          if (optimisticReplyElement && optimisticReplyElement.parentNode) {
-            optimisticReplyElement.remove();
-=======
           if (!apiSuccess) {
             // API调用失败，但可能回复已经保存成功
             // 检查错误信息，如果是500错误，可能是保存成功但返回错误
@@ -1773,7 +1744,6 @@
             setTimeout(() => {
               window.location.reload();
             }, 1500);
->>>>>>> parent of e0919f8 (Update guestbook.html)
           }
           
           console.log('回复发表失败，已移除乐观更新的元素');

@@ -4,8 +4,8 @@ window.API_CONFIG = {
     baseUrl: (() => {
         const hostname = window.location.hostname;
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            // 本地开发环境使用自定义域名的API，通过Cloudflare加速
-            return 'https://blog.hanverse.pub/.netlify/functions';
+            // 本地开发环境使用本地API
+            return '/.netlify/functions';
         } else if (hostname === 'blog.hanverse.pub') {
             // 自定义域名使用相对路径，通过Cloudflare加速
             return '/.netlify/functions';
