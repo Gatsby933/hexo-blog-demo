@@ -1040,8 +1040,8 @@
              
              // 通知主页刷新评论（如果主页已打开）
              try {
-               if (window.opener && window.opener.CommentSync) {
-                 window.opener.CommentSync.refreshHomepageComments();
+               if (window.opener && window.opener.loadHomepageComments) {
+                 window.opener.loadHomepageComments(true);
                }
              } catch (e) {
                console.log('无法通知主页刷新评论:', e.message);

@@ -13,7 +13,7 @@
   <script src="js/config.js"></script>
   <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/user-auth.js"></script>
-  <script src="js/modules/comment-sync.js?v=1.1.2"></script>
+
   <script>
     // 调试Bootstrap Dropdown功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -2046,9 +2046,14 @@
               <i class="fa fa-refresh"></i>
             </button>
           </div>
-          <div id="latest-comments-container">
-            <!-- 最新评论将通过JavaScript动态加载 -->
-            <div class="text-muted text-center">正在加载评论...</div>
+          <div class="homepage-comment-list">
+            <!-- 加载状态 -->
+            <div id="homepage-comments-loading" class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 text-muted small">评论加载中...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -2341,49 +2346,174 @@
       // 每秒更新一次时间日期
       setInterval(updateDateTime, 1000);
       
-      // 初始化主页评论刷新按钮（延迟确保CommentSync已加载）
-      setTimeout(() => {
-        const refreshHomepageBtn = document.getElementById('refresh-homepage-comments');
-        if (refreshHomepageBtn) {
-          console.log('正在绑定刷新按钮事件，CommentSync状态:', !!window.CommentSync);
-          refreshHomepageBtn.addEventListener('click', function() {
-            console.log('刷新按钮被点击，CommentSync状态:', !!window.CommentSync);
-            console.log('CommentSync方法检查:', {
-              hasCommentSync: !!window.CommentSync,
-              hasRefreshMethod: !!(window.CommentSync && window.CommentSync.refreshHomepageComments),
-              methodType: typeof (window.CommentSync && window.CommentSync.refreshHomepageComments)
-            });
-            
-            // 添加旋转动画
-            const icon = this.querySelector('i');
-            icon.classList.add('fa-spin');
-            this.disabled = true;
-            
-            // 强制刷新评论
-            if (window.CommentSync && typeof window.CommentSync.refreshHomepageComments === 'function') {
-              console.log('开始刷新主页评论...');
-              window.CommentSync.refreshHomepageComments().finally(() => {
-                console.log('主页评论刷新完成');
-                // 移除动画并恢复按钮，增加延迟让用户感受到刷新过程
-                setTimeout(() => {
-                  icon.classList.remove('fa-spin');
-                  this.disabled = false;
-                }, 1000);
-              });
-            } else {
-              console.error('CommentSync未加载或refreshHomepageComments方法不存在');
-              console.error('当前window.CommentSync:', window.CommentSync);
-              // 如果CommentSync未加载，延迟恢复按钮状态
-              setTimeout(() => {
-                icon.classList.remove('fa-spin');
-                this.disabled = false;
-              }, 1000);
-            }
+      // 主页评论相关变量
+      let homepageCommentsCache = new Map();
+      let homepageCacheTimestamp = 0;
+      const HOMEPAGE_CACHE_DURATION = 300000; // 缓存5分钟
+      let homepageLoadingInProgress = false;
+      
+      // 初始化主页评论
+      loadHomepageComments();
+      
+      // 初始化主页评论刷新按钮
+      const refreshHomepageBtn = document.getElementById('refresh-homepage-comments');
+      if (refreshHomepageBtn) {
+        refreshHomepageBtn.addEventListener('click', function() {
+          // 添加旋转动画
+          const icon = this.querySelector('i');
+          icon.classList.add('fa-spin');
+          this.disabled = true;
+          
+          // 强制刷新评论，清除缓存
+          homepageCommentsCache.clear();
+          homepageCacheTimestamp = 0;
+          loadHomepageComments(true).finally(() => {
+            // 移除动画并恢复按钮
+            setTimeout(() => {
+              icon.classList.remove('fa-spin');
+              this.disabled = false;
+            }, 1000);
           });
-        } else {
-          console.error('未找到刷新按钮元素: refresh-homepage-comments');
+        });
+      }
+      
+      // 加载主页评论函数
+      async function loadHomepageComments(forceRefresh = false) {
+        if (homepageLoadingInProgress) {
+          console.log('主页评论加载中，跳过重复请求');
+          return;
         }
-      }, 1500); // 延迟1.5秒确保CommentSync已完全加载和初始化
+        
+        // 检查缓存
+        const cacheKey = 'homepage_comments';
+        const now = Date.now();
+        if (!forceRefresh && homepageCommentsCache.has(cacheKey) && (now - homepageCacheTimestamp) < HOMEPAGE_CACHE_DURATION) {
+          const cachedData = homepageCommentsCache.get(cacheKey);
+          console.log('使用缓存的主页评论数据');
+          renderHomepageComments(cachedData.comments);
+          return;
+        }
+        
+        homepageLoadingInProgress = true;
+        
+        try {
+          console.log('开始加载主页评论');
+          
+          // 构建API请求URL
+          const apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
+          let apiUrl = `${apiBaseUrl}/get-comments?page=1&limit=3`;
+          if (forceRefresh) {
+            apiUrl += `&_t=${Date.now()}`;
+          }
+          console.log('请求主页评论API:', apiUrl);
+          
+          const headers = {
+            'Accept': 'application/json',
+            'Cache-Control': forceRefresh ? 'no-cache' : 'max-age=300'
+          };
+          
+          // 如果用户已登录，添加认证头
+          const token = window.UserAuth?.UserManager?.getToken();
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          
+          const response = await fetch(apiUrl, { headers });
+          console.log('主页评论API响应状态:', response.status);
+          
+          if (!response.ok) {
+            throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log('获取到主页评论数据:', data);
+          
+          const comments = data.comments || [];
+          
+          // 存储到缓存
+          homepageCommentsCache.set(cacheKey, {
+            comments: comments,
+            timestamp: now
+          });
+          homepageCacheTimestamp = now;
+          
+          renderHomepageComments(comments);
+          
+        } catch (error) {
+          console.error('加载主页评论失败:', error);
+          const container = document.querySelector('.homepage-comment-list');
+          if (container) {
+            container.innerHTML = '<div class="text-muted text-center py-3">评论加载失败，请稍后重试</div>';
+          }
+        } finally {
+          homepageLoadingInProgress = false;
+        }
+      }
+      
+      // 渲染主页评论函数
+      function renderHomepageComments(comments) {
+        const container = document.querySelector('.homepage-comment-list');
+        if (!container) return;
+        
+        if (!comments || comments.length === 0) {
+          container.innerHTML = '<div class="text-muted text-center py-3">暂无评论</div>';
+          return;
+        }
+        
+        const commentsHtml = comments.map(comment => {
+          const timeAgo = formatCommentTime(comment.createdAt);
+          const shortContent = truncateContent(comment.content, 50);
+          const safeUsername = escapeHtml(comment.username);
+          
+          return `
+            <div class="mb-3 pb-2 border-bottom">
+              <div style="font-weight: bold; font-size: 0.9rem;">${safeUsername}</div>
+              <p class="mb-1" style="font-size: 0.85rem; line-height: 1.4;">${shortContent}</p>
+              <small style="opacity: 0.7; color: #666; font-size: 0.75rem;">
+                ${timeAgo} · 
+                <span style="color: #999;">来自留言板</span>
+              </small>
+            </div>
+          `;
+        }).join('');
+        
+        container.innerHTML = commentsHtml;
+      }
+      
+      // 辅助函数
+      function formatCommentTime(dateString) {
+        try {
+          const date = new Date(dateString);
+          const now = new Date();
+          const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+          
+          if (diffInMinutes < 1) return '刚刚';
+          if (diffInMinutes < 60) return `${diffInMinutes}分钟前`;
+          
+          const diffInHours = Math.floor(diffInMinutes / 60);
+          if (diffInHours < 24) return `${diffInHours}小时前`;
+          
+          const diffInDays = Math.floor(diffInHours / 24);
+          if (diffInDays < 30) return `${diffInDays}天前`;
+          
+          return date.toLocaleDateString('zh-CN');
+        } catch (error) {
+          console.error('时间格式化错误:', error);
+          return '未知时间';
+        }
+      }
+      
+      function truncateContent(content, maxLength = 50) {
+        if (!content) return '';
+        if (content.length <= maxLength) return content;
+        return content.substring(0, maxLength) + '...';
+      }
+      
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
 
       // 定期验证用户令牌状态（每5分钟检查一次）
       setInterval(async () => {
