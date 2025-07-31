@@ -378,6 +378,17 @@
         font-size: 14px !important;
       }
       
+      .reply-author {
+        display: inline-block !important;
+        margin: 0 !important;
+        font-weight: bold !important;
+        font-size: 0.85em !important;
+      }
+      
+      .reply-author span {
+        color: #007bff !important;
+      }
+      
       /* 时间字体缩小，与名字居中对齐 */
       .comment-meta small {
         font-size: 10px !important;
@@ -1440,10 +1451,51 @@
           // 移除回复表单
           replyFormContainer.remove();
           
-          // 刷新评论列表
-          commentsCache.clear();
-          cacheTimestamp = 0;
-          await loadComments(true);
+          // 直接在当前位置插入新回复，而不是重新加载整个评论列表
+          const newReply = result.comment || {
+            _id: result.id || Date.now().toString(),
+            username: currentUser.username,
+            avatar: currentUser.avatar,
+            content: replyContent,
+            createdAt: new Date().toISOString(),
+            likes: 0,
+            hasLiked: false,
+            replyToUser: replyToUser
+          };
+          
+          // 找到父评论元素
+          const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
+          if (parentCommentElement) {
+            // 查找或创建回复容器
+            let repliesContainer = parentCommentElement.nextElementSibling;
+            if (!repliesContainer || !repliesContainer.classList.contains('replies-container')) {
+              repliesContainer = document.createElement('div');
+              repliesContainer.className = 'replies-container';
+              repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px;';
+              parentCommentElement.insertAdjacentElement('afterend', repliesContainer);
+            }
+            
+            // 创建并插入新回复元素
+            const replyElement = createReplyElement(
+              newReply.username,
+              newReply.avatar,
+              newReply.content,
+              newReply.createdAt,
+              newReply._id,
+              newReply.likes,
+              newReply.hasLiked,
+              newReply.replyToUser
+            );
+            repliesContainer.appendChild(replyElement);
+            
+            // 滚动到新回复
+            replyElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            // 如果找不到父评论，则刷新整个评论列表
+            commentsCache.clear();
+            cacheTimestamp = 0;
+            await loadComments(true);
+          }
           
           alert('回复发表成功！');
           
