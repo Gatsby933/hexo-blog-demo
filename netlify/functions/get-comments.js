@@ -48,7 +48,9 @@ exports.handler = asyncHandler(async (event, context) => {
           createdAt: 1,
           avatar: 1,
           likes: 1,
-          likedBy: 1
+          likedBy: 1,
+          parentCommentId: 1,
+          replyToUser: 1
         }
       })
       .sort({ createdAt: -1 })
@@ -70,7 +72,9 @@ exports.handler = asyncHandler(async (event, context) => {
       avatar: avatarUrl,
       createdAt: comment.createdAt.toISOString(),
       likes: comment.likes || 0,
-      hasLiked: currentUserId ? (comment.likedBy || []).includes(currentUserId) : false
+      hasLiked: currentUserId ? (comment.likedBy || []).includes(currentUserId) : false,
+      parentCommentId: comment.parentCommentId,
+      replyToUser: comment.replyToUser
     };
   });
 
