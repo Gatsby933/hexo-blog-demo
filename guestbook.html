@@ -866,13 +866,103 @@
            commentList.appendChild(loadingElement);
          }
          
+         // 分离主评论和回复评论
+         const mainComments = allComments.filter(comment => !comment.parentCommentId);
+         const replyComments = allComments.filter(comment => comment.parentCommentId);
+         
          // 使用文档片段批量添加DOM元素，提高性能
          const fragment = document.createDocumentFragment();
-         allComments.forEach(comment => {
+         
+         mainComments.forEach(comment => {
+           // 创建主评论元素
            const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked);
            fragment.appendChild(commentElement);
+           
+           // 查找并添加该评论的回复
+           const replies = replyComments.filter(reply => reply.parentCommentId === comment._id);
+           if (replies.length > 0) {
+             const repliesContainer = document.createElement('div');
+             repliesContainer.className = 'replies-container';
+             repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px;';
+             
+             replies.forEach(reply => {
+               const replyElement = createReplyElement(reply.username, reply.avatar, reply.content, reply.createdAt, reply._id, reply.likes, reply.hasLiked, reply.replyToUser);
+               repliesContainer.appendChild(replyElement);
+             });
+             
+             fragment.appendChild(repliesContainer);
+           }
          });
+         
          commentList.appendChild(fragment);
+       }
+       
+       // 创建回复评论元素
+       function createReplyElement(username, avatar, content, dateString, commentId, likes = 0, hasLiked = false, replyToUser = '') {
+         // 格式化时间显示
+         let formattedDate;
+         if (!dateString) {
+           const currentDate = new Date();
+           formattedDate = formatDateTime(currentDate);
+         } else {
+           const date = new Date(dateString);
+           formattedDate = formatDateTime(date);
+         }
+         
+         // 创建回复元素
+         const replyElement = document.createElement('div');
+         replyElement.className = 'reply-item mb-3 p-2';
+         replyElement.style.cssText = 'background: rgba(248, 249, 250, 0.8); border-radius: 8px; font-size: 0.9em;';
+         if (commentId) {
+           replyElement.setAttribute('data-comment-id', commentId);
+         }
+         
+         // 创建头像元素
+         const avatarImg = document.createElement('img');
+         avatarImg.className = 'rounded-circle';
+         avatarImg.alt = '用户头像';
+         avatarImg.style.cssText = 'width: 30px; height: 30px; background-color: #f0f0f0; object-fit: cover;';
+         
+         // 头像加载逻辑
+         let avatarSrc = avatar || './images/avatar.svg';
+         if (window.avatarCache && window.avatarCache.has(avatarSrc)) {
+           avatarImg.src = window.avatarCache.get(avatarSrc);
+         } else {
+           avatarImg.src = avatarSrc;
+         }
+         
+         // 设置回复HTML内容
+         const replyToText = replyToUser ? `回复 <span style="color: #007bff;">@${replyToUser}</span>: ` : '';
+         replyElement.innerHTML = `
+           <div class="d-flex">
+             <div class="reply-avatar me-2">
+             </div>
+             <div class="flex-grow-1">
+               <div class="reply-header d-flex align-items-center">
+                 <div class="reply-author fw-bold" style="font-size: 0.85em;">${username}</div>
+                 <small class="text-muted ms-2" style="font-size: 0.75em;">${formattedDate}</small>
+               </div>
+               <div class="reply-content mt-1" style="font-size: 0.85em; line-height: 1.3;">${replyToText}${content}</div>
+               <div class="reply-meta d-flex justify-content-between align-items-center mt-1">
+                 <div></div>
+                 <div class="reply-actions">
+                   <button class="btn btn-sm ${hasLiked ? 'btn-danger' : 'btn-outline-secondary'} me-1 like-btn" data-liked="${hasLiked}" data-comment-id="${commentId || ''}" style="border-radius: 15px; padding: 1px 8px; font-size: 0.75em;">
+                     <i class="fa fa-heart"></i><span class="btn-text like-count">${likes}</span>
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         `;
+         
+         // 将头像元素插入到回复中
+         const avatarContainer = replyElement.querySelector('.reply-avatar');
+         avatarContainer.appendChild(avatarImg);
+         
+         // 为回复的点赞按钮添加事件监听
+         setupLikeButton(replyElement.querySelector('.like-btn'));
+         
+         return replyElement;
        }
        
        // 格式化时间显示，精确到分钟
@@ -915,6 +1005,9 @@
          const newComment = document.createElement('div');
          newComment.className = 'comment-item mb-4 p-3';
          newComment.style.cssText = 'background: rgba(240, 240, 240, 0.5); border-radius: 10px;';
+         if (commentId) {
+           newComment.setAttribute('data-comment-id', commentId);
+         }
          
          // 创建头像元素（懒加载优化）
          const avatarImg = document.createElement('img');
@@ -971,7 +1064,7 @@
                    <button class="btn btn-sm ${hasLiked ? 'btn-danger' : 'btn-outline-secondary'} me-2 like-btn" data-liked="${hasLiked}" data-comment-id="${commentId || ''}" style="border-radius: 20px; padding: 2px 10px;">
                      <i class="fa fa-heart"></i><span class="btn-text like-count">${likes}</span><span class="btn-text d-none d-md-inline"> 点赞</span>
                    </button>
-                   <button class="btn btn-sm btn-outline-secondary reply-btn" style="border-radius: 20px; padding: 2px 10px;">
+                   <button class="btn btn-sm btn-outline-secondary reply-btn" data-comment-id="${commentId || ''}" style="border-radius: 20px; padding: 2px 10px;">
                      <i class="fa fa-reply"></i><span class="btn-text"> 回复</span>
                    </button>
                  </div>
@@ -1200,19 +1293,145 @@
        }
        
        // 设置回复按钮事件
-       function setupReplyButton(button) {
-         if (!button) return;
-         button.addEventListener('click', function() {
-           const userName = this.closest('.flex-grow-1').querySelector('strong').textContent;
-           const commentInput = document.getElementById('commentContent');
-           commentInput.value = `${userName} `;
-           commentInput.focus();
-           
-           // 滚动到评论框
-           const commentFormContainer = document.querySelector('.comment-form-container');
-           commentFormContainer.scrollIntoView({ behavior: 'smooth' });
-         });
-       }
+      function setupReplyButton(button) {
+        if (!button) return;
+        button.addEventListener('click', function() {
+          // 检查用户是否已登录
+          const currentUser = getCurrentUser();
+          if (!currentUser) {
+            alert('请先登录后再回复评论');
+            return;
+          }
+          
+          const commentElement = this.closest('.comment-item');
+          const commentId = this.getAttribute('data-comment-id') || commentElement.getAttribute('data-comment-id');
+          const userName = commentElement.querySelector('.comment-author').textContent;
+          
+          showReplyModal(commentId, userName);
+        });
+      }
+      
+      // 显示回复模态框
+      function showReplyModal(parentCommentId, replyToUser) {
+        // 创建模态框HTML
+        const modalHtml = `
+          <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="replyModalLabel">回复 ${replyToUser}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="replyForm">
+                    <div class="mb-3">
+                      <label for="replyContent" class="form-label">回复内容</label>
+                      <textarea class="form-control" id="replyContent" rows="4" placeholder="写下你的回复..." required></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                  <button type="button" class="btn btn-primary" id="submitReply">发表回复</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // 移除已存在的模态框
+        const existingModal = document.getElementById('replyModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+        
+        // 添加新模态框到页面
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // 显示模态框
+        const modal = new bootstrap.Modal(document.getElementById('replyModal'));
+        modal.show();
+        
+        // 绑定提交事件
+        document.getElementById('submitReply').addEventListener('click', function() {
+          submitReply(parentCommentId, replyToUser, modal);
+        });
+        
+        // 模态框关闭时清理
+        document.getElementById('replyModal').addEventListener('hidden.bs.modal', function() {
+          this.remove();
+        });
+      }
+      
+      // 提交回复
+      async function submitReply(parentCommentId, replyToUser, modal) {
+        const replyContent = document.getElementById('replyContent').value.trim();
+        if (!replyContent) {
+          alert('请填写回复内容');
+          return;
+        }
+        
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          alert('请先登录后再回复');
+          return;
+        }
+        
+        const submitButton = document.getElementById('submitReply');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = '发表中...';
+        submitButton.disabled = true;
+        
+        try {
+          // 构建回复数据
+          const replyData = {
+            content: replyContent,
+            username: currentUser.username,
+            avatar: currentUser.avatar || './images/avatar.svg',
+            parentCommentId: parentCommentId,
+            replyToUser: replyToUser
+          };
+          
+          console.log('提交回复数据:', replyData);
+          
+          // 发送回复到API
+          const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
+          const token = window.UserAuth?.UserManager?.getToken();
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify(replyData)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`回复提交失败: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          console.log('回复提交成功:', result);
+          
+          // 关闭模态框
+          modal.hide();
+          
+          // 刷新评论列表
+          commentsCache.clear();
+          cacheTimestamp = 0;
+          await loadComments(true);
+          
+          alert('回复发表成功！');
+          
+        } catch (error) {
+          console.error('回复提交失败:', error);
+          alert('回复发表失败，请稍后重试');
+        } finally {
+          submitButton.textContent = originalText;
+          submitButton.disabled = false;
+        }
+      }
        
        // 创建爱心动画效果
        function createHeartAnimation(button) {

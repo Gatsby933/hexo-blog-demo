@@ -13,7 +13,7 @@ exports.handler = asyncHandler(async (event, context) => {
   if (methodError) return methodError;
 
   // 解析请求体
-  const { username, avatar, content, createdAt } = JSON.parse(event.body);
+  const { username, avatar, content, createdAt, parentCommentId, replyToUser } = JSON.parse(event.body);
 
   // 验证必需字段
   const validationError = validateRequiredFields(
@@ -41,6 +41,14 @@ exports.handler = asyncHandler(async (event, context) => {
     likes: 0,
     likedBy: []
   };
+  
+  // 如果是回复评论，添加回复相关字段
+  if (parentCommentId) {
+    newComment.parentCommentId = parentCommentId;
+    if (replyToUser) {
+      newComment.replyToUser = replyToUser.trim();
+    }
+  }
 
   const result = await comments.insertOne(newComment);
 
