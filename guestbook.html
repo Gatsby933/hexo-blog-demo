@@ -1164,10 +1164,13 @@
          
          try {
            const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
+           const token = window.UserAuth?.UserManager?.getToken();
+           
            const response = await fetch(apiUrl, {
              method: 'POST',
              headers: {
-               'Content-Type': 'application/json'
+               'Content-Type': 'application/json',
+               'Authorization': token ? `Bearer ${token}` : ''
              },
              body: JSON.stringify({
                username,
@@ -1656,7 +1659,7 @@
         const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
         if (parentCommentElement) {
           // 创建回复元素
-           optimisticReplyElement = createReplyElement(
+          optimisticReplyElement = createReplyElement(
              replyData.username,
              replyData.avatar,
              replyData.content,
@@ -1705,15 +1708,11 @@
             body: JSON.stringify(replyData)
           });
           
-          // 尝试解析响应体，即使状态码不是200
-          let responseData;
-          try {
-            responseData = await response.json();
-          } catch (parseError) {
-            console.error('响应解析失败:', parseError);
-            responseData = null;
+          if (!response.ok) {
+            throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
           }
           
+<<<<<<< HEAD
           if (response.ok || (response.status === 500 && responseData && responseData.message && responseData.message.includes('成功'))) {
             // 成功：更新临时回复的ID为真实ID
             apiSuccess = true;
@@ -1730,6 +1729,17 @@
             }
             
             // 清除评论缓存，确保下次加载时获取最新数据
+=======
+          result = await response.json();
+          apiSuccess = true;
+          
+          // 移除回复表单
+          replyFormContainer.remove();
+          
+          // 尝试更新UI
+          try {
+            // 由于数据结构已改为嵌套结构，需要重新加载评论来获取最新数据
+>>>>>>> parent of e0919f8 (Update guestbook.html)
             commentsCache.clear();
             cacheTimestamp = 0;
             
@@ -1740,10 +1750,30 @@
           
         } catch (error) {
           console.error('回复提交错误:', error);
+<<<<<<< HEAD
           
           // API调用失败，移除乐观更新的回复元素
           if (optimisticReplyElement && optimisticReplyElement.parentNode) {
             optimisticReplyElement.remove();
+=======
+          if (!apiSuccess) {
+            // API调用失败，但可能回复已经保存成功
+            // 检查错误信息，如果是500错误，可能是保存成功但返回错误
+            if (error.message && error.message.includes('500')) {
+              alert('回复可能已经发表成功，页面将自动刷新以确认。');
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            } else {
+              alert('回复发表失败，请稍后重试');
+            }
+          } else {
+            // API成功但UI更新失败
+            alert('回复发表成功！页面将自动刷新以显示最新内容。');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+>>>>>>> parent of e0919f8 (Update guestbook.html)
           }
           
           console.log('回复发表失败，已移除乐观更新的元素');
