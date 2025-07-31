@@ -894,7 +894,7 @@
            if (replies.length > 0) {
              const repliesContainer = document.createElement('div');
              repliesContainer.className = 'replies-container';
-             repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px;';
+             repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
              
              replies.forEach(reply => {
                const replyElement = createReplyElement(reply.username, reply.avatar, reply.content, reply.createdAt, reply._id, reply.likes, reply.hasLiked, reply.replyToUser);
@@ -957,6 +957,9 @@
                <div class="reply-meta d-flex justify-content-between align-items-center mt-1">
                  <div></div>
                  <div class="reply-actions">
+                   <button class="btn btn-sm btn-outline-primary me-1 reply-to-reply-btn" data-reply-to="${username}" data-parent-id="${commentId || ''}" style="border-radius: 15px; padding: 1px 8px; font-size: 0.75em;">
+                     <i class="fa fa-reply"></i>
+                   </button>
                    <button class="btn btn-sm ${hasLiked ? 'btn-danger' : 'btn-outline-secondary'} me-1 like-btn" data-liked="${hasLiked}" data-comment-id="${commentId || ''}" style="border-radius: 15px; padding: 1px 8px; font-size: 0.75em;">
                      <i class="fa fa-heart"></i><span class="btn-text like-count">${likes}</span>
                    </button>
@@ -972,6 +975,12 @@
          
          // 为回复的点赞按钮添加事件监听
          setupLikeButton(replyElement.querySelector('.like-btn'));
+         
+         // 为回复按钮添加事件监听
+         const replyToReplyBtn = replyElement.querySelector('.reply-to-reply-btn');
+         if (replyToReplyBtn) {
+           setupReplyToReplyButton(replyToReplyBtn);
+         }
          
          return replyElement;
        }
@@ -1322,6 +1331,31 @@
         });
       }
       
+      // 设置回复的回复按钮事件
+      function setupReplyToReplyButton(button) {
+        button.addEventListener('click', function() {
+          // 检查用户是否已登录
+          const currentUser = getCurrentUser();
+          if (!currentUser) {
+            alert('请先登录后再回复评论');
+            return;
+          }
+          
+          const replyElement = this.closest('.reply-item');
+          const replyToUser = this.getAttribute('data-reply-to');
+          const parentCommentId = this.getAttribute('data-parent-id');
+          
+          // 找到父评论元素
+          const parentCommentElement = replyElement.closest('.comment-item');
+          if (!parentCommentElement) {
+            console.error('无法找到父评论元素');
+            return;
+          }
+          
+          showReplyForm(parentCommentElement, parentCommentId, replyToUser);
+        });
+      }
+      
       // 显示回复表单
       function showReplyForm(commentElement, parentCommentId, replyToUser) {
         // 检查是否已经有回复表单存在
@@ -1471,7 +1505,7 @@
             if (!repliesContainer || !repliesContainer.classList.contains('replies-container')) {
               repliesContainer = document.createElement('div');
               repliesContainer.className = 'replies-container';
-              repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px;';
+              repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
               parentCommentElement.insertAdjacentElement('afterend', repliesContainer);
             }
             
