@@ -1200,7 +1200,7 @@
              responseData = null;
            }
            
-           if (response.ok || (response.status === 500 && responseData && responseData.message && responseData.message.includes('成功'))) {
+           if (response.ok) {
              // 移除pending状态和指示器
              newCommentElement.classList.remove('comment-pending');
              newCommentElement.style.opacity = '1';
@@ -1244,8 +1244,82 @@
              } catch (e) {
                // 静默处理
              }
+           } else if (response.status === 500) {
+             // 服务器错误，进行智能验证
+             console.log('检测到500错误，等待3秒后验证评论状态...');
+             
+             // 显示验证提示
+             const errorMsg = document.createElement('div');
+             errorMsg.className = 'alert alert-info alert-dismissible fade show mt-3';
+             errorMsg.innerHTML = `
+               <i class="fa fa-info-circle"></i> 正在验证评论状态，请稍候...
+               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+             `;
+             
+             const commentList = document.getElementById('commentList');
+             if (commentList.firstChild) {
+               commentList.insertBefore(errorMsg, commentList.firstChild);
+             } else {
+               commentList.appendChild(errorMsg);
+             }
+             
+             // 3秒后重新加载评论来验证是否真的保存成功
+             setTimeout(async () => {
+               try {
+                 // 重新加载评论数据
+                 await loadComments(true); // 强制刷新
+                 
+                 // 移除临时评论和错误提示
+                 if (newCommentElement && newCommentElement.parentNode) {
+                   newCommentElement.remove();
+                 }
+                 if (errorMsg.parentNode) {
+                   errorMsg.remove();
+                 }
+                 
+                 // 显示验证完成提示
+                 const successMsg = document.createElement('div');
+                 successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+                 successMsg.innerHTML = `
+                   <i class="fa fa-check-circle"></i> 评论状态已验证，内容已更新
+                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                 `;
+                 
+                 if (commentList.firstChild) {
+                   commentList.insertBefore(successMsg, commentList.firstChild);
+                 } else {
+                   commentList.appendChild(successMsg);
+                 }
+                 
+                 // 3秒后移除成功提示
+                 setTimeout(() => {
+                   if (successMsg.parentNode) {
+                     successMsg.remove();
+                   }
+                 }, 3000);
+               } catch (reloadError) {
+                 console.error('重新加载评论失败:', reloadError);
+                 // 如果重新加载失败，显示错误并建议刷新页面
+                 if (errorMsg.parentNode) {
+                   errorMsg.remove();
+                 }
+                 
+                 const finalErrorMsg = document.createElement('div');
+                 finalErrorMsg.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                 finalErrorMsg.innerHTML = `
+                   <i class="fa fa-exclamation-triangle"></i> 无法验证评论状态，建议刷新页面查看
+                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                 `;
+                 
+                 if (commentList.firstChild) {
+                   commentList.insertBefore(finalErrorMsg, commentList.firstChild);
+                 } else {
+                   commentList.appendChild(finalErrorMsg);
+                 }
+               }
+             }, 3000);
            } else {
-             // 失败：移除乐观更新的评论并显示错误提示
+             // 其他错误：移除乐观更新的评论并显示错误提示
              newCommentElement.remove();
              
              // 显示错误提示
@@ -1801,7 +1875,9 @@
           });
           
           if (!response.ok) {
-            throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
+            const error = new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
+            error.status = response.status;
+            throw error;
           }
           
           result = await response.json();
@@ -1850,12 +1926,14 @@
           
           if (!apiSuccess) {
             // API调用失败的处理
-            if (error.message && error.message.includes('500')) {
-              // 服务器错误，可能已保存成功
+            if (error.status === 500) {
+              // 服务器错误，但先检查是否实际保存成功
+              console.log('检测到500错误，等待3秒后验证回复状态...');
+              
               const errorMsg = document.createElement('div');
-              errorMsg.className = 'alert alert-warning alert-dismissible fade show mt-2';
+              errorMsg.className = 'alert alert-info alert-dismissible fade show mt-2';
               errorMsg.innerHTML = `
-                <i class="fa fa-exclamation-triangle"></i> 服务器响应异常，正在验证回复状态...
+                <i class="fa fa-info-circle"></i> 正在验证回复状态，请稍候...
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
               `;
               
@@ -1863,9 +1941,40 @@
               const repliesContainer = parentCommentElement.querySelector('.replies-container') || parentCommentElement;
               repliesContainer.appendChild(errorMsg);
               
-              // 3秒后自动刷新验证
-              setTimeout(() => {
-                window.location.reload();
+              // 3秒后重新加载评论来验证是否真的保存成功
+              setTimeout(async () => {
+                try {
+                  // 重新加载评论数据
+                  await loadComments(true); // 强制刷新
+                  
+                  // 移除临时回复和错误提示
+                  if (optimisticReplyElement && optimisticReplyElement.parentNode) {
+                    optimisticReplyElement.remove();
+                  }
+                  if (errorMsg.parentNode) {
+                    errorMsg.remove();
+                  }
+                  
+                  // 显示验证完成提示
+                  const successMsg = document.createElement('div');
+                  successMsg.className = 'alert alert-success alert-dismissible fade show mt-2';
+                  successMsg.innerHTML = `
+                    <i class="fa fa-check-circle"></i> 回复状态已验证，内容已更新
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  `;
+                  repliesContainer.appendChild(successMsg);
+                  
+                  // 3秒后移除成功提示
+                  setTimeout(() => {
+                    if (successMsg.parentNode) {
+                      successMsg.remove();
+                    }
+                  }, 3000);
+                } catch (reloadError) {
+                  console.error('重新加载评论失败:', reloadError);
+                  // 如果重新加载失败，还是刷新页面
+                  window.location.reload();
+                }
               }, 3000);
             } else {
               // 其他错误
