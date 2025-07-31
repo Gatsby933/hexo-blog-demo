@@ -1595,6 +1595,9 @@
         submitButton.textContent = '发表中...';
         submitButton.disabled = true;
         
+        let apiSuccess = false;
+        let result = null;
+        
         try {
           // 构建回复数据
           const replyData = {
@@ -1604,8 +1607,6 @@
             parentCommentId: parentCommentId,
             replyToUser: replyToUser
           };
-          
-
           
           // 发送回复到API
           const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
@@ -1624,32 +1625,53 @@
             throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
           }
           
-          const result = await response.json();
+          result = await response.json();
+          apiSuccess = true;
           
           // 移除回复表单
           replyFormContainer.remove();
           
-          // 由于数据结构已改为嵌套结构，需要重新加载评论来获取最新数据
-          commentsCache.clear();
-          cacheTimestamp = 0;
-          await loadComments(true);
-          
-          // 保存新回复的位置信息，用于页面刷新后定位
-          const replyId = result.id || result.comment?._id || Date.now().toString();
-          sessionStorage.setItem('scrollToReply', replyId);
-          
-          // 滚动到父评论位置
-          setTimeout(() => {
-            const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
-            if (parentCommentElement) {
-              parentCommentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }, 500);
-          
-          alert('回复发表成功！');
+          // 尝试更新UI
+          try {
+            // 由于数据结构已改为嵌套结构，需要重新加载评论来获取最新数据
+            commentsCache.clear();
+            cacheTimestamp = 0;
+            await loadComments(true);
+            
+            // 保存新回复的位置信息，用于页面刷新后定位
+            const replyId = result.id || result.comment?._id || Date.now().toString();
+            sessionStorage.setItem('scrollToReply', replyId);
+            
+            // 滚动到父评论位置
+            setTimeout(() => {
+              const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
+              if (parentCommentElement) {
+                parentCommentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 500);
+            
+            alert('回复发表成功！');
+          } catch (uiError) {
+            console.error('UI更新错误:', uiError);
+            alert('回复发表成功！页面将自动刷新以显示最新内容。');
+            // 延迟刷新，让用户看到成功提示
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          }
           
         } catch (error) {
-          alert('回复发表失败，请稍后重试');
+          console.error('回复提交错误:', error);
+          if (!apiSuccess) {
+            // API调用失败
+            alert('回复发表失败，请稍后重试');
+          } else {
+            // API成功但UI更新失败
+            alert('回复发表成功！页面将自动刷新以显示最新内容。');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          }
         } finally {
           submitButton.textContent = originalText;
           submitButton.disabled = false;
