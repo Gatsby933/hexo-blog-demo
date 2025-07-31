@@ -655,9 +655,6 @@
   
   <!-- JavaScript -->
   <script>
-    // 全局变量定义
-    let isLoading = false; // 用于跟踪评论加载状态
-    
     // 当页面加载完成后执行
      document.addEventListener('DOMContentLoaded', function() {
        // 获取评论表单和评论列表容器
@@ -675,6 +672,7 @@
        
        // 防抖变量和缓存机制
        let loadingInProgress = false;
+       let isLoading = false; // 用于跟踪评论加载状态
        let commentsCache = new Map(); // 页面级缓存
        let cacheTimestamp = 0;
        const CACHE_DURATION = 300000; // 缓存5分钟（300秒）
