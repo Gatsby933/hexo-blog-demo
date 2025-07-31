@@ -1151,6 +1151,18 @@
            []
          );
          
+         // 添加pending状态的视觉效果
+         newCommentElement.classList.add('comment-pending');
+         newCommentElement.style.opacity = '0.7';
+         newCommentElement.style.position = 'relative';
+         
+         // 添加发送中的指示器
+         const pendingIndicator = document.createElement('div');
+         pendingIndicator.className = 'pending-indicator';
+         pendingIndicator.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 发表中...';
+         pendingIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #6c757d; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px; z-index: 10;';
+         newCommentElement.appendChild(pendingIndicator);
+         
          // 将新评论插入到评论列表的最前面
          const commentList = document.getElementById('commentList');
          if (commentList.firstChild) {
@@ -1189,6 +1201,28 @@
            }
            
            if (response.ok || (response.status === 500 && responseData && responseData.message && responseData.message.includes('成功'))) {
+             // 移除pending状态和指示器
+             newCommentElement.classList.remove('comment-pending');
+             newCommentElement.style.opacity = '1';
+             const pendingIndicator = newCommentElement.querySelector('.pending-indicator');
+             if (pendingIndicator) {
+               pendingIndicator.remove();
+             }
+             
+             // 添加成功状态的短暂提示
+             const successIndicator = document.createElement('div');
+             successIndicator.className = 'success-indicator';
+             successIndicator.innerHTML = '<i class="fa fa-check text-success"></i> 发表成功';
+             successIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #28a745; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px; z-index: 10;';
+             newCommentElement.appendChild(successIndicator);
+             
+             // 3秒后移除成功提示
+             setTimeout(() => {
+               if (successIndicator.parentNode) {
+                 successIndicator.remove();
+               }
+             }, 3000);
+             
              // 成功：更新临时评论的ID为真实ID
              if (responseData && responseData.comment && responseData.comment._id) {
                newCommentElement.setAttribute('data-comment-id', responseData.comment._id);
@@ -1211,13 +1245,59 @@
                // 静默处理
              }
            } else {
-             // 失败：移除乐观更新的评论
+             // 失败：移除乐观更新的评论并显示错误提示
              newCommentElement.remove();
+             
+             // 显示错误提示
+             const errorMsg = document.createElement('div');
+             errorMsg.className = 'alert alert-danger alert-dismissible fade show mt-3';
+             errorMsg.innerHTML = `
+               <i class="fa fa-times-circle"></i> 评论发表失败，请检查网络连接后重试
+               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+             `;
+             
+             const commentList = document.getElementById('commentList');
+             if (commentList.firstChild) {
+               commentList.insertBefore(errorMsg, commentList.firstChild);
+             } else {
+               commentList.appendChild(errorMsg);
+             }
+             
+             // 5秒后自动移除错误提示
+             setTimeout(() => {
+               if (errorMsg.parentNode) {
+                 errorMsg.remove();
+               }
+             }, 5000);
+             
              console.error('评论发表失败:', response.status, responseData);
            }
          } catch (error) {
-           // 网络错误：移除乐观更新的评论
+           // 网络错误：移除乐观更新的评论并显示错误提示
            newCommentElement.remove();
+           
+           // 显示网络错误提示
+           const errorMsg = document.createElement('div');
+           errorMsg.className = 'alert alert-warning alert-dismissible fade show mt-3';
+           errorMsg.innerHTML = `
+             <i class="fa fa-exclamation-triangle"></i> 网络连接异常，请检查网络后重试
+             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+           `;
+           
+           const commentList = document.getElementById('commentList');
+           if (commentList.firstChild) {
+             commentList.insertBefore(errorMsg, commentList.firstChild);
+           } else {
+             commentList.appendChild(errorMsg);
+           }
+           
+           // 5秒后自动移除错误提示
+           setTimeout(() => {
+             if (errorMsg.parentNode) {
+               errorMsg.remove();
+             }
+           }, 5000);
+           
            console.error('评论发表失败:', error);
          }
        }
@@ -1671,8 +1751,20 @@
              parentCommentId
            );
            
-           // 设置临时回复ID属性
+           // 设置临时回复ID属性和pending状态
            optimisticReplyElement.setAttribute('data-reply-id', tempReplyId);
+           optimisticReplyElement.classList.add('reply-pending');
+           
+           // 添加pending状态的视觉效果
+           optimisticReplyElement.style.opacity = '0.7';
+           optimisticReplyElement.style.position = 'relative';
+           
+           // 添加发送中的指示器
+           const pendingIndicator = document.createElement('div');
+           pendingIndicator.className = 'pending-indicator';
+           pendingIndicator.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 发送中...';
+           pendingIndicator.style.cssText = 'position: absolute; top: 5px; right: 5px; font-size: 0.7em; color: #6c757d; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 10px;';
+           optimisticReplyElement.appendChild(pendingIndicator);
           
           // 找到回复容器并添加新回复
           let repliesContainer = parentCommentElement.querySelector('.replies-container');
@@ -1718,6 +1810,30 @@
           // 移除回复表单
           replyFormContainer.remove();
           
+          // 移除pending状态和指示器
+          if (optimisticReplyElement) {
+            optimisticReplyElement.classList.remove('reply-pending');
+            optimisticReplyElement.style.opacity = '1';
+            const pendingIndicator = optimisticReplyElement.querySelector('.pending-indicator');
+            if (pendingIndicator) {
+              pendingIndicator.remove();
+            }
+            
+            // 添加成功状态的短暂提示
+            const successIndicator = document.createElement('div');
+            successIndicator.className = 'success-indicator';
+            successIndicator.innerHTML = '<i class="fa fa-check text-success"></i> 已发表';
+            successIndicator.style.cssText = 'position: absolute; top: 5px; right: 5px; font-size: 0.7em; color: #28a745; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 10px;';
+            optimisticReplyElement.appendChild(successIndicator);
+            
+            // 3秒后移除成功提示
+            setTimeout(() => {
+              if (successIndicator.parentNode) {
+                successIndicator.remove();
+              }
+            }, 3000);
+          }
+          
           // 清除评论缓存，确保下次加载时获取最新数据
           commentsCache.clear();
           cacheTimestamp = 0;
@@ -1727,23 +1843,64 @@
         } catch (error) {
           console.error('回复提交错误:', error);
           
+          // 移除乐观更新的回复元素
+          if (optimisticReplyElement && optimisticReplyElement.parentNode) {
+            optimisticReplyElement.remove();
+          }
+          
           if (!apiSuccess) {
-            // API调用失败，但可能回复已经保存成功
-            // 检查错误信息，如果是500错误，可能是保存成功但返回错误
+            // API调用失败的处理
             if (error.message && error.message.includes('500')) {
-              alert('回复可能已经发表成功，页面将自动刷新以确认。');
+              // 服务器错误，可能已保存成功
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'alert alert-warning alert-dismissible fade show mt-2';
+              errorMsg.innerHTML = `
+                <i class="fa fa-exclamation-triangle"></i> 服务器响应异常，正在验证回复状态...
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              
+              // 在回复区域显示提示
+              const repliesContainer = parentCommentElement.querySelector('.replies-container') || parentCommentElement;
+              repliesContainer.appendChild(errorMsg);
+              
+              // 3秒后自动刷新验证
               setTimeout(() => {
                 window.location.reload();
-              }, 2000);
+              }, 3000);
             } else {
-              alert('回复发表失败，请稍后重试');
+              // 其他错误
+              const errorMsg = document.createElement('div');
+              errorMsg.className = 'alert alert-danger alert-dismissible fade show mt-2';
+              errorMsg.innerHTML = `
+                <i class="fa fa-times-circle"></i> 回复发表失败，请检查网络连接后重试
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              
+              const repliesContainer = parentCommentElement.querySelector('.replies-container') || parentCommentElement;
+              repliesContainer.appendChild(errorMsg);
+              
+              // 5秒后自动移除错误提示
+              setTimeout(() => {
+                if (errorMsg.parentNode) {
+                  errorMsg.remove();
+                }
+              }, 5000);
             }
           } else {
             // API成功但UI更新失败
-            alert('回复发表成功！页面将自动刷新以显示最新内容。');
+            const successMsg = document.createElement('div');
+            successMsg.className = 'alert alert-success alert-dismissible fade show mt-2';
+            successMsg.innerHTML = `
+              <i class="fa fa-check-circle"></i> 回复发表成功！页面将自动刷新显示最新内容
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const repliesContainer = parentCommentElement.querySelector('.replies-container') || parentCommentElement;
+            repliesContainer.appendChild(successMsg);
+            
             setTimeout(() => {
               window.location.reload();
-            }, 1500);
+            }, 2000);
           }
           
           console.log('回复发表失败，已移除乐观更新的元素');
