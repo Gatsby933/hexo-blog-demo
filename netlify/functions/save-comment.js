@@ -34,39 +34,56 @@ exports.handler = asyncHandler(async (event, context) => {
 
   // 如果是回复评论，添加到父评论的replies数组中
   if (parentCommentId) {
-    const replyData = {
-      _id: new Date().getTime().toString(), // 生成唯一ID
-      username: username.trim(),
-      avatar: avatar || '/images/avatar.svg',
-      content: content.trim(),
-      createdAt: createdAt ? new Date(createdAt) : new Date(),
-      likes: 0,
-      likedBy: [],
-      replyToUser: replyToUser ? replyToUser.trim() : ''
-    };
-
-    // 更新父评论，添加回复到replies数组
-    let parentId;
     try {
-      // 尝试转换为ObjectId，如果失败则直接使用字符串
       const { ObjectId } = require('mongodb');
-      parentId = ObjectId.isValid(parentCommentId) ? new ObjectId(parentCommentId) : parentCommentId;
-    } catch (error) {
-      parentId = parentCommentId;
-    }
+      
+      console.log('处理回复评论，parentCommentId:', parentCommentId);
+      
+      const replyData = {
+        _id: new ObjectId(), // 使用MongoDB ObjectId生成唯一ID
+        username: username.trim(),
+        avatar: avatar || '/images/avatar.svg',
+        content: content.trim(),
+        createdAt: createdAt ? new Date(createdAt) : new Date(),
+        likes: 0,
+        likedBy: [],
+        replyToUser: replyToUser ? replyToUser.trim() : ''
+      };
 
-    const updateResult = await comments.updateOne(
-      { _id: parentId },
-      { 
-        $push: { replies: replyData },
-        $setOnInsert: { replies: [] } // 如果replies字段不存在则创建
-      },
-      { upsert: false }
-    );
+      console.log('创建回复数据:', replyData);
 
-    if (updateResult.matchedCount === 0) {
-      return createErrorResponse('父评论不存在', 404, null, event);
-    }
+      // 更新父评论，添加回复到replies数组
+      let parentId;
+      try {
+        // 尝试转换为ObjectId，如果失败则直接使用字符串
+        parentId = ObjectId.isValid(parentCommentId) ? new ObjectId(parentCommentId) : parentCommentId;
+        console.log('转换后的parentId:', parentId);
+      } catch (error) {
+        console.log('ObjectId转换失败，使用原始ID:', parentCommentId);
+        parentId = parentCommentId;
+      }
+
+      // 首先确保父评论存在replies字段
+      const initResult = await comments.updateOne(
+        { _id: parentId, replies: { $exists: false } },
+        { $set: { replies: [] } }
+      );
+      console.log('初始化replies字段结果:', initResult);
+
+      // 然后添加回复到replies数组
+       const updateResult = await comments.updateOne(
+         { _id: parentId },
+         { $push: { replies: replyData } }
+       );
+       console.log('添加回复结果:', updateResult);
+
+       if (updateResult.matchedCount === 0) {
+         return createErrorResponse('父评论不存在', 404, null, event);
+       }
+     } catch (replyError) {
+       console.error('处理回复时发生错误:', replyError);
+       throw replyError;
+     }
 
     // 响应头
     const headers = {
