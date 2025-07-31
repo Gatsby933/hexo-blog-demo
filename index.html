@@ -13,7 +13,7 @@
   <script src="js/config.js"></script>
   <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/user-auth.js"></script>
-  <script src="js/modules/comment-sync.js?v=1.1.1"></script>
+  <script src="js/modules/comment-sync.js?v=1.1.2"></script>
   <script>
     // 调试Bootstrap Dropdown功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -2345,8 +2345,15 @@
       setTimeout(() => {
         const refreshHomepageBtn = document.getElementById('refresh-homepage-comments');
         if (refreshHomepageBtn) {
+          console.log('正在绑定刷新按钮事件，CommentSync状态:', !!window.CommentSync);
           refreshHomepageBtn.addEventListener('click', function() {
             console.log('刷新按钮被点击，CommentSync状态:', !!window.CommentSync);
+            console.log('CommentSync方法检查:', {
+              hasCommentSync: !!window.CommentSync,
+              hasRefreshMethod: !!(window.CommentSync && window.CommentSync.refreshHomepageComments),
+              methodType: typeof (window.CommentSync && window.CommentSync.refreshHomepageComments)
+            });
+            
             // 添加旋转动画
             const icon = this.querySelector('i');
             icon.classList.add('fa-spin');
@@ -2365,6 +2372,7 @@
               });
             } else {
               console.error('CommentSync未加载或refreshHomepageComments方法不存在');
+              console.error('当前window.CommentSync:', window.CommentSync);
               // 如果CommentSync未加载，延迟恢复按钮状态
               setTimeout(() => {
                 icon.classList.remove('fa-spin');
@@ -2372,8 +2380,10 @@
               }, 1000);
             }
           });
+        } else {
+          console.error('未找到刷新按钮元素: refresh-homepage-comments');
         }
-      }, 1000); // 延迟1秒确保CommentSync已加载
+      }, 1500); // 延迟1.5秒确保CommentSync已完全加载和初始化
 
       // 定期验证用户令牌状态（每5分钟检查一次）
       setInterval(async () => {

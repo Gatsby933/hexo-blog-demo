@@ -248,15 +248,19 @@ window.CommentSync = new CommentSync();
 // 如果在主页，自动初始化
 if (window.location.pathname === '/' || window.location.pathname.includes('index.html')) {
   document.addEventListener('DOMContentLoaded', () => {
+    console.log('CommentSync DOMContentLoaded 事件触发');
     setTimeout(() => {
+      console.log('CommentSync 开始初始化，当前实例:', !!window.CommentSync);
       const commentUpdateTime = localStorage.getItem('commentUpdated');
       if (commentUpdateTime) {
+        console.log('检测到评论更新标记，强制刷新');
         localStorage.removeItem('commentUpdated');
         window.CommentSync.initHomepageComments(true);
       } else {
+        console.log('正常初始化主页评论');
         window.CommentSync.initHomepageComments();
       }
-    }, 500);
+    }, 200); // 减少延迟，确保在按钮事件绑定前完成
   });
   
   // 监听localStorage变化，当其他页面发表评论时自动刷新
