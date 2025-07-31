@@ -1164,11 +1164,16 @@
          newCommentElement.appendChild(pendingIndicator);
          
          // 将新评论插入到评论列表的最前面
-         const commentList = document.getElementById('commentList');
-         if (commentList.firstChild) {
-           commentList.insertBefore(newCommentElement, commentList.firstChild);
+         const commentList = document.querySelector('.comment-list');
+         if (commentList) {
+           if (commentList.firstChild) {
+             commentList.insertBefore(newCommentElement, commentList.firstChild);
+           } else {
+             commentList.appendChild(newCommentElement);
+           }
          } else {
-           commentList.appendChild(newCommentElement);
+           console.error('评论列表容器未找到');
+           return;
          }
          
          // 为新评论设置事件监听器
@@ -1266,11 +1271,11 @@
                <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.5);"></button>
              `;
              
-             const commentList = document.getElementById('commentList');
-             if (commentList.firstChild) {
-               commentList.insertBefore(errorMsg, commentList.firstChild);
-             } else {
-               commentList.appendChild(errorMsg);
+             const commentList = document.querySelector('.comment-list');
+                 if (commentList.firstChild) {
+                   commentList.insertBefore(errorMsg, commentList.firstChild);
+                 } else {
+                   commentList.appendChild(errorMsg);
              }
              
              // 3秒后重新加载评论来验证是否真的保存成功
@@ -1356,11 +1361,11 @@
                <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.3);"></button>
              `;
              
-             const commentList = document.getElementById('commentList');
-             if (commentList.firstChild) {
-               commentList.insertBefore(errorMsg, commentList.firstChild);
-             } else {
-               commentList.appendChild(errorMsg);
+             const commentList = document.querySelector('.comment-list');
+         if (commentList.firstChild) {
+           commentList.insertBefore(errorMsg, commentList.firstChild);
+         } else {
+           commentList.appendChild(errorMsg);
              }
              
              // 5秒后自动移除错误提示
@@ -1385,7 +1390,7 @@
              <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.4);"></button>
            `;
            
-           const commentList = document.getElementById('commentList');
+           const commentList = document.querySelector('.comment-list');
            if (commentList.firstChild) {
              commentList.insertBefore(errorMsg, commentList.firstChild);
            } else {
