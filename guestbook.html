@@ -1088,9 +1088,48 @@
            // 禁用按钮防止重复点击
            this.disabled = true;
            
+           // 保存原始状态用于回滚
+           const originalLiked = liked;
+           const originalCount = parseInt(likeCountElement.textContent) || 0;
+           
+           // 立即更新UI状态（乐观更新）
+           const newLiked = !liked;
+           const newCount = newLiked ? originalCount + 1 : originalCount - 1;
+           
+           likeCountElement.textContent = newCount;
+           this.setAttribute('data-liked', newLiked);
+           
+           if (newLiked) {
+             this.classList.remove('btn-outline-secondary');
+             this.classList.add('btn-danger');
+             
+             // 添加按钮点击动画
+             this.classList.add('like-btn-clicked');
+             setTimeout(() => {
+               this.classList.remove('like-btn-clicked');
+             }, 300);
+             
+             // 创建爱心动画
+             createHeartAnimation(this);
+           } else {
+             this.classList.remove('btn-danger');
+             this.classList.add('btn-outline-secondary');
+           }
+           
+           // 异步发送请求到服务器
            try {
              const token = window.UserAuth?.UserManager?.getToken();
              if (!token) {
+               // 回滚UI状态
+               likeCountElement.textContent = originalCount;
+               this.setAttribute('data-liked', originalLiked);
+               if (originalLiked) {
+                 this.classList.remove('btn-outline-secondary');
+                 this.classList.add('btn-danger');
+               } else {
+                 this.classList.remove('btn-danger');
+                 this.classList.add('btn-outline-secondary');
+               }
                alert('登录状态已过期，请重新登录');
                return;
              }
@@ -1109,33 +1148,35 @@
              
              const data = await response.json();
              
-             if (response.ok && data.success) {
-               // 更新UI状态
-               likeCountElement.textContent = data.likes;
-               this.setAttribute('data-liked', data.hasLiked);
-               
-               if (data.hasLiked) {
+             if (!response.ok || !data.success) {
+               // 服务器请求失败，回滚UI状态
+               likeCountElement.textContent = originalCount;
+               this.setAttribute('data-liked', originalLiked);
+               if (originalLiked) {
                  this.classList.remove('btn-outline-secondary');
                  this.classList.add('btn-danger');
-                 
-                 // 添加按钮点击动画
-                 this.classList.add('like-btn-clicked');
-                 setTimeout(() => {
-                   this.classList.remove('like-btn-clicked');
-                 }, 300);
-                 
-                 // 创建爱心动画
-                 createHeartAnimation(this);
                } else {
                  this.classList.remove('btn-danger');
                  this.classList.add('btn-outline-secondary');
                }
+               console.error('点赞操作失败:', data.message);
              } else {
-               alert(data.message || '操作失败，请重试');
+               // 服务器返回成功，使用服务器返回的准确数据更新UI
+               likeCountElement.textContent = data.likes;
+               this.setAttribute('data-liked', data.hasLiked);
              }
            } catch (error) {
-             console.error('点赞操作失败:', error);
-             alert('网络错误，请重试');
+             // 网络错误，回滚UI状态
+             likeCountElement.textContent = originalCount;
+             this.setAttribute('data-liked', originalLiked);
+             if (originalLiked) {
+               this.classList.remove('btn-outline-secondary');
+               this.classList.add('btn-danger');
+             } else {
+               this.classList.remove('btn-danger');
+               this.classList.add('btn-outline-secondary');
+             }
+             console.error('点赞操作网络错误:', error);
            } finally {
              this.disabled = false;
            }
