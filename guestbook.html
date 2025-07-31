@@ -1342,13 +1342,39 @@
           
           const replyElement = this.closest('.reply-item');
           const replyToUser = this.getAttribute('data-reply-to');
-          const parentCommentId = this.getAttribute('data-parent-id');
           
           // 找到父评论元素 - 回复容器的前一个兄弟元素就是父评论
           const repliesContainer = replyElement.closest('.replies-container');
-          const parentCommentElement = repliesContainer ? repliesContainer.previousElementSibling : null;
-          if (!parentCommentElement || !parentCommentElement.classList.contains('comment-item')) {
+          let parentCommentElement = null;
+          
+          if (repliesContainer) {
+            // 查找前一个兄弟元素中的comment-item
+            let prevElement = repliesContainer.previousElementSibling;
+            while (prevElement) {
+              if (prevElement.classList && prevElement.classList.contains('comment-item')) {
+                parentCommentElement = prevElement;
+                break;
+              }
+              prevElement = prevElement.previousElementSibling;
+            }
+          }
+          
+          console.log('调试信息:', {
+            replyElement,
+            repliesContainer,
+            parentCommentElement,
+            hasCommentItemClass: parentCommentElement ? parentCommentElement.classList.contains('comment-item') : false
+          });
+          
+          if (!parentCommentElement) {
             console.error('无法找到父评论元素');
+            return;
+          }
+          
+          // 从父评论元素获取parentCommentId
+          const parentCommentId = parentCommentElement.getAttribute('data-comment-id');
+          if (!parentCommentId) {
+            console.error('无法获取父评论ID');
             return;
           }
           
@@ -1633,6 +1659,9 @@
        function showComments() {
          const comments = document.querySelectorAll('.comment-item');
          
+         // 保存当前滚动位置
+         const currentScrollY = window.scrollY;
+         
          // 隐藏所有评论
          comments.forEach(comment => {
            comment.style.display = 'none';
@@ -1644,6 +1673,13 @@
              comments[i].style.display = 'block';
            }
          }
+         
+         // 恢复滚动位置（延迟执行以确保DOM更新完成）
+         setTimeout(() => {
+           if (currentScrollY > 0) {
+             window.scrollTo(0, currentScrollY);
+           }
+         }, 50);
        }
        
        // 监听评论表单提交事件
