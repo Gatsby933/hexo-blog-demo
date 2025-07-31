@@ -348,6 +348,39 @@
           max-width: 28px !important;
           max-height: 28px !important;
         }
+        
+        /* 移动端回复样式优化 */
+        .replies-container {
+          margin-left: 0 !important;
+          margin-top: 15px !important;
+          margin-bottom: 20px !important;
+          border-left: none !important;
+          padding-left: 0 !important;
+          background: rgba(248, 249, 250, 0.8) !important;
+          border-radius: 12px !important;
+          padding: 12px !important;
+        }
+        
+        .reply-item {
+          margin-bottom: 12px !important;
+          padding: 8px !important;
+        }
+        
+        .reply-header {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          margin-bottom: 8px !important;
+        }
+        
+        .reply-header small {
+          margin-left: 0 !important;
+          margin-top: 4px !important;
+          order: 2 !important;
+        }
+        
+        .reply-content {
+          margin-bottom: 8px !important;
+        }
       }
       
       /* 优化评论项布局 - 变扁 */
@@ -679,8 +712,7 @@
        // 从服务器加载评论数据（支持缓存）
        async function loadComments(forceRefresh = false, page = 1, append = false) {
          // 防止重复请求
-         if (loadingInProgress) {
-           console.log('评论加载中，跳过重复请求');
+         if (isLoading) {
            return;
          }
          
@@ -689,7 +721,6 @@
          const now = Date.now();
          if (!forceRefresh && commentsCache.has(cacheKey) && (now - cacheTimestamp) < CACHE_DURATION) {
            const cachedData = commentsCache.get(cacheKey);
-           console.log('使用缓存数据');
            
            if (append) {
              allComments = allComments.concat(cachedData.comments);
@@ -706,17 +737,13 @@
          loadingInProgress = true;
          
          try {
-           console.log('开始加载评论，页码:', page, '追加模式:', append);
-           
            // 构建API请求URL - 使用统一的API配置
            let limit = 5;
            const apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
            let apiUrl = `${apiBaseUrl}/get-comments?page=${page}&limit=${limit}`;
-           console.log('使用API配置:', window.API_CONFIG, 'API基础URL:', apiBaseUrl);
            if (forceRefresh) {
              apiUrl += `&_t=${Date.now()}`;
            }
-           console.log('请求评论API:', apiUrl);
            
            // 优化：添加请求超时和更好的错误处理
            const controller = new AbortController();
@@ -740,29 +767,23 @@
            });
            
            clearTimeout(timeoutId);
-           console.log('API响应状态:', response.status, response.statusText);
            
            if (!response.ok) {
              throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
            }
            
            const data = await response.json();
-           console.log('获取到评论数据:', data);
            
            if (append && page > 1) {
              // 追加模式：将新评论添加到现有列表
              const newComments = data.comments || [];
              allComments = allComments.concat(newComments);
-             console.log('追加评论，新增:', newComments.length, '条，总计:', allComments.length, '条');
            } else {
              // 替换模式：替换整个评论列表
              allComments = data.comments || [];
-             console.log('替换评论列表，共:', allComments.length, '条');
              // 只在非追加模式下更新总评论数
              totalComments = data.pagination?.totalComments || allComments.length;
            }
-           
-           console.log('处理后的评论数据 - 总数:', totalComments, '当前显示:', allComments.length);
            
            // 存储到缓存
            commentsCache.set(cacheKey, {
@@ -794,13 +815,6 @@
            }
            
          } catch (error) {
-           console.error('加载评论失败:', error);
-           
-           // 处理超时错误
-           if (error.name === 'AbortError') {
-             console.error('请求超时，请检查网络连接');
-           }
-           
            // 直接回退到静态评论，不使用缓存
            hideLoadingAndFallback();
            
@@ -827,7 +841,6 @@
        function fallbackToStaticComments() {
          const existingComments = document.querySelectorAll('.comment-item');
          totalComments = existingComments.length;
-         console.log('回退到静态评论，找到评论数:', totalComments);
          
          if (totalComments === 0) {
            // 如果没有评论，显示空状态提示
@@ -882,14 +895,15 @@
          
          allComments.forEach(comment => {
            // 创建主评论元素
-           const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked);
+           const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked, comment.replies);
            fragment.appendChild(commentElement);
            
            // 添加该评论的回复（如果有）
            if (comment.replies && comment.replies.length > 0) {
              const repliesContainer = document.createElement('div');
              repliesContainer.className = 'replies-container';
-             repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
+             repliesContainer.style.cssText = 'margin-left: 40px; margin-top: 10px; border-left: 2px solid #e0e0e0; padding-left: 15px; background: rgba(255, 255, 255, 0.6); border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: none;';
+             repliesContainer.setAttribute('data-parent-id', comment._id);
              
              comment.replies.forEach(reply => {
                const replyElement = createReplyElement(reply.username, reply.avatar, reply.content, reply.createdAt, reply._id, reply.likes, reply.hasLiked, reply.replyToUser, comment._id);
@@ -1004,7 +1018,7 @@
        }
        
        // 创建评论元素
-       function createCommentElement(username, avatar, content, dateString, commentId, likes = 0, hasLiked = false) {
+       function createCommentElement(username, avatar, content, dateString, commentId, likes = 0, hasLiked = false, replies = []) {
          // 格式化时间显示，精确到分钟
          let formattedDate;
          if (!dateString) {
@@ -1072,6 +1086,11 @@
                  <small class="text-muted ms-2">${formattedDate}</small>
                </div>
                <div class="comment-content mt-2">${content}</div>
+               ${replies && replies.length > 0 ? `<div class="expand-replies-container mt-2">
+                 <button class="btn btn-sm btn-outline-primary expand-replies-btn" data-comment-id="${commentId || ''}" style="border-radius: 15px; padding: 4px 12px; font-size: 12px;">
+                   <i class="fa fa-comments"></i> 展开 ${replies.length} 条回复
+                 </button>
+               </div>` : ''}
                <div class="comment-meta d-flex justify-content-between align-items-center mt-2">
                  <div></div>
                  <div class="comment-actions">
@@ -1097,15 +1116,19 @@
          // 为新添加的回复按钮添加事件监听
          setupReplyButton(newComment.querySelector('.reply-btn'));
          
+         // 为展开回复按钮添加事件监听
+         const expandBtn = newComment.querySelector('.expand-replies-btn');
+         if (expandBtn) {
+           setupExpandRepliesButton(expandBtn);
+         }
+         
          return newComment;
        }
        
        // 添加新评论到服务器和页面
        async function addNewComment(username, avatar, content) {
          try {
-           console.log('保存评论到API');
            const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
-           console.log('保存评论API URL:', apiUrl);
            const response = await fetch(apiUrl, {
              method: 'POST',
              headers: {
@@ -1119,20 +1142,7 @@
              })
            });
            
-           console.log('保存评论API响应状态:', response.status, response.statusText);
-           
            const responseText = await response.text();
-           console.log('保存评论API响应内容:', responseText);
-           
-           let data;
-           try {
-             data = JSON.parse(responseText);
-           } catch (parseError) {
-             console.error('保存评论JSON解析失败:', parseError);
-             console.error('响应内容不是有效的JSON:', responseText.substring(0, 200));
-             alert('评论发表失败：服务器响应格式错误');
-             return;
-           }
            
            if (response.ok) {
              // 强制重新加载评论列表，跳过缓存，重置到第一页
@@ -1140,8 +1150,6 @@
              displayedComments = 10; // 重置显示数量
              await loadComments(true, 1, false);
              
-             // 确保新评论能够显示（由于按时间倒序排列，新评论应该在第一页）
-             console.log('评论发表后 - 当前显示评论数:', displayedComments, '总评论数:', totalComments);
              showComments();
              updateLoadMoreButton();
              
@@ -1151,15 +1159,14 @@
                  window.opener.loadHomepageComments(true);
                }
              } catch (e) {
-               console.log('无法通知主页刷新评论:', e.message);
+               // 静默处理
              }
              
              alert('评论发表成功！');
            } else {
-             alert('评论发表失败: ' + data.message);
+             alert('评论发表失败');
            }
          } catch (error) {
-           console.error('发表评论时发生错误:', error);
            alert('评论发表失败，请稍后重试');
          }
        }
@@ -1187,7 +1194,6 @@
            
            // 检查必要的元素是否存在
            if (!likeCountElement) {
-             console.error('找不到点赞数元素');
              alert('点赞功能异常，请刷新页面重试');
              return;
            }
@@ -1266,15 +1272,10 @@
                  this.classList.remove('btn-danger');
                  this.classList.add('btn-outline-secondary');
                }
-               console.error('点赞操作失败:', data.message);
              } else {
                // 服务器返回成功，验证数据一致性
-               console.log('服务器返回数据:', data);
-               console.log('前端预期状态:', { likes: newCount, hasLiked: newLiked });
-               
                // 只有当服务器数据与前端预期不一致时才更新
                if (data.likes !== newCount || data.hasLiked !== newLiked) {
-                 console.warn('服务器数据与前端预期不一致，使用服务器数据');
                  likeCountElement.textContent = data.likes;
                  this.setAttribute('data-liked', data.hasLiked);
                  
@@ -1299,7 +1300,6 @@
                this.classList.remove('btn-danger');
                this.classList.add('btn-outline-secondary');
              }
-             console.error('点赞操作网络错误:', error);
            } finally {
              this.disabled = false;
            }
@@ -1325,6 +1325,30 @@
         });
       }
       
+      // 设置展开回复按钮事件
+      function setupExpandRepliesButton(button) {
+        if (!button) return;
+        button.addEventListener('click', function() {
+          const commentId = this.getAttribute('data-comment-id');
+          const repliesContainer = document.querySelector(`[data-parent-id="${commentId}"]`);
+          
+          if (repliesContainer) {
+            const isHidden = repliesContainer.style.display === 'none';
+            repliesContainer.style.display = isHidden ? 'block' : 'none';
+            
+            // 更新按钮文本
+            const icon = this.querySelector('i');
+            const replyCount = this.textContent.match(/\d+/)[0];
+            
+            if (isHidden) {
+              this.innerHTML = `<i class="fa fa-comments"></i> 收起 ${replyCount} 条回复`;
+            } else {
+              this.innerHTML = `<i class="fa fa-comments"></i> 展开 ${replyCount} 条回复`;
+            }
+          }
+        });
+      }
+      
       // 设置回复的回复按钮事件
       function setupReplyToReplyButton(button) {
         button.addEventListener('click', function() {
@@ -1339,14 +1363,14 @@
           const parentCommentId = this.getAttribute('data-parent-id');
           
           if (!parentCommentId) {
-            console.error('无法获取父评论ID');
+            
             return;
           }
           
           // 查找父评论元素
           const parentCommentElement = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
           if (!parentCommentElement) {
-            console.error('无法找到父评论元素');
+
             return;
           }
           
@@ -1458,7 +1482,7 @@
             replyToUser: replyToUser
           };
           
-          console.log('提交回复数据:', replyData);
+
           
           // 发送回复到API
           const apiUrl = `${window.API_CONFIG.baseUrl}/save-comment`;
@@ -1473,16 +1497,11 @@
             body: JSON.stringify(replyData)
           });
           
-          console.log('回复API响应状态:', response.status, response.statusText);
-          
           if (!response.ok) {
-            const errorText = await response.text();
-            console.error('回复提交失败，响应内容:', errorText);
             throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
           }
           
           const result = await response.json();
-          console.log('回复提交成功:', result);
           
           // 移除回复表单
           replyFormContainer.remove();
@@ -1507,7 +1526,6 @@
           alert('回复发表成功！');
           
         } catch (error) {
-          console.error('回复提交失败:', error);
           alert('回复发表失败，请稍后重试');
         } finally {
           submitButton.textContent = originalText;
@@ -1724,7 +1742,7 @@
           
           // 在模态框初始化完成后恢复用户登录状态
           setTimeout(async () => {
-            console.log('正在恢复用户登录状态...');
+    
             if (window.UserAuth && typeof window.UserAuth.restoreUserAuth === 'function') {
               await window.UserAuth.restoreUserAuth();
             }
@@ -1766,7 +1784,7 @@
         }, 100);
       }
     })
-    .catch(error => console.error('加载auth-modals.html失败:', error));
+    .catch(error => {});
 </script>
 
 <!-- 右上角设置图标 -->

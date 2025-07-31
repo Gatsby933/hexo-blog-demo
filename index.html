@@ -17,45 +17,27 @@
   <script>
     // 调试Bootstrap Dropdown功能
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Bootstrap版本:', typeof bootstrap !== 'undefined' ? 'Bootstrap已加载' : '未加载');
-      
       // 确保settingsBtn元素存在
       const settingsBtn = document.getElementById('settingsBtn');
       if (settingsBtn) {
-        console.log('找到settingsBtn元素');
-        
         // 监听dropdown事件
         const dropdownMenu = document.getElementById('settingsDropdown');
         if (dropdownMenu) {
-          console.log('找到settingsDropdown元素');
-          
           // 直接使用Bootstrap API初始化dropdown
           try {
             const dropdown = new bootstrap.Dropdown(settingsBtn);
-            console.log('Dropdown实例已创建:', dropdown);
             
             // 添加点击事件，手动切换dropdown
             settingsBtn.addEventListener('click', function(e) {
               // 检查用户是否已登录，如果已登录则手动切换dropdown
               const currentUser = UserManager.getCurrentUser();
               if (currentUser && typeof currentUser === 'object' && currentUser.username) {
-                console.log('用户已登录，手动切换dropdown');
                 dropdown.toggle();
               }
             });
           } catch (error) {
-            console.error('创建Dropdown实例失败:', error);
+            // 静默处理错误
           }
-          
-          // 监听dropdown显示事件
-          settingsBtn.addEventListener('shown.bs.dropdown', function() {
-            console.log('Dropdown已显示');
-          });
-          
-          // 监听dropdown隐藏事件
-          settingsBtn.addEventListener('hidden.bs.dropdown', function() {
-            console.log('Dropdown已隐藏');
-          });
         }
       }
     });
@@ -1704,7 +1686,7 @@
             
             // 在模态框初始化完成后恢复用户登录状态
             setTimeout(async () => {
-              console.log('正在恢复用户登录状态...');
+
               if (window.UserAuth && typeof window.UserAuth.restoreUserAuth === 'function') {
                 await window.UserAuth.restoreUserAuth();
               }
@@ -1712,7 +1694,7 @@
           }, 100);
         }
       })
-      .catch(error => console.error('加载auth-modals.html失败:', error));
+      .catch(error => {});
   </script>
 
   
@@ -2121,7 +2103,7 @@
        // 如果已经进入过主页面，阻止向下滑动回到欢迎页
        else if (swipeDistance < -50 && !isWelcomeActive && hasEnteredMainPage) {
          // 不执行任何操作，阻止回到欢迎页
-         console.log('已阻止向下滑动回到欢迎页');
+
        }
      }
      
@@ -2258,7 +2240,7 @@
       document.getElementById('next-btn').disabled = (currentPage === totalPages);
       
       // 这里可以添加实际的内容切换逻辑
-      console.log('切换到第', currentPage, '页');
+
     }
     
     // 用户认证相关功能已移至 js/user-auth.js
@@ -2300,25 +2282,18 @@
             const user = JSON.parse(userStr);
             // 只有在JSON解析失败、数据结构完全错误或缺少关键字段时才清除
             if (!user || typeof user !== 'object' || !user.username) {
-              console.warn('用户数据缺少关键字段，标记为损坏:', user);
               shouldClearData = true;
-            } else {
-              console.log('用户数据验证通过:', user.username);
             }
           }
         } catch (error) {
-          console.error('解析用户数据失败，数据已损坏：', error);
           shouldClearData = true;
         }
         
         // 只在数据确实损坏且无法修复时才清除登录状态
         if (shouldClearData) {
-          console.warn('检测到用户数据问题，但暂不清除，等待后续验证');
           // 不立即清除数据，给用户认证系统一个机会来修复或验证
           // localStorage.removeItem('currentUser');
           // localStorage.removeItem('token');
-        } else {
-          console.log('用户数据完整性检查通过');
         }
 
         // 初始化移动端欢迎屏幕
@@ -2334,7 +2309,7 @@
           goToPage(1);
         }
       } catch (error) {
-        console.error('页面初始化失败：', error);
+        // 静默处理错误
         // 确保清除可能损坏的数据
         localStorage.removeItem('currentUser');
         localStorage.removeItem('token');
@@ -2380,7 +2355,6 @@
       // 加载主页评论函数
       async function loadHomepageComments(forceRefresh = false) {
         if (homepageLoadingInProgress) {
-          console.log('主页评论加载中，跳过重复请求');
           return;
         }
         
@@ -2389,7 +2363,7 @@
         const now = Date.now();
         if (!forceRefresh && homepageCommentsCache.has(cacheKey) && (now - homepageCacheTimestamp) < HOMEPAGE_CACHE_DURATION) {
           const cachedData = homepageCommentsCache.get(cacheKey);
-          console.log('使用缓存的主页评论数据');
+
           renderHomepageComments(cachedData.comments);
           return;
         }
@@ -2397,15 +2371,12 @@
         homepageLoadingInProgress = true;
         
         try {
-          console.log('开始加载主页评论');
-          
           // 构建API请求URL
           const apiBaseUrl = window.API_CONFIG?.baseUrl || 'https://blog.hanverse.pub/.netlify/functions';
           let apiUrl = `${apiBaseUrl}/get-comments?page=1&limit=3`;
           if (forceRefresh) {
             apiUrl += `&_t=${Date.now()}`;
           }
-          console.log('请求主页评论API:', apiUrl);
           
           const headers = {
             'Accept': 'application/json',
@@ -2419,14 +2390,14 @@
           }
           
           const response = await fetch(apiUrl, { headers });
-          console.log('主页评论API响应状态:', response.status);
+
           
           if (!response.ok) {
             throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
           }
           
           const data = await response.json();
-          console.log('获取到主页评论数据:', data);
+
           
           const comments = data.comments || [];
           
@@ -2440,7 +2411,7 @@
           renderHomepageComments(comments);
           
         } catch (error) {
-          console.error('加载主页评论失败:', error);
+          // 静默处理错误
           const container = document.querySelector('.homepage-comment-list');
           if (container) {
             container.innerHTML = '<div class="text-muted text-center py-3">评论加载失败，请稍后重试</div>';
@@ -2498,7 +2469,7 @@
           
           return date.toLocaleDateString('zh-CN');
         } catch (error) {
-          console.error('时间格式化错误:', error);
+
           return '未知时间';
         }
       }
@@ -2519,7 +2490,7 @@
       setInterval(async () => {
         const token = localStorage.getItem('token');
         if (token && window.UserAuth && typeof window.UserAuth.UserManager.verifyToken === 'function') {
-          console.log('定期验证用户令牌...');
+
           const user = await window.UserAuth.UserManager.verifyToken();
           if (user) {
             // 验证成功，更新用户数据，确保头像信息不丢失
@@ -2527,7 +2498,7 @@
             if (currentUser && (!currentUser.avatar && user.avatar)) {
               // 如果当前用户数据缺少头像但验证返回的用户有头像，更新数据
               window.UserAuth.UserManager.setCurrentUser(user);
-              console.log('已更新用户头像信息');
+
             }
             // 只在验证成功时更新UI显示
             if (typeof updateAuthUI === 'function') {
@@ -2535,7 +2506,7 @@
             }
           } else {
             // 验证失败或网络错误，不调用updateAuthUI避免清除登录状态
-            console.log('定期验证失败，保持当前登录状态不变');
+
           }
         }
       }, 5 * 60 * 1000); // 5分钟
@@ -2547,7 +2518,7 @@
 function updateDynamicAvatars() {
   // 移动端欢迎页面和左侧栏现在使用静态头像和用户名(@王映寒, logo.png)
   // 不再动态更新这些元素，保持静态显示
-  console.log('头像和用户名已设置为静态显示：@王映寒');
+
 }
 
 window.addEventListener('DOMContentLoaded', updateDynamicAvatars);

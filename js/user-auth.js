@@ -26,7 +26,6 @@ const apiRequest = async (url, options = {}) => {
     try {
       data = await response.json();
     } catch (jsonError) {
-      console.error('解析响应失败:', jsonError);
       throw new Error('服务器响应格式错误');
     }
     
@@ -77,7 +76,6 @@ const UserManager = {
 
       return data;
     } catch (error) {
-      console.error('登录错误：', error);
       throw new Error('登录失败：' + error.message);
     }
   },
@@ -98,7 +96,6 @@ const UserManager = {
       
       return user;
     } catch (error) {
-      console.error('获取用户数据失败：', error);
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
       return null;
@@ -110,7 +107,6 @@ const UserManager = {
     try {
       return localStorage.getItem('token') || null;
     } catch (error) {
-      console.error('获取token失败：', error);
       return null;
     }
   },
@@ -149,7 +145,7 @@ const UserManager = {
         }
       }
     } catch (error) {
-      console.error('保存用户数据失败：', error);
+      // 静默处理错误
     }
   },
   
@@ -157,7 +153,6 @@ const UserManager = {
   async verifyToken() {
     const token = this.getToken();
     if (!token) {
-      console.log('没有找到令牌，用户未登录');
       return null;
     }
 
@@ -169,19 +164,14 @@ const UserManager = {
       });
       
       if (data?.user?.username && data?.user?.id) {
-        console.log('令牌验证成功，用户数据:', data.user);
         return data.user;
       } else {
-        console.error('令牌验证返回的用户数据无效:', data);
         this.logout();
         return null;
       }
     } catch (error) {
-      console.error('令牌验证失败:', error.message);
-      
       // 网络错误时保持当前登录状态
       if (error.message.includes('超时') || error.message.includes('网络')) {
-        console.warn('网络问题，保持当前登录状态');
         return this.getCurrentUser();
       }
       
@@ -192,11 +182,9 @@ const UserManager = {
   
   // 退出登录
   logout() {
-    console.log('执行退出登录操作');
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.setCurrentUser(null);
-    console.log('退出登录完成');
   }
 };
 
@@ -213,7 +201,6 @@ function initAuthModals() {
   
   // 检查必要的DOM元素是否存在
   if (!loginModalElement || !registerModalElement || !loginForm || !registerForm) {
-    console.warn('认证相关元素不存在，无法初始化认证功能');
     return;
   }
   
@@ -224,10 +211,8 @@ function initAuthModals() {
   // 检查登录状态并更新界面
   function updateAuthUI() {
       try {
-        console.log('开始更新认证UI...');
         // 检查settingsBtn元素是否存在
         if (!settingsBtn) {
-          console.warn('settingsBtn元素不存在，无法更新UI');
           return;
         }
         
@@ -243,17 +228,16 @@ function initAuthModals() {
           try {
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser && parsedUser.username) {
-              console.log('从localStorage恢复用户数据:', parsedUser.username);
+
               currentUser = parsedUser;
               token = storedToken;
             }
           } catch (parseError) {
-            console.error('解析localStorage用户数据失败:', parseError);
+
           }
         }
         
-        console.log('当前用户数据:', currentUser);
-        console.log('当前令牌:', token ? token.substring(0, 10) + '...' : 'null');
+
       
       const settingsDropdown = document.getElementById('settingsDropdown');
       const loginOption = document.getElementById('loginOption');
@@ -261,61 +245,55 @@ function initAuthModals() {
       const changeAvatarBtn = document.getElementById('changeAvatarBtn');
       const userInfoDisplay = document.getElementById('userInfoDisplay');
       
-      console.log('UI元素状态:', {
-        settingsDropdown: !!settingsDropdown,
-        loginOption: !!loginOption,
-        logoutBtn: !!logoutBtn,
-        changeAvatarBtn: !!changeAvatarBtn,
-        userInfoDisplay: !!userInfoDisplay
-      });
+
       
       if (currentUser && typeof currentUser === 'object' && currentUser.username && token) {
         // 用户已登录
-        console.log('用户已登录，更新UI为已登录状态:', currentUser.username);
+
         
         // 显示用户头像或默认图标
         if (currentUser.avatar) {
           // 头像数据现在直接存储为base64格式，可以直接使用
-          settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+          settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="this.src='./images/avatar.svg';">`;
         } else {
           settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
         }
         settingsBtn.title = `当前用户：${currentUser.username}`;
-        console.log('已更新设置按钮显示头像或用户图标');
+
         
         // 更新头像悬停提示
         const avatarTooltip = document.getElementById('avatarTooltip');
         if (avatarTooltip) {
           avatarTooltip.textContent = currentUser.username;
-          console.log('已更新头像悬停提示:', currentUser.username);
+
         }
         
         // 更新设置下拉菜单
         if (settingsDropdown) {
-          console.log('更新设置下拉菜单...');
+
           if (loginOption) {
             loginOption.style.display = 'none';
-            console.log('隐藏登录选项');
+
           }
           if (logoutBtn) {
             logoutBtn.style.display = 'block';
-            console.log('显示登出按钮');
+
           }
           if (changeAvatarBtn) {
             changeAvatarBtn.style.display = 'block';
-            console.log('显示修改头像按钮');
+
           }
           if (userInfoDisplay) {
             userInfoDisplay.style.display = 'block';
             userInfoDisplay.textContent = `欢迎，${currentUser.username}`;
-            console.log('显示用户信息:', userInfoDisplay.textContent);
+
           }
         } else {
-          console.log('未找到设置下拉菜单元素');
+
         }
       } else {
         // 用户数据不完整或未登录，但不要立即清除登录状态
-        console.log('用户数据不完整或未登录，检查localStorage状态');
+
         
         // 检查localStorage中是否还有有效的用户数据
         const storedToken = localStorage.getItem('token');
@@ -325,66 +303,63 @@ function initAuthModals() {
           try {
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser && parsedUser.username) {
-              console.log('发现localStorage中有有效用户数据，恢复登录状态');
+
               // 恢复用户数据而不是清除
               if (parsedUser.avatar) {
               // 头像数据现在直接存储为base64格式，可以直接使用
-              settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+              settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
             }
               settingsBtn.title = `当前用户：${parsedUser.username}`;
-              console.log('已恢复用户头像显示');
+
               return; // 提前返回，不执行下面的清除逻辑
             }
           } catch (parseError) {
-            console.error('解析localStorage用户数据失败:', parseError);
+
           }
         }
         
         // 确实没有有效的用户数据，但不清除内存中的登录状态，只重置UI
-        console.log('确认用户未登录，重置UI（但保留内存状态）');
+
         // 注释掉这行，避免意外清除登录状态
         // UserManager.setCurrentUser(null);
         settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
         settingsBtn.title = '设置';
-        console.log('已更新设置按钮为设置图标');
+
         
         // 隐藏头像悬停提示
         const avatarTooltip = document.getElementById('avatarTooltip');
         if (avatarTooltip) {
-          console.log('已隐藏头像悬停提示');
+
         }
         
         // 更新设置下拉菜单
         if (settingsDropdown) {
-          console.log('更新设置下拉菜单为未登录状态...');
+
           if (loginOption) {
             loginOption.style.display = 'block';
-            console.log('显示登录选项');
+
           }
           if (logoutBtn) {
             logoutBtn.style.display = 'none';
-            console.log('隐藏登出按钮');
+
           }
           if (changeAvatarBtn) {
             changeAvatarBtn.style.display = 'none';
-            console.log('隐藏修改头像按钮');
+
           }
           if (userInfoDisplay) {
             userInfoDisplay.style.display = 'none';
-            console.log('隐藏用户信息');
+
           }
         } else {
-          console.log('未找到设置下拉菜单元素');
+
         }
       }
-      console.log('认证UI更新完成');
+
     } catch (error) {
-      console.error('更新UI失败：', error);
-      console.error('错误堆栈:', error.stack);
       // 不要因为UI更新失败就清除登录状态，可能只是DOM元素暂时不可用
-      console.log('UI更新失败，但保持用户登录状态');
       
       // 检查settingsBtn元素是否存在，如果存在则尝试基本的UI恢复
       if (settingsBtn) {
@@ -395,19 +370,19 @@ function initAuthModals() {
             // 用户已登录，恢复基本的头像显示
             if (currentUser.avatar) {
               // 头像数据现在直接存储为base64格式，可以直接使用
-              settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+              settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="this.src='./images/avatar.svg';">`;
             } else {
               settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
             }
             settingsBtn.title = `当前用户：${currentUser.username}`;
-            console.log('已恢复基本的用户头像显示');
+
           } else {
             // 确实没有用户登录
             settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
             settingsBtn.title = '设置';
           }
         } catch (recoveryError) {
-          console.error('UI恢复也失败了:', recoveryError);
+
           // 最后的保险措施
           settingsBtn.innerHTML = '<i class="fa fa-cog"></i>';
           settingsBtn.title = '设置';
@@ -432,7 +407,7 @@ function initAuthModals() {
   if (avatarModalElement) {
     avatarModal = new bootstrap.Modal(avatarModalElement);
   } else {
-    console.warn('头像模态框元素不存在');
+
   }
 
   // 设置按钮点击事件
@@ -448,9 +423,9 @@ function initAuthModals() {
           return false; // 阻止事件冒泡
         }
         // 已登录状态，让Bootstrap处理下拉菜单
-        console.log('用户已登录，显示下拉菜单');
+
       } catch (error) {
-        console.error('处理设置按钮点击事件失败：', error);
+
         e.preventDefault();
         e.stopPropagation();
         loginModal.show();
@@ -514,14 +489,14 @@ function initAuthModals() {
       }
 
       // 验证token - 增加超时和重试机制
-      console.log('开始验证token用于头像更换...');
+
       let verifyResponse;
       let retryCount = 0;
       const maxRetries = 3;
       
       while (retryCount < maxRetries) {
         try {
-          console.log(`Token验证尝试 ${retryCount + 1}/${maxRetries}`);
+
           
           // 创建带超时的fetch请求
           const controller = new AbortController();
@@ -540,30 +515,30 @@ function initAuthModals() {
           });
           
           clearTimeout(timeoutId);
-          console.log('Token验证响应状态:', verifyResponse.status);
+
           
           if (verifyResponse.ok) {
             // 验证成功，解析响应数据
             const verifyData = await verifyResponse.json();
-            console.log('Token验证成功，用户数据:', verifyData);
+
             break; // 成功则跳出重试循环
           } else if (verifyResponse.status === 401 || verifyResponse.status === 403) {
             // 认证失败，不需要重试
-            console.error('Token认证失败，状态码:', verifyResponse.status);
+
             break;
           } else {
             // 其他错误，可能是网络问题，继续重试
-            console.warn(`Token验证失败，状态码: ${verifyResponse.status}，准备重试...`);
+
             retryCount++;
             if (retryCount < maxRetries) {
               await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒后重试
             }
           }
         } catch (error) {
-          console.error(`Token验证请求失败 (尝试 ${retryCount + 1}):`, error.message);
+
           retryCount++;
           if (retryCount < maxRetries) {
-            console.log(`等待2秒后重试...`);
+
             await new Promise(resolve => setTimeout(resolve, 2000));
           }
         }
@@ -575,7 +550,7 @@ function initAuthModals() {
           `验证失败 (状态码: ${verifyResponse.status})` : 
           '网络连接失败，请检查网络连接';
         
-        console.error('Token验证最终失败:', errorMsg);
+
         
         if (verifyResponse && (verifyResponse.status === 401 || verifyResponse.status === 403)) {
           // 只有在明确的认证错误时才清除登录状态
@@ -641,27 +616,24 @@ function initAuthModals() {
       };
       
       try {
-        console.log('开始处理图片...');
         const avatarData = await processImage(file);
-        console.log('图片处理完成，开始上传...');
         
         try {
           // 上传头像到服务器 - 增加超时和重试机制
-          console.log('开始上传头像...');
+
           let uploadResponse;
           let uploadRetryCount = 0;
           const uploadMaxRetries = 3;
           
           while (uploadRetryCount < uploadMaxRetries) {
             try {
-              console.log(`头像上传尝试 ${uploadRetryCount + 1}/${uploadMaxRetries}`);
+
               
               // 创建带超时的fetch请求
               const uploadController = new AbortController();
               const uploadTimeoutId = setTimeout(() => uploadController.abort(), 60000); // 60秒超时
               
-              console.log('当前API端点:', window.API_CONFIG.baseUrl);
-              console.log('完整上传URL:', `${window.API_CONFIG.baseUrl}/upload-avatar`);
+
               uploadResponse = await fetch(`${window.API_CONFIG.baseUrl}/upload-avatar`, {
                 method: 'POST',
                 headers: {
@@ -676,28 +648,28 @@ function initAuthModals() {
               });
               
               clearTimeout(uploadTimeoutId);
-              console.log('头像上传响应状态:', uploadResponse.status);
+
               
               if (uploadResponse.ok) {
                 // 上传成功，跳出重试循环
                 break;
               } else if (uploadResponse.status === 401 || uploadResponse.status === 403) {
                 // 认证失败，不需要重试
-                console.error('头像上传认证失败，状态码:', uploadResponse.status);
+
                 break;
               } else {
                 // 其他错误，可能是网络问题，继续重试
-                console.warn(`头像上传失败，状态码: ${uploadResponse.status}，准备重试...`);
+
                 uploadRetryCount++;
                 if (uploadRetryCount < uploadMaxRetries) {
                   await new Promise(resolve => setTimeout(resolve, 3000)); // 等待3秒后重试
                 }
               }
             } catch (uploadError) {
-              console.error(`头像上传请求失败 (尝试 ${uploadRetryCount + 1}):`, uploadError.message);
+
               uploadRetryCount++;
               if (uploadRetryCount < uploadMaxRetries) {
-                console.log(`等待3秒后重试...`);
+
                 await new Promise(resolve => setTimeout(resolve, 3000));
               }
             }
@@ -708,7 +680,7 @@ function initAuthModals() {
               `上传失败 (状态码: ${uploadResponse.status})` : 
               '网络连接失败，请检查网络连接';
             
-            console.error('头像上传最终失败:', uploadErrorMsg);
+
             
             if (uploadResponse && (uploadResponse.status === 401 || uploadResponse.status === 403)) {
               // 认证错误
@@ -727,19 +699,19 @@ function initAuthModals() {
             let uploadResult;
             try {
               uploadResult = await uploadResponse.json();
-              console.log('头像上传成功，服务器响应:', uploadResult);
+
             } catch (jsonError) {
-              console.error('解析头像上传响应失败:', jsonError);
+
               // 使用之前克隆的Response对象获取文本
               try {
                 const textResponse = await uploadResponseClone.text();
-                console.log('响应文本内容:', textResponse);
+
                 if (textResponse.includes('TimeoutErr') || textResponse.includes('timed out')) {
                   alert('头像上传失败：数据库连接超时，请稍后再试');
                   return;
                 }
               } catch (textError) {
-                console.error('获取响应文本失败:', textError);
+
               }
               alert('头像上传失败：服务器响应格式错误');
               return;
@@ -750,29 +722,27 @@ function initAuthModals() {
             if (currentUser && uploadResult.user && uploadResult.user.avatar) {
               currentUser.avatar = uploadResult.user.avatar;
               UserManager.setCurrentUser(currentUser);
-              console.log('头像更新成功，新头像数据:', currentUser.avatar.substring(0, 50) + '...');
+
               
               // 立即更新头像显示
               const settingsBtn = document.getElementById('settingsBtn');
               if (settingsBtn && currentUser.avatar) {
                 // 头像数据现在直接存储为base64格式，可以直接使用
-                settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
-                console.log('立即更新了设置按钮头像显示');
+                settingsBtn.innerHTML = `<img src="${currentUser.avatar}" alt="用户头像" onerror="this.src='./images/avatar.svg';">`;
+
               }
               
               // 更新UI显示新头像
-              console.log('准备调用updateAuthUI，当前用户状态:', currentUser);
               updateAuthUI();
-              console.log('updateAuthUI调用完成，检查用户状态:', UserManager.getCurrentUser());
               
               alert('头像更换成功！');
             } else {
-              console.error('服务器返回的用户数据无效:', uploadResult);
+
               alert('头像上传成功，但更新本地数据失败，请刷新页面');
             }
           }
         } catch (uploadError) {
-          console.error('头像上传过程发生错误:', uploadError);
+
           alert('头像上传失败，请检查网络连接后重试');
         }
         
@@ -789,11 +759,11 @@ function initAuthModals() {
           previewContainer.classList.add('d-none');
         }, 300);
       } catch (processError) {
-        console.error('图片处理失败:', processError);
+
         alert('图片处理失败，请选择其他图片或重试');
       }
     } catch (error) {
-      console.error('头像上传失败：', error);
+
       alert('头像上传失败，请重试');
     }
   });
@@ -831,7 +801,7 @@ function initAuthModals() {
               updateAuthUI();
               alert('已退出登录');
             } catch (error) {
-              console.error('退出登录失败：', error);
+
               alert('退出登录失败：' + (error.message || '未知错误'));
             }
           }
@@ -841,7 +811,7 @@ function initAuthModals() {
           loginModal.show();
         }
     } catch (error) {
-      console.error('处理退出登录失败：', error);
+
       // 发生错误时清除登录状态
       UserManager.setCurrentUser(null);
       loginModal.show();
@@ -888,7 +858,7 @@ function initAuthModals() {
         throw new Error('登录响应数据格式错误');
       }
     } catch (error) {
-      console.error('登录失败:', error);
+
       alert(error.message || '登录失败，请重试');
     } finally {
       submitBtn.textContent = originalText;
@@ -931,7 +901,7 @@ function initAuthModals() {
         throw new Error(result?.message || '注册失败');
       }
     } catch (error) {
-      console.error('注册失败:', error);
+
       alert(error.message || '注册失败，请重试');
     } finally {
       submitBtn.textContent = originalText;
@@ -987,7 +957,7 @@ async function restoreUserAuth() {
             if (settingsBtn) {
               if (parsedUser.avatar) {
             // 头像数据现在直接存储为base64格式，可以直接使用
-            settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="console.error('头像加载失败:', this.src); this.src='./images/avatar.svg';">`;
+            settingsBtn.innerHTML = `<img src="${parsedUser.avatar}" alt="用户头像" onerror="this.src='./images/avatar.svg';">`;
           } else {
             settingsBtn.innerHTML = '<i class="fa fa-user"></i>';
           }
@@ -996,11 +966,11 @@ async function restoreUserAuth() {
           }, 500);
         }
       } catch (parseError) {
-        console.error('解析localStorage用户数据失败:', parseError);
+
       }
     }
   } catch (error) {
-    console.error('验证登录状态失败:', error);
+
   }
 }
 

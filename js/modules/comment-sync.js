@@ -25,8 +25,7 @@ class CommentSync {
     this.cacheTimestamp = 0;
     this.CACHE_DURATION = 30000; // 缓存30秒
     this.version = '1.1.1'; // 版本标识，用于调试
-    console.log('CommentSync初始化，版本:', this.version);
-    console.log('API配置检查:', {
+    // CommentSync初始化
       'hostname': hostname,
       'baseUrl': this.apiBaseUrl,
       'window.API_CONFIG': window.API_CONFIG
@@ -45,7 +44,6 @@ class CommentSync {
       
       // 检查缓存（非强制刷新且缓存未过期）
       if (!forceRefresh && this.cache.has(cacheKey) && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
-        console.log('使用缓存的评论数据');
         return this.cache.get(cacheKey);
       }
       
@@ -59,7 +57,7 @@ class CommentSync {
         headers['Expires'] = '0';
       }
       
-      console.log('正在获取评论，API地址:', apiUrl);
+
       
       const response = await fetch(apiUrl, { headers });
       
@@ -68,10 +66,7 @@ class CommentSync {
       }
       
       const data = await response.json();
-      console.log('API返回的原始数据:', data);
-      
       if (!data || !Array.isArray(data.comments)) {
-        console.warn('API返回的数据格式不正确:', data);
         return [];
       }
       
@@ -81,15 +76,9 @@ class CommentSync {
       this.cache.set(cacheKey, comments);
       this.cacheTimestamp = now;
       
-      console.log('成功获取评论数量:', comments.length);
+
       return comments;
     } catch (error) {
-      console.error('获取最新评论失败:', error);
-      console.error('错误详情:', {
-        message: error.message,
-        stack: error.stack,
-        apiUrl: `${this.apiBaseUrl}/get-comments?page=1&limit=${limit}`
-      });
       return [];
     }
   }
@@ -164,7 +153,6 @@ class CommentSync {
   renderCommentsToHomepage(comments, containerId = 'latest-comments-container') {
     const container = document.getElementById(containerId);
     if (!container) {
-      console.warn('未找到最新评论容器');
       return;
     }
 
@@ -177,14 +165,12 @@ class CommentSync {
       try {
         // 验证评论数据的完整性
         if (!comment || !comment.username || !comment.createdAt) {
-          console.warn('评论数据不完整:', comment);
           return '';
         }
         
         const timeAgo = this.formatCommentTime(comment.createdAt);
         const shortContent = this.truncateContent(comment.content);
         const safeUsername = this.escapeHtml(comment.username);
-        console.log('渲染评论用户名:', safeUsername, '(无@符号)');
         
         return `
           <div class="mb-3">
@@ -197,7 +183,6 @@ class CommentSync {
           </div>
         `;
       } catch (error) {
-        console.error('渲染评论时出错:', error, comment);
         return '';
       }
     }).filter(html => html !== '').join('');
@@ -210,18 +195,9 @@ class CommentSync {
    */
   async initHomepageComments(forceRefresh = false) {
     try {
-      console.log('开始初始化主页评论, forceRefresh:', forceRefresh);
       const comments = await this.getLatestComments(3, forceRefresh);
-      console.log('获取到的评论数据:', comments);
-      
-      if (!comments || comments.length === 0) {
-        console.log('没有获取到评论数据，显示默认消息');
-      }
-      
       this.renderCommentsToHomepage(comments);
-      console.log('评论渲染完成');
     } catch (error) {
-      console.error('初始化主页评论失败:', error);
       // 显示错误信息给用户
       const container = document.getElementById('latest-comments-container');
       if (container) {
@@ -237,7 +213,7 @@ class CommentSync {
     // 清除缓存，确保获取最新数据
     this.cache.clear();
     this.cacheTimestamp = 0;
-    console.log('已清除评论缓存，开始强制刷新');
+
     await this.initHomepageComments(true);
   }
 }
@@ -248,16 +224,12 @@ window.CommentSync = new CommentSync();
 // 如果在主页，自动初始化
 if (window.location.pathname === '/' || window.location.pathname.includes('index.html')) {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('CommentSync DOMContentLoaded 事件触发');
     setTimeout(() => {
-      console.log('CommentSync 开始初始化，当前实例:', !!window.CommentSync);
       const commentUpdateTime = localStorage.getItem('commentUpdated');
       if (commentUpdateTime) {
-        console.log('检测到评论更新标记，强制刷新');
         localStorage.removeItem('commentUpdated');
         window.CommentSync.initHomepageComments(true);
       } else {
-        console.log('正常初始化主页评论');
         window.CommentSync.initHomepageComments();
       }
     }, 200); // 减少延迟，确保在按钮事件绑定前完成

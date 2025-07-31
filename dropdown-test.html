@@ -25,7 +25,7 @@
     <script>
       // 检查Bootstrap是否正确加载
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('Bootstrap版本:', typeof bootstrap !== 'undefined' ? bootstrap.Dropdown.VERSION : '未加载');
+
         
         // 手动创建一个dropdown实例
         const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
@@ -33,7 +33,7 @@
           return new bootstrap.Dropdown(dropdownToggleEl);
         });
         
-        console.log('创建的dropdown实例:', dropdownList);
+
       });
     </script>
   </div>
