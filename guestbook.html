@@ -764,8 +764,10 @@
              // 追加模式：只渲染新评论
              const newComments = data.comments || [];
              newComments.forEach(comment => {
-               const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt);
+               const commentElement = createCommentElement(comment.username, comment.avatar, comment.content, comment.createdAt, comment._id, comment.likes, comment.hasLiked);
                commentList.appendChild(commentElement);
+               // 为新添加的评论设置事件监听器
+               setupCommentActions(commentElement);
              });
            } else {
              // 替换模式：重新渲染所有评论
@@ -1075,6 +1077,13 @@
            const liked = this.getAttribute('data-liked') === 'true';
            const likeCountElement = this.querySelector('.like-count');
            const action = liked ? 'unlike' : 'like';
+           
+           // 检查必要的元素是否存在
+           if (!likeCountElement) {
+             console.error('找不到点赞数元素');
+             alert('点赞功能异常，请刷新页面重试');
+             return;
+           }
            
            // 禁用按钮防止重复点击
            this.disabled = true;

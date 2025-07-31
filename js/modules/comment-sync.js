@@ -165,7 +165,7 @@ class CommentSync {
         
         return `
           <div class="mb-3">
-            <div style="font-weight: bold;">@${safeUsername}</div>
+            <div style="font-weight: bold;">${safeUsername}</div>
             <p class="mb-1" style="font-size: 0.9rem;">${shortContent}</p>
             <small style="opacity: 0.7; color: #666;">
               ${timeAgo} · 
