@@ -7,7 +7,7 @@ window.API_CONFIG = {
             // 本地开发环境使用本地API
             return '/.netlify/functions';
         } else if (hostname === 'blog.hanverse.pub') {
-            // 自定义域名使用相对路径，通过Cloudflare加速
+            // 自定义域名使用相对路径，通过域名路由到正确的服务
             return '/.netlify/functions';
         } else {
             // 其他环境（如原Netlify域名）使用自定义域名
