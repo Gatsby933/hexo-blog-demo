@@ -1,5 +1,5 @@
 const { connectToDatabase } = require('./utils/mongodb');
-const { hashPassword, validateUsername } = require('./utils/auth');
+const { hashPassword } = require('./utils/auth');
 const { handleOptions } = require('./utils/cors');
 const { createSuccessResponse, createErrorResponse, validateHttpMethod, validateRequiredFields, asyncHandler } = require('./utils/response');
 
@@ -24,15 +24,9 @@ exports.handler = asyncHandler(async (event, context) => {
   );
   if (validationError) return validationError;
 
-  // 验证用户名格式
-  if (!validateUsername(username)) {
-    return createErrorResponse('用户名只能包含字母、数字和下划线，长度为3-20个字符', 400, null, event);
-  }
+  // 用户名格式验证已移除
 
-  // 验证密码长度
-  if (password.length < 6) {
-    return createErrorResponse('密码长度不能少于6个字符', 400, null, event);
-  }
+  // 密码长度验证已移除
 
   // 连接数据库
   const { db } = await connectToDatabase();

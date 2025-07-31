@@ -916,11 +916,6 @@ function initAuthModals() {
       return;
     }
     
-    if (password.length < 6) {
-      alert('密码长度至少6位');
-      return;
-    }
-    
     try {
       submitBtn.textContent = '注册中...';
       submitBtn.disabled = true;
