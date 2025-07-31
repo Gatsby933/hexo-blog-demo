@@ -1473,8 +1473,12 @@
             body: JSON.stringify(replyData)
           });
           
+          console.log('回复API响应状态:', response.status, response.statusText);
+          
           if (!response.ok) {
-            throw new Error(`回复提交失败: ${response.status}`);
+            const errorText = await response.text();
+            console.error('回复提交失败，响应内容:', errorText);
+            throw new Error(`回复提交失败: ${response.status} - ${response.statusText}`);
           }
           
           const result = await response.json();
