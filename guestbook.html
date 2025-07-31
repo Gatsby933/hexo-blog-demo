@@ -1248,12 +1248,22 @@
              // 服务器错误，进行智能验证
              console.log('检测到500错误，等待3秒后验证评论状态...');
              
+             // 保存当前展开的回复状态
+             const expandedReplies = new Set();
+             document.querySelectorAll('.replies-container:not([style*="display: none"])').forEach(container => {
+               const commentId = container.closest('[data-comment-id]')?.getAttribute('data-comment-id');
+               if (commentId) {
+                 expandedReplies.add(commentId);
+               }
+             });
+             
              // 显示验证提示
              const errorMsg = document.createElement('div');
-             errorMsg.className = 'alert alert-info alert-dismissible fade show mt-3';
+             errorMsg.className = 'alert alert-dismissible fade show mt-3';
+             errorMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #dee2e6; color: #495057;';
              errorMsg.innerHTML = `
-               <i class="fa fa-info-circle"></i> 正在验证评论状态，请稍候...
-               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+               <i class="fa fa-info-circle" style="color: #6c757d;"></i> 正在验证评论状态，请稍候...
+               <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.5);"></button>
              `;
              
              const commentList = document.getElementById('commentList');
@@ -1269,6 +1279,19 @@
                  // 重新加载评论数据
                  await loadComments(true); // 强制刷新
                  
+                 // 恢复展开状态
+                 expandedReplies.forEach(commentId => {
+                   const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                   if (commentElement) {
+                     const repliesContainer = commentElement.querySelector('.replies-container');
+                     const toggleBtn = commentElement.querySelector('.toggle-replies-btn');
+                     if (repliesContainer && toggleBtn) {
+                       repliesContainer.style.display = 'block';
+                       toggleBtn.innerHTML = '<i class="fa fa-chevron-up"></i> 收起回复';
+                     }
+                   }
+                 });
+                 
                  // 移除临时评论和错误提示
                  if (newCommentElement && newCommentElement.parentNode) {
                    newCommentElement.remove();
@@ -1279,10 +1302,11 @@
                  
                  // 显示验证完成提示
                  const successMsg = document.createElement('div');
-                 successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+                 successMsg.className = 'alert alert-dismissible fade show mt-3';
+                 successMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #28a745; color: #155724;';
                  successMsg.innerHTML = `
-                   <i class="fa fa-check-circle"></i> 评论状态已验证，内容已更新
-                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                   <i class="fa fa-check-circle" style="color: #28a745;"></i> 评论状态已验证，内容已更新
+                   <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.3);"></button>
                  `;
                  
                  if (commentList.firstChild) {
@@ -1305,10 +1329,11 @@
                  }
                  
                  const finalErrorMsg = document.createElement('div');
-                 finalErrorMsg.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                 finalErrorMsg.className = 'alert alert-dismissible fade show mt-3';
+                 finalErrorMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #6c757d; color: #495057;';
                  finalErrorMsg.innerHTML = `
-                   <i class="fa fa-exclamation-triangle"></i> 无法验证评论状态，建议刷新页面查看
-                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                   <i class="fa fa-exclamation-triangle" style="color: #6c757d;"></i> 无法验证评论状态，建议刷新页面查看
+                   <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.5);"></button>
                  `;
                  
                  if (commentList.firstChild) {
@@ -1324,10 +1349,11 @@
              
              // 显示错误提示
              const errorMsg = document.createElement('div');
-             errorMsg.className = 'alert alert-danger alert-dismissible fade show mt-3';
+             errorMsg.className = 'alert alert-dismissible fade show mt-3';
+             errorMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #dc3545; color: #721c24;';
              errorMsg.innerHTML = `
-               <i class="fa fa-times-circle"></i> 评论发表失败，请检查网络连接后重试
-               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+               <i class="fa fa-times-circle" style="color: #dc3545;"></i> 评论发表失败，请检查网络连接后重试
+               <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.3);"></button>
              `;
              
              const commentList = document.getElementById('commentList');
@@ -1352,10 +1378,11 @@
            
            // 显示网络错误提示
            const errorMsg = document.createElement('div');
-           errorMsg.className = 'alert alert-warning alert-dismissible fade show mt-3';
+           errorMsg.className = 'alert alert-dismissible fade show mt-3';
+           errorMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #ffc107; color: #856404;';
            errorMsg.innerHTML = `
-             <i class="fa fa-exclamation-triangle"></i> 网络连接异常，请检查网络后重试
-             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+             <i class="fa fa-exclamation-triangle" style="color: #ffc107;"></i> 网络连接异常，请检查网络后重试
+             <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.4);"></button>
            `;
            
            const commentList = document.getElementById('commentList');
@@ -1930,11 +1957,21 @@
               // 服务器错误，但先检查是否实际保存成功
               console.log('检测到500错误，等待3秒后验证回复状态...');
               
+              // 保存当前展开的回复状态
+              const expandedReplies = new Set();
+              document.querySelectorAll('.replies-container:not([style*="display: none"])').forEach(container => {
+                const commentId = container.closest('[data-comment-id]')?.getAttribute('data-comment-id');
+                if (commentId) {
+                  expandedReplies.add(commentId);
+                }
+              });
+              
               const errorMsg = document.createElement('div');
-              errorMsg.className = 'alert alert-info alert-dismissible fade show mt-2';
+              errorMsg.className = 'alert alert-dismissible fade show mt-2';
+              errorMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #dee2e6; color: #495057;';
               errorMsg.innerHTML = `
-                <i class="fa fa-info-circle"></i> 正在验证回复状态，请稍候...
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <i class="fa fa-info-circle" style="color: #6c757d;"></i> 正在验证回复状态，请稍候...
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.5);"></button>
               `;
               
               // 在回复区域显示提示
@@ -1947,6 +1984,19 @@
                   // 重新加载评论数据
                   await loadComments(true); // 强制刷新
                   
+                  // 恢复展开状态
+                  expandedReplies.forEach(commentId => {
+                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    if (commentElement) {
+                      const repliesContainer = commentElement.querySelector('.replies-container');
+                      const toggleBtn = commentElement.querySelector('.toggle-replies-btn');
+                      if (repliesContainer && toggleBtn) {
+                        repliesContainer.style.display = 'block';
+                        toggleBtn.innerHTML = '<i class="fa fa-chevron-up"></i> 收起回复';
+                      }
+                    }
+                  });
+                  
                   // 移除临时回复和错误提示
                   if (optimisticReplyElement && optimisticReplyElement.parentNode) {
                     optimisticReplyElement.remove();
@@ -1957,10 +2007,11 @@
                   
                   // 显示验证完成提示
                   const successMsg = document.createElement('div');
-                  successMsg.className = 'alert alert-success alert-dismissible fade show mt-2';
+                  successMsg.className = 'alert alert-dismissible fade show mt-2';
+                  successMsg.style.cssText = 'background-color: #f8f9fa; border: 1px solid #28a745; color: #155724;';
                   successMsg.innerHTML = `
-                    <i class="fa fa-check-circle"></i> 回复状态已验证，内容已更新
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <i class="fa fa-check-circle" style="color: #28a745;"></i> 回复状态已验证，内容已更新
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(0.3);"></button>
                   `;
                   repliesContainer.appendChild(successMsg);
                   
