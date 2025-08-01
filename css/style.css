@@ -440,6 +440,11 @@ ul, ol {
   transition: all 0.3s ease;
 }
 
+/* 移动端菜单按钮黑暗模式 */
+body.dark-mode .menu-toggle span {
+  background-color: #e0e0e0;
+}
+
 .menu-toggle span:nth-child(1) {
   top: 0;
 }

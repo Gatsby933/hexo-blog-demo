@@ -1,0 +1,101 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="spaceGradient" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#16213e;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#0f0f23;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 背景渐变 -->
+  <rect width="100%" height="100%" fill="url(#spaceGradient)"/>
+  
+  <!-- 星星 -->
+  <circle cx="150" cy="120" r="1.5" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="280" cy="80" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="420" cy="150" r="2" fill="#ffffff" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="580" cy="90" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="720" cy="180" r="1.5" fill="#ffffff" opacity="0.9"/>
+  <circle cx="850" cy="60" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="980" cy="140" r="2" fill="#ffffff" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="1120" cy="100" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="1280" cy="170" r="1.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1420" cy="50" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1580" cy="130" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="1720" cy="90" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1850" cy="160" r="1.5" fill="#ffffff" opacity="0.7"/>
+  
+  <circle cx="120" cy="280" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="250" cy="320" r="1.5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="380" cy="280" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="520" cy="350" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="680" cy="300" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="820" cy="380" r="1.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="950" cy="320" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1080" cy="360" r="2" fill="#ffffff" opacity="0.7" filter="url(#glow)"/>
+  <circle cx="1220" cy="290" r="1" fill="#ffffff" opacity="0.9"/>
+  <circle cx="1380" cy="340" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1520" cy="310" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1680" cy="370" r="2" fill="#ffffff" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="1820" cy="330" r="1" fill="#ffffff" opacity="0.7"/>
+  
+  <circle cx="180" cy="480" r="1.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="320" cy="520" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="460" cy="480" r="2" fill="#ffffff" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="600" cy="550" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="740" cy="500" r="1.5" fill="#ffffff" opacity="0.9"/>
+  <circle cx="880" cy="580" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="1020" cy="520" r="2" fill="#ffffff" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="1160" cy="560" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1300" cy="490" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1440" cy="540" r="1" fill="#ffffff" opacity="0.9"/>
+  <circle cx="1580" cy="510" r="2" fill="#ffffff" opacity="0.7" filter="url(#glow)"/>
+  <circle cx="1720" cy="570" r="1" fill="#ffffff" opacity="0.6"/>
+  
+  <circle cx="100" cy="680" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="240" cy="720" r="1.5" fill="#ffffff" opacity="0.5"/>
+  <circle cx="380" cy="680" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="520" cy="750" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="660" cy="700" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="800" cy="780" r="1.5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="940" cy="720" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1080" cy="760" r="2" fill="#ffffff" opacity="0.7" filter="url(#glow)"/>
+  <circle cx="1220" cy="690" r="1" fill="#ffffff" opacity="0.9"/>
+  <circle cx="1360" cy="740" r="1.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1500" cy="710" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1640" cy="770" r="2" fill="#ffffff" opacity="0.5" filter="url(#glow)"/>
+  <circle cx="1780" cy="730" r="1" fill="#ffffff" opacity="0.7"/>
+  
+  <circle cx="160" cy="880" r="1.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="300" cy="920" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="440" cy="880" r="2" fill="#ffffff" opacity="0.5" filter="url(#glow)"/>
+  <circle cx="580" cy="950" r="1" fill="#ffffff" opacity="0.7"/>
+  <circle cx="720" cy="900" r="1.5" fill="#ffffff" opacity="0.9"/>
+  <circle cx="860" cy="980" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1000" cy="920" r="2" fill="#ffffff" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="1140" cy="960" r="1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="1280" cy="890" r="1.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="1420" cy="940" r="1" fill="#ffffff" opacity="0.9"/>
+  <circle cx="1560" cy="910" r="2" fill="#ffffff" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="1700" cy="970" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1840" cy="930" r="1.5" fill="#ffffff" opacity="0.5"/>
+  
+  <!-- 一些更亮的星星 -->
+  <circle cx="960" cy="300" r="3" fill="#ffffff" opacity="1" filter="url(#glow)"/>
+  <circle cx="1400" cy="200" r="2.5" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="600" cy="600" r="3" fill="#ffffff" opacity="1" filter="url(#glow)"/>
+  <circle cx="1200" cy="800" r="2.5" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
+  
+  <!-- 银河系效果 -->
+  <ellipse cx="960" cy="540" rx="800" ry="150" fill="#ffffff" opacity="0.03" transform="rotate(-15 960 540)"/>
+  <ellipse cx="960" cy="540" rx="600" ry="100" fill="#ffffff" opacity="0.05" transform="rotate(-15 960 540)"/>
+  <ellipse cx="960" cy="540" rx="400" ry="60" fill="#ffffff" opacity="0.08" transform="rotate(-15 960 540)"/>
+</svg>

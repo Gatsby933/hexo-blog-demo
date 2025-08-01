@@ -1,0 +1,16 @@
+[
+  {
+    "filename": "sample-article.md",
+    "title": "深入理解JavaScript异步编程",
+    "date": "2024-12-19",
+    "category": "技术探索",
+    "excerpt": "JavaScript作为一门单线程语言，异步编程是其核心特性之一。本文将深入探讨JavaScript中的异步编程模式和最佳实践，包括回调函数、Promise、Async/Await等现代异步编程技术..."
+  },
+  {
+    "filename": "test-article.md",
+    "title": "测试文章标题",
+    "date": "2024-12-20",
+    "category": "测试分类",
+    "excerpt": "这是一篇测试文章，用于验证自动加载功能是否正常工作。只需要将markdown文件放入articles文件夹，系统就会自动检测并在主页显示。这是一个非常方便的功能，让博客管理变得更加简单。"
+  }
+]

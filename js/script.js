@@ -1,12 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
   // 移动端菜单切换
-  const menuToggle = document.getElementById('menu-toggle');
-  const siteNav = document.getElementById('site-nav');
+  const menuToggle = document.getElementById('mobileMenuBtn');
+  const mobileSidebar = document.getElementById('mobileSidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
   
-  if (menuToggle && siteNav) {
-    menuToggle.addEventListener('click', function() {
-      siteNav.classList.toggle('active');
-      menuToggle.classList.toggle('active');
+  if (menuToggle && mobileSidebar && sidebarOverlay) {
+    menuToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      mobileSidebar.classList.add('active');
+      sidebarOverlay.classList.add('active');
     });
   }
 

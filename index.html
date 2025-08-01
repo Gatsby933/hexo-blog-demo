@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/user-auth.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
   <script src="js/config.js?v=1.1"></script>
   <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/user-auth.js"></script>
@@ -70,6 +71,401 @@
       display: flex;
       flex-direction: column;
       position: relative; /* 添加相对定位，用于右上角图标定位 */
+    }
+
+    /* 黑暗模式样式由 css/dark-mode.css 文件控制 */
+
+    /* 流星雨动画效果 */
+    .meteor-shower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      display: none; /* 默认隐藏 */
+    }
+
+    /* 黑暗模式下显示流星雨 */
+    body.dark-mode .meteor-shower {
+      display: block;
+    }
+
+    .meteor {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: linear-gradient(45deg, #fff, transparent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px #fff, 0 0 16px #fff, 0 0 24px #fff;
+      animation: meteor-fall linear infinite;
+    }
+
+    @keyframes meteor-fall {
+      0% {
+        transform: translateX(-100px) translateY(-100px);
+        opacity: 1;
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(100vw) translateY(100vh);
+        opacity: 0;
+      }
+    }
+
+    .meteor:nth-child(1) { left: 15%; animation-duration: 6s; animation-delay: 0s; }
+    .meteor:nth-child(2) { left: 35%; animation-duration: 7s; animation-delay: 2s; }
+    .meteor:nth-child(3) { left: 55%; animation-duration: 6.5s; animation-delay: 4s; }
+    .meteor:nth-child(4) { left: 75%; animation-duration: 7.5s; animation-delay: 6s; }
+    .meteor:nth-child(5) { left: 25%; animation-duration: 6.8s; animation-delay: 8s; }
+
+    /* 黑暗模式下logo反色处理 */
+    body.dark-mode .welcome-logo img[src*="web.png"],
+    body.dark-mode .site-title-art img[src*="web.png"] {
+      filter: invert(1) !important;
+    }
+
+    /* 黑暗模式样式 */
+    body.dark-mode {
+      background-color: #000000 !important;
+      color: #e0e0e0 !important;
+      background-image: url('./images/bg1.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed !important;
+    }
+
+    /* 黑暗模式下的卡片和容器样式 */
+    body.dark-mode .card {
+      background-color: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .card-body {
+      background-color: transparent !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .card-title {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .card-text {
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .mobile-post-card {
+      background-color: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .mobile-post-title {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .mobile-post-excerpt {
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .mobile-post-date,
+    body.dark-mode .mobile-post-category,
+    body.dark-mode .post-date {
+      color: #b0b0b0 !important;
+    }
+    
+    body.dark-mode .post-category {
+      color: #ffffff !important;
+    }
+
+    body.dark-mode .column {
+      background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    body.dark-mode .btn {
+      background-color: #3a3a3a !important;
+      border-color: #555 !important;
+      color: #e0e0e0 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    }
+
+    body.dark-mode .btn:hover {
+      background-color: #4a4a4a !important;
+      border-color: #777 !important;
+      color: #ffffff !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    }
+
+    body.dark-mode .btn-outline-secondary {
+      border-color: #404040 !important;
+      color: #e0e0e0 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }
+
+    body.dark-mode .btn-outline-secondary:hover {
+      background-color: #404040 !important;
+      border-color: #606060 !important;
+      color: #ffffff !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+    }
+
+    body.dark-mode .text-muted {
+      color: #b0b0b0 !important;
+    }
+
+    body.dark-mode .spinner-border {
+      color: #64b5f6 !important;
+    }
+
+    /* 分页组件黑暗模式 */
+    body.dark-mode .page-link {
+      background-color: #3a3a3a !important;
+      border-color: #555 !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .page-link:hover {
+      background-color: #4a4a4a !important;
+      border-color: #555 !important;
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .page-item.active .page-link {
+      background-color: #64b5f6 !important;
+      border-color: #64b5f6 !important;
+      color: #000 !important;
+    }
+
+    body.dark-mode .page-item.disabled .page-link {
+      background-color: #2a2a2a !important;
+      border-color: #444 !important;
+      color: #666 !important;
+    }
+
+    /* 移动端分页按钮 */
+    body.dark-mode .mobile-page-btn {
+      background-color: #3a3a3a !important;
+      border: 1px solid #555 !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .mobile-page-btn:hover {
+      background-color: #4a4a4a !important;
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .mobile-page-btn.active {
+      background-color: #64b5f6 !important;
+      border-color: #64b5f6 !important;
+      color: #000 !important;
+    }
+
+    /* 链接样式 */
+    body.dark-mode a {
+      color: #64b5f6 !important;
+    }
+
+    body.dark-mode a:hover {
+      color: #90caf9 !important;
+    }
+
+    body.dark-mode .post-link {
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+
+    body.dark-mode .mobile-post-link {
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+
+    /* 站点统计黑暗模式 */
+    body.dark-mode .site-stats {
+      background-color: transparent !important;
+    }
+
+    body.dark-mode .stat-box {
+      background: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .stat-box:hover {
+      background: #3a3a3a !important;
+    }
+
+    body.dark-mode .stat-number {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .stat-label {
+      color: #b0b0b0 !important;
+    }
+
+    /* 导航按钮黑暗模式 */
+    body.dark-mode .nav-buttons {
+      background: #2a2a2a !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .nav-btn {
+      background: #3a3a3a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #555 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    }
+
+    body.dark-mode .nav-btn:hover {
+      background: #4a4a4a !important;
+      color: #ffffff !important;
+      border-color: #777 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    }
+
+    /* 专题黑暗模式 */
+    body.dark-mode .category-item {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .category-item:hover {
+      background: #3a3a3a !important;
+      color: #f5f5f5 !important;
+    }
+
+    /* 移动端统计黑暗模式 */
+    body.dark-mode .mobile-stats {
+      background-color: transparent !important;
+    }
+
+    body.dark-mode .mobile-stat-number {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .mobile-stat-label {
+      color: #b0b0b0 !important;
+    }
+
+    body.dark-mode .mobile-user-info {
+      background: #2a2a2a !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .mobile-username {
+      color: #f5f5f5 !important;
+    }
+
+    /* 通知栏黑暗模式 */
+    body.dark-mode .notification-bar {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .notification-icon {
+      color: #e0e0e0 !important;
+    }
+
+    /* 近期更新和分类链接黑暗模式 */
+    body.dark-mode .recent-posts {
+      background-color: transparent !important;
+    }
+
+    body.dark-mode .recent-link {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .recent-link:hover {
+      background: #3a3a3a !important;
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .category-link {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .category-link:hover {
+      background: #3a3a3a !important;
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .category-list {
+      background-color: transparent !important;
+    }
+
+    body.dark-mode .tag-cloud {
+      background-color: transparent !important;
+    }
+
+    body.dark-mode .tag-cloud a {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .tag-cloud a:hover {
+      background: #3a3a3a !important;
+      color: #f5f5f5 !important;
+    }
+
+    /* 自定义链接黑暗模式 */
+    body.dark-mode .custom-link {
+      background: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }
+
+    body.dark-mode .custom-link:hover {
+      background: #3a3a3a !important;
+      color: #ffffff !important;
+      border-color: #666 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important;
+    }
+
+    /* 用户资料左侧栏黑暗模式 */
+    body.dark-mode .user-profile-left {
+      background: #2a2a2a !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .username {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .avatar {
+      border: 3px solid #555 !important;
+    }
+
+    /* 标签云徽章黑暗模式 */
+    body.dark-mode .badge {
+      background-color: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+    }
+
+    body.dark-mode .badge:hover {
+      background-color: #3a3a3a !important;
+      color: #f5f5f5 !important;
     }
 
     /* 右上角图标和下拉菜单 */
@@ -388,6 +784,47 @@
     /* 左上角菜单图标 */
     .top-left-menu {
       position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .top-left-menu a {
+      display: block;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      color: #333;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .top-left-menu a:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 黑暗模式下的左上角菜单图标 */
+    body.dark-mode .top-left-menu a {
+      background: rgba(42, 42, 42, 0.9);
+      color: #e0e0e0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .top-left-menu a:hover {
+      background: rgba(42, 42, 42, 1);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    .old-top-left-menu {
+      position: fixed;
       top: 20px;
       left: 20px;
       z-index: 1001;
@@ -416,12 +853,15 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       z-index: 2001;
-      transition: left 0.3s ease;
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      transform: translateX(-100%);
     }
     
     .mobile-sidebar.active {
       left: 0;
+      transform: translateX(0);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
     }
     
     .sidebar-header {
@@ -483,6 +923,33 @@
     .sidebar-overlay.active {
       opacity: 1;
       visibility: visible;
+    }
+
+    /* 移动端侧边栏黑暗模式 */
+    body.dark-mode .mobile-sidebar {
+      background: rgba(42, 42, 42, 0.95) !important;
+    }
+
+    body.dark-mode .sidebar-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    body.dark-mode .sidebar-header h3 {
+      color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .close-btn {
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .sidebar-link {
+      color: #e0e0e0 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    body.dark-mode .sidebar-link:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
     }
     
     /* 登录注册模态框美化 */
@@ -882,6 +1349,98 @@
     }
     
 
+
+    /* 桌面端博客文章卡片样式 */
+     .desktop-blog-post {
+       margin: 20px 0;
+     }
+     
+     .post-card {
+       background: rgba(255, 255, 255, 0.95);
+       border: 1px solid rgba(255, 255, 255, 0.2);
+       border-radius: 15px;
+       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+       transition: all 0.4s ease;
+       overflow: hidden;
+       position: relative;
+     }
+     
+     .post-card:hover {
+       transform: translateY(-5px);
+       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+       border-color: rgba(102, 126, 234, 0.3);
+     }
+     
+     .post-link {
+       text-decoration: none;
+       color: inherit;
+       display: block;
+       height: 100%;
+     }
+     
+     .post-link:hover {
+       text-decoration: none;
+       color: inherit;
+     }
+     
+     .post-card .card-body {
+       padding: 25px;
+       position: relative;
+       min-height: 200px;
+       display: flex;
+       flex-direction: column;
+     }
+     
+     .post-title {
+       font-size: 1.5rem;
+       font-weight: 600;
+       margin-bottom: 15px;
+       line-height: 1.4;
+       color: #333;
+       transition: color 0.3s ease;
+     }
+     
+     .post-card:hover .post-title {
+       color: #667eea;
+     }
+     
+     .post-excerpt {
+       color: #666;
+       font-size: 1rem;
+       line-height: 1.6;
+       margin-bottom: auto;
+       display: -webkit-box;
+       -webkit-line-clamp: 3;
+       -webkit-box-orient: vertical;
+       overflow: hidden;
+       flex-grow: 1;
+     }
+     
+     .post-footer {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-top: 20px;
+       padding-top: 15px;
+       border-top: 1px solid rgba(0, 0, 0, 0.1);
+     }
+     
+     .post-date {
+       display: flex;
+       align-items: center;
+       gap: 5px;
+       font-size: 0.85rem;
+       color: #888;
+     }
+     
+     .post-category {
+       background: linear-gradient(45deg, #667eea, #764ba2);
+       color: white;
+       padding: 4px 10px;
+       border-radius: 12px;
+       font-size: 0.8rem;
+       font-weight: 500;
+     }
 
     /* 主体内容 - 三栏式布局 */
     .container {
@@ -1676,6 +2235,95 @@
         opacity: 0.5;
         cursor: not-allowed;
       }
+      
+      /* 移动端博客文章卡片样式 */
+       .mobile-blog-post {
+         margin: 15px 0;
+       }
+       
+       .mobile-post-card {
+         background: rgba(255, 255, 255, 0.95);
+         border-radius: 12px;
+         padding: 16px;
+         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+         transition: all 0.3s ease;
+         border: 1px solid rgba(255, 255, 255, 0.2);
+         position: relative;
+         min-height: 140px;
+       }
+       
+       .mobile-post-card:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+       }
+       
+       .mobile-post-link {
+         text-decoration: none;
+         color: inherit;
+         display: flex;
+         flex-direction: column;
+         height: 100%;
+       }
+       
+       .mobile-post-link:hover {
+         text-decoration: none;
+         color: inherit;
+       }
+       
+       .mobile-post-title {
+         margin: 0 0 10px 0;
+         font-size: 1.1rem !important;
+         font-weight: 600 !important;
+         line-height: 1.4 !important;
+         color: #333 !important;
+         transition: color 0.3s ease;
+         display: block !important;
+         overflow: visible !important;
+         white-space: normal !important;
+         text-overflow: unset !important;
+         -webkit-line-clamp: unset !important;
+         -webkit-box-orient: unset !important;
+         max-height: unset !important;
+       }
+       
+       .mobile-post-card:hover .mobile-post-title {
+         color: #667eea !important;
+       }
+       
+       .mobile-post-excerpt {
+         color: #666 !important;
+         font-size: 0.85rem !important;
+         line-height: 1.5 !important;
+         margin: 0 0 auto 0 !important;
+         display: -webkit-box !important;
+         -webkit-line-clamp: 2 !important;
+         -webkit-box-orient: vertical !important;
+         overflow: hidden !important;
+         flex-grow: 1;
+       }
+       
+       .mobile-post-footer {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-top: 15px;
+         padding-top: 12px;
+         border-top: 1px solid rgba(0, 0, 0, 0.1);
+       }
+       
+       .mobile-post-date {
+         color: #888;
+         font-size: 0.75rem;
+       }
+       
+       .mobile-post-category {
+         background: linear-gradient(45deg, #667eea, #764ba2);
+         color: white;
+         padding: 3px 8px;
+         border-radius: 10px;
+         font-size: 0.7rem;
+         font-weight: 500;
+       }
     }
     
      /* 超小屏幕优化 */
@@ -1802,6 +2450,20 @@
   </style>
 </head>
 <body>
+  <!-- 流星雨效果 -->
+  <div class="meteor-shower">
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+  </div>
+  
+  <!-- 黑暗模式切换按钮 -->
+  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式">
+    <i class="fa fa-moon-o" id="darkModeIcon"></i>
+  </div>
+  
   <!-- 用户认证相关内容已移至auth-modals.html -->
   <div id="auth-modals-container"></div>
   <script>
@@ -2009,9 +2671,21 @@
       <!-- 移动端博客文章列表 -->
       <div id="mobile-posts-container">
         <!-- 移动端博客文章将在这里动态加载 -->
-        <div class="text-center py-5">
-          <h5 class="text-muted">博客文章即将上线</h5>
-          <p class="text-muted">敬请期待精彩内容...</p>
+        <div class="mobile-blog-post">
+          <div class="mobile-post-card">
+            <a href="article.html?file=sample-article.md" class="mobile-post-link">
+              <h3 class="mobile-post-title">
+                深入理解JavaScript异步编程
+              </h3>
+              <p class="mobile-post-excerpt">
+                JavaScript作为一门单线程语言，异步编程是其核心特性之一。本文将深入探讨JavaScript中的异步编程模式和最佳实践...
+              </p>
+              <div class="mobile-post-footer">
+                <span class="mobile-post-date">2024年12月19日</span>
+                <span class="mobile-post-category">技术探索</span>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
       
@@ -2027,9 +2701,23 @@
       <!-- 桌面端博客文章列表 -->
       <div id="desktop-posts-container">
         <!-- 博客文章将在这里动态加载 -->
-        <div class="text-center py-5">
-          <h4 class="text-muted">博客文章即将上线</h4>
-          <p class="text-muted">敬请期待精彩内容...</p>
+        <div class="desktop-blog-post">
+          <div class="card mb-4 post-card">
+            <a href="article.html?file=sample-article.md" class="post-link">
+              <div class="card-body">
+                <h2 class="card-title post-title">
+                  深入理解JavaScript异步编程
+                </h2>
+                <p class="card-text post-excerpt">
+                  JavaScript作为一门单线程语言，异步编程是其核心特性之一。本文将深入探讨JavaScript中的异步编程模式和最佳实践，包括回调函数、Promise、Async/Await等现代异步编程技术...
+                </p>
+                <div class="post-footer">
+                  <span class="post-date"><i class="fa fa-calendar"></i> 2024年12月19日</span>
+                  <span class="post-category">技术探索</span>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
         
         <!-- 桌面端分页 -->
@@ -2799,11 +3487,329 @@ function createRandomMessage(e) {
   }, 2500);
 }
 
+// 自动加载文章列表
+async function loadArticlesList() {
+  try {
+    // 首先尝试直接扫描文件夹
+    const articles = await scanAndParseArticles();
+    
+    if (articles.length > 0) {
+      // 按日期排序（最新的在前）
+      articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // 渲染文章列表
+      renderArticlesList(articles);
+      
+      console.log('成功自动扫描并加载了', articles.length, '篇文章');
+    } else {
+      // 如果扫描失败，尝试从配置文件加载
+      await loadFromConfig();
+    }
+    
+  } catch (error) {
+    console.warn('自动扫描失败，尝试从配置文件加载', error);
+    await loadFromConfig();
+  }
+}
+
+// 从配置文件加载（备用方案）
+async function loadFromConfig() {
+  try {
+    const response = await fetch('./articles/articles-config.json');
+    const articles = await response.json();
+    
+    // 按日期排序（最新的在前）
+    articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // 渲染文章列表
+    renderArticlesList(articles);
+    
+    console.log('从配置文件加载了', articles.length, '篇文章');
+  } catch (error) {
+    console.warn('无法加载文章列表，保持默认显示', error);
+  }
+}
+
+// 扫描并解析文章
+async function scanAndParseArticles() {
+  try {
+    // 获取articles文件夹中的文件列表
+    const response = await fetch('./articles/');
+    if (!response.ok) {
+      throw new Error('无法访问articles文件夹');
+    }
+    
+    const text = await response.text();
+    
+    // 解析HTML获取.md文件列表
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+    const links = doc.querySelectorAll('a[href$=".md"]');
+    
+    const articles = [];
+    
+    // 遍历每个md文件，获取元数据
+    for (const link of links) {
+      const filename = link.getAttribute('href');
+      if (filename && filename.endsWith('.md') && !filename.includes('config')) {
+        try {
+          const articleResponse = await fetch(`./articles/${filename}`);
+          if (articleResponse.ok) {
+            const content = await articleResponse.text();
+            
+            // 解析YAML前置元数据
+            const metadata = parseMarkdownMetadata(content, filename);
+            if (metadata) {
+              articles.push(metadata);
+            }
+          }
+        } catch (error) {
+          console.warn(`无法加载文章: ${filename}`, error);
+        }
+      }
+    }
+    
+    return articles;
+    
+  } catch (error) {
+    console.warn('扫描文章文件夹失败:', error);
+    return [];
+  }
+}
+
+// 扫描articles文件夹并更新配置文件（需要手动调用）
+async function scanArticlesFolder() {
+  try {
+    // 获取articles文件夹中的文件列表
+    const response = await fetch('./articles/');
+    const text = await response.text();
+    
+    // 解析HTML获取.md文件列表
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+    const links = doc.querySelectorAll('a[href$=".md"]');
+    
+    const articles = [];
+    
+    // 遍历每个md文件，获取元数据
+    for (const link of links) {
+      const filename = link.getAttribute('href');
+      if (filename && filename.endsWith('.md') && filename !== 'articles-config.json') {
+        try {
+          const articleResponse = await fetch(`./articles/${filename}`);
+          const content = await articleResponse.text();
+          
+          // 解析YAML前置元数据
+          const metadata = parseMarkdownMetadata(content, filename);
+          if (metadata) {
+            articles.push(metadata);
+          }
+        } catch (error) {
+          console.warn(`无法加载文章: ${filename}`, error);
+        }
+      }
+    }
+    
+    console.log('扫描到的文章:', articles);
+    console.log('请将以下JSON内容复制到 articles/articles-config.json 文件中:');
+    console.log(JSON.stringify(articles, null, 2));
+    
+    return articles;
+    
+  } catch (error) {
+    console.error('扫描文章文件夹失败:', error);
+    return [];
+  }
+}
+
+// 在控制台中暴露扫描函数，方便手动调用
+window.scanArticlesFolder = scanArticlesFolder;
+
+// 解析Markdown文件的YAML前置元数据
+function parseMarkdownMetadata(content, filename) {
+  const lines = content.split('\n');
+  
+  // 检查是否以---开头（YAML前置元数据）
+  if (lines[0].trim() !== '---') {
+    // 如果没有YAML前置元数据，使用文件名和当前日期作为默认值
+    return {
+      title: filename.replace('.md', '').replace(/-/g, ' '),
+      date: new Date().toISOString().split('T')[0],
+      category: '未分类',
+      excerpt: '暂无摘要...',
+      filename: filename
+    };
+  }
+  
+  let yamlEnd = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      yamlEnd = i;
+      break;
+    }
+  }
+  
+  if (yamlEnd === -1) {
+    return null;
+  }
+  
+  // 解析YAML
+  const yamlLines = lines.slice(1, yamlEnd);
+  const metadata = { filename: filename };
+  
+  for (const line of yamlLines) {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex > 0) {
+      const key = line.substring(0, colonIndex).trim();
+      const value = line.substring(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
+      metadata[key] = value;
+    }
+  }
+  
+  // 提取文章摘要（取正文前150个字符）
+  const contentLines = lines.slice(yamlEnd + 1);
+  const contentText = contentLines.join('\n').replace(/#+\s*/g, '').replace(/\*\*|\*|`/g, '').trim();
+  metadata.excerpt = contentText.substring(0, 150) + (contentText.length > 150 ? '...' : '');
+  
+  return metadata;
+}
+
+// 渲染文章列表
+function renderArticlesList(articles) {
+  const mobileContainer = document.getElementById('mobile-posts-container');
+  const desktopContainer = document.getElementById('desktop-posts-container');
+  
+  if (!mobileContainer || !desktopContainer || articles.length === 0) {
+    return;
+  }
+  
+  // 清空现有内容
+  mobileContainer.innerHTML = '';
+  desktopContainer.innerHTML = '';
+  
+  // 渲染每篇文章
+  articles.forEach(article => {
+    // 格式化日期
+    const date = new Date(article.date);
+    const formattedDate = date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    // 移动端文章卡片
+    const mobileCard = `
+      <div class="mobile-blog-post">
+        <div class="mobile-post-card">
+          <a href="article.html?file=${article.filename}" class="mobile-post-link">
+            <h3 class="mobile-post-title">
+              ${article.title || '无标题'}
+            </h3>
+            <p class="mobile-post-excerpt">
+              ${article.excerpt || '暂无摘要...'}
+            </p>
+            <div class="mobile-post-footer">
+              <span class="mobile-post-date">${formattedDate}</span>
+              <span class="mobile-post-category">${article.category || '未分类'}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    `;
+    
+    // 桌面端文章卡片
+    const desktopCard = `
+      <div class="desktop-blog-post">
+        <div class="card mb-4 post-card">
+          <a href="article.html?file=${article.filename}" class="post-link">
+            <div class="card-body">
+              <h2 class="card-title post-title">
+                ${article.title || '无标题'}
+              </h2>
+              <p class="card-text post-excerpt">
+                ${article.excerpt || '暂无摘要...'}
+              </p>
+              <div class="post-footer">
+                <span class="post-date"><i class="fa fa-calendar"></i> ${formattedDate}</span>
+                <span class="post-category">${article.category || '未分类'}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    `;
+    
+    mobileContainer.insertAdjacentHTML('beforeend', mobileCard);
+    desktopContainer.insertAdjacentHTML('beforeend', desktopCard);
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   updateDynamicAvatars();
   updateCommentsCount();
   initLikeButton();
+  loadArticlesList(); // 自动加载文章列表
+  
+  // 每30秒检查一次新文章（可选功能）
+  setInterval(() => {
+    loadArticlesList();
+  }, 30000);
 });
+
+// 手动刷新文章列表的函数
+function refreshArticles() {
+  console.log('手动刷新文章列表...');
+  loadArticlesList();
+}
+
+// 暴露刷新函数到全局，方便调用
+window.refreshArticles = refreshArticles;
+
+// 黑暗模式切换功能
+function initDarkMode() {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkModeIcon = document.getElementById('darkModeIcon');
+  const body = document.body;
+  
+  // 检查本地存储中的黑暗模式设置
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  
+  // 应用初始状态
+  if (isDarkMode) {
+    body.classList.add('dark-mode');
+    darkModeIcon.className = 'fa fa-sun-o';
+    darkModeToggle.title = '切换亮色模式';
+  } else {
+    body.classList.remove('dark-mode');
+    darkModeIcon.className = 'fa fa-moon-o';
+    darkModeToggle.title = '切换黑暗模式';
+  }
+  
+  // 添加点击事件监听器
+  darkModeToggle.addEventListener('click', function() {
+    const isCurrentlyDark = body.classList.contains('dark-mode');
+    
+    if (isCurrentlyDark) {
+      // 切换到亮色模式
+      body.classList.remove('dark-mode');
+      darkModeIcon.className = 'fa fa-moon-o';
+      darkModeToggle.title = '切换黑暗模式';
+      localStorage.setItem('darkMode', 'false');
+    } else {
+      // 切换到黑暗模式
+      body.classList.add('dark-mode');
+      darkModeIcon.className = 'fa fa-sun-o';
+      darkModeToggle.title = '切换亮色模式';
+      localStorage.setItem('darkMode', 'true');
+    }
+  });
+}
+
+// 在页面加载完成后初始化黑暗模式
+document.addEventListener('DOMContentLoaded', function() {
+  initDarkMode();
+});
+
 </script>
 </body>
 </html>
