@@ -3689,6 +3689,9 @@ function renderArticlesList(articles) {
   
   // 渲染每篇文章
   articles.forEach(article => {
+    // 对文件名进行编码，防止特殊字符导致问题
+    const encodedFilename = encodeURIComponent(article.filename);
+        
     // 格式化日期
     const date = new Date(article.date);
     const formattedDate = date.toLocaleDateString('zh-CN', {
@@ -3701,7 +3704,7 @@ function renderArticlesList(articles) {
     const mobileCard = `
       <div class="mobile-blog-post">
         <div class="mobile-post-card">
-          <a href="article.html?file=${article.filename}" class="mobile-post-link">
+          <a href="article.html?file=${encodedFilename}" class="mobile-post-link">
             <h3 class="mobile-post-title">
               ${article.title || '无标题'}
             </h3>
@@ -3721,7 +3724,7 @@ function renderArticlesList(articles) {
     const desktopCard = `
       <div class="desktop-blog-post">
         <div class="card mb-4 post-card">
-          <a href="article.html?file=${article.filename}" class="post-link">
+          <a href="article.html?file=${encodedFilename}" class="post-link">
             <div class="card-body">
               <h2 class="card-title post-title">
                 ${article.title || '无标题'}
