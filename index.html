@@ -3436,11 +3436,8 @@ function createRandomMessage(e) {
 // 自动加载文章列表
 async function loadArticlesList() {
   try {
-    console.log('开始尝试自动扫描文章...');
     // 首先尝试直接扫描文件夹
     const articles = await scanAndParseArticles();
-    
-    console.log('自动扫描返回的文章数量:', articles.length);
     
     if (articles.length > 0) {
       // 按日期排序（最新的在前）
@@ -3448,11 +3445,8 @@ async function loadArticlesList() {
       
       // 渲染文章列表
       renderArticlesList(articles);
-      
-      console.log('成功自动扫描并加载了', articles.length, '篇文章');
     } else {
       // 如果扫描没有返回文章，也尝试从配置文件加载
-      console.log('自动扫描未找到文章，尝试从配置文件加载');
       await loadFromConfig();
     }
     
@@ -3474,26 +3468,21 @@ async function loadFromConfig() {
     // 渲染文章列表
     renderArticlesList(articles);
     
-    console.log('从配置文件加载了', articles.length, '篇文章');
   } catch (error) {
-    console.warn('无法加载文章列表，保持默认显示', error);
   }
 }
 
 // 扫描并解析文章
 async function scanAndParseArticles() {
   try {
-    console.log('正在获取articles文件夹中的文件列表...');
     // 获取articles文件夹中的文件列表
     const response = await fetch('./articles/');
-    console.log('服务器响应状态:', response.status, response.ok);
     
     if (!response.ok) {
       throw new Error('无法访问articles文件夹: ' + response.status);
     }
     
     const text = await response.text();
-    console.log('获取到的目录内容:', text.substring(0, 200) + '...'); // 只显示前200个字符
     
     // 检查返回的内容是否为HTML目录列表
     const isDirectoryListing = text.includes('<title>Index of') || 
@@ -3508,11 +3497,6 @@ async function scanAndParseArticles() {
       const doc = parser.parseFromString(text, 'text/html');
       const links = doc.querySelectorAll('a[href$=".md"]');
       
-      console.log('找到的.md链接数量:', links.length);
-      links.forEach(link => {
-        console.log('找到链接:', link.getAttribute('href'));
-      });
-      
       // 遍历每个md文件，获取元数据
       for (const link of links) {
         const filename = link.getAttribute('href');
@@ -3521,24 +3505,17 @@ async function scanAndParseArticles() {
         if (filename && filename.endsWith('.md') && !filename.includes('config')) {
           try {
             const articleResponse = await fetch(`./articles/${filename}`);
-            console.log('文章文件响应状态:', articleResponse.status);
-            
             if (articleResponse.ok) {
               const content = await articleResponse.text();
-              console.log('文章内容长度:', content.length);
               
               // 解析YAML前置元数据
               const metadata = parseMarkdownMetadata(content, filename);
-              console.log('解析后的元数据:', metadata);
               
               if (metadata) {
                 articles.push(metadata);
               }
-            } else {
-              console.warn('无法获取文章内容:', filename, articleResponse.status);
             }
           } catch (error) {
-            console.warn(`无法加载文章: ${filename}`, error);
           }
         }
       }
@@ -3546,15 +3523,12 @@ async function scanAndParseArticles() {
       // 如果不是HTML目录列表，尝试解析为JSON
       try {
         articles = JSON.parse(text);
-        console.log('解析为JSON成功，文章数量:', articles.length);
       } catch (error) {
-        console.warn('无法解析为JSON:', error);
       }
     }
     
     return articles;
   } catch (error) {
-    console.error('扫描并解析文章失败:', error);
     return [];
   }
 }
@@ -3597,7 +3571,6 @@ setInterval(() => {
         }
       }
     } catch (error) {
-      console.error('加载最近更新失败:', error);
       const recentUpdatesContainer = document.getElementById('recent-updates-list');
       if (recentUpdatesContainer) {
         recentUpdatesContainer.innerHTML = '<div class="text-danger text-center py-3">加载失败</div>';
@@ -3612,13 +3585,6 @@ setInterval(() => {
 
   // 暴露函数到全局，方便手动调用
   window.loadRecentUpdates = loadRecentUpdates;
-
-// 扫描articles文件夹并更新配置文件（需要手动调用）
-async function scanArticlesFolder() {
-    console.log('总共解析到的文章数量:', articles.length);
-    return articles;
-    
-}
 
 // 暴露函数到全局，方便手动调用
 window.loadRecentUpdates = loadRecentUpdates;
@@ -3651,19 +3617,13 @@ async function scanArticlesFolder() {
             articles.push(metadata);
           }
         } catch (error) {
-          console.warn(`无法加载文章: ${filename}`, error);
         }
       }
     }
     
-    console.log('扫描到的文章:', articles);
-    console.log('请将以下JSON内容复制到 articles/articles-config.json 文件中:');
-    console.log(JSON.stringify(articles, null, 2));
-    
     return articles;
     
   } catch (error) {
-    console.error('扫描文章文件夹失败:', error);
     return [];
   }
 }
@@ -3826,7 +3786,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // 手动刷新文章列表的函数
 function refreshArticles() {
-  console.log('手动刷新文章列表...');
   loadArticlesList();
 }
 
