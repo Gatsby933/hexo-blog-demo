@@ -3475,7 +3475,7 @@ async function loadArticlesList() {
       
       console.log('成功自动扫描并加载了', articles.length, '篇文章');
     } else {
-      // 如果扫描失败，尝试从配置文件加载
+      // 如果扫描没有返回文章，也尝试从配置文件加载
       await loadFromConfig();
     }
     
@@ -3546,7 +3546,7 @@ async function scanAndParseArticles() {
     
   } catch (error) {
     console.warn('扫描文章文件夹失败:', error);
-    return [];
+    throw error; // 重新抛出错误，让调用者知道扫描失败了
   }
 }
 
@@ -3639,6 +3639,19 @@ function parseMarkdownMetadata(content, filename) {
     }
   }
   
+  // 确保必要字段存在
+  if (!metadata.title) {
+    metadata.title = filename.replace('.md', '').replace(/-/g, ' ');
+  }
+  
+  if (!metadata.date) {
+    metadata.date = new Date().toISOString().split('T')[0];
+  }
+  
+  if (!metadata.category) {
+    metadata.category = '未分类';
+  }
+  
   // 提取文章摘要（取正文前150个字符）
   const contentLines = lines.slice(yamlEnd + 1);
   const contentText = contentLines.join('\n').replace(/#+\s*/g, '').replace(/\*\*|\*|`/g, '').trim();
@@ -3725,7 +3738,6 @@ window.addEventListener('DOMContentLoaded', () => {
   updateCommentsCount();
   initLikeButton();
   loadArticlesList(); // 自动加载文章列表
-  
   // 每30秒检查一次新文章（可选功能）
   setInterval(() => {
     loadArticlesList();
