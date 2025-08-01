@@ -1,0 +1,176 @@
+{
+  "main": {
+    "id": "a745ccd44c4f0e72",
+    "type": "split",
+    "children": [
+      {
+        "id": "a8f2438d0450f9ac",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3da50f0d55e122e3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "launch my blog.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "launch my blog"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "24dd21809b0ae7bc",
+    "type": "split",
+    "children": [
+      {
+        "id": "b444d8c34dfc8208",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0bb8176611c772d1",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "9b72e94653477a31",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "225979b1a910421d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "7c668a3f49a5e423",
+    "type": "split",
+    "children": [
+      {
+        "id": "609edaacf5110416",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "81834563e3dc9e07",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "launch my blog.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "launch my blog 的反向链接列表"
+            }
+          },
+          {
+            "id": "2d08bad39f50e5c7",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "launch my blog.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "launch my blog 的出链列表"
+            }
+          },
+          {
+            "id": "11734c1b8c2e28bd",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "f30f9b04a1854f29",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "launch my blog.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "launch my blog 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false
+    }
+  },
+  "active": "3da50f0d55e122e3",
+  "lastOpenFiles": [
+    "auto-scan-test.md",
+    "launch my blog.md"
+  ]
+}
