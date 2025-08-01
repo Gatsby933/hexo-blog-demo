@@ -535,7 +535,7 @@
           }
         });
         
-        return { frontMatter, content: markdownContent };
+        return { frontMatter, content };
       }
       
       return { frontMatter: {}, content };
@@ -548,14 +548,19 @@
         const urlParams = new URLSearchParams(window.location.search);
         const articleFile = urlParams.get('file') || 'sample-article.md';
         
+        console.log('尝试加载文章:', articleFile);
+        
         // 获取markdown文件
         const response = await fetch(`articles/${articleFile}`);
         if (!response.ok) {
-          throw new Error('文章不存在');
+          throw new Error(`文章加载失败，HTTP状态码: ${response.status}`);
         }
         
         const markdownContent = await response.text();
+        console.log('获取到的文章内容长度:', markdownContent.length);
+        
         const { frontMatter, content } = parseFrontMatter(markdownContent);
+        console.log('解析后的前置元数据:', frontMatter);
         
         // 更新页面标题
         const title = frontMatter.title || '无标题文章';
@@ -594,6 +599,7 @@
             <i class="fa fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
             <h3>文章加载失败</h3>
             <p>请检查文章文件是否存在，或者<a href="javascript:history.back()">返回上一页</a></p>
+            <p style="font-size: 0.9rem; margin-top: 10px; color: #999;">错误信息: ${error.message}</p>
           </div>
         `;
       }
