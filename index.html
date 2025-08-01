@@ -3522,46 +3522,58 @@ async function scanAndParseArticles() {
     const text = await response.text();
     console.log('获取到的目录内容:', text.substring(0, 200) + '...'); // 只显示前200个字符
     
-    // 解析HTML获取.md文件列表
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
-    const links = doc.querySelectorAll('a[href$=".md"]');
+    // 检查返回的内容是否为HTML目录列表
+    const isDirectoryListing = text.includes('<title>Index of') || 
+                              text.includes('Directory listing for') || 
+                              (text.includes('<html') && text.includes('.md'));
     
-    console.log('找到的.md链接数量:', links.length);
-    links.forEach(link => {
-      console.log('找到链接:', link.getAttribute('href'));
-    });
+    let articles = [];
     
-    const articles = [];
-    
-    // 遍历每个md文件，获取元数据
-    for (const link of links) {
-      const filename = link.getAttribute('href');
-      console.log('处理文件:', filename);
+    if (isDirectoryListing) {
+      // 解析HTML获取.md文件列表
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const links = doc.querySelectorAll('a[href$=".md"]');
       
-      if (filename && filename.endsWith('.md') && !filename.includes('config')) {
-        try {
-          const articleResponse = await fetch(`./articles/${filename}`);
-          console.log('文章文件响应状态:', articleResponse.status);
-          
-          if (articleResponse.ok) {
-            const content = await articleResponse.text();
-            console.log('文章内容长度:', content.length);
+      console.log('找到的.md链接数量:', links.length);
+      links.forEach(link => {
+        console.log('找到链接:', link.getAttribute('href'));
+      });
+      
+      // 遍历每个md文件，获取元数据
+      for (const link of links) {
+        const filename = link.getAttribute('href');
+        console.log('处理文件:', filename);
+        
+        if (filename && filename.endsWith('.md') && !filename.includes('config')) {
+          try {
+            const articleResponse = await fetch(`./articles/${filename}`);
+            console.log('文章文件响应状态:', articleResponse.status);
             
-            // 解析YAML前置元数据
-            const metadata = parseMarkdownMetadata(content, filename);
-            console.log('解析后的元数据:', metadata);
-            
-            if (metadata) {
-              articles.push(metadata);
+            if (articleResponse.ok) {
+              const content = await articleResponse.text();
+              console.log('文章内容长度:', content.length);
+              
+              // 解析YAML前置元数据
+              const metadata = parseMarkdownMetadata(content, filename);
+              console.log('解析后的元数据:', metadata);
+              
+              if (metadata) {
+                articles.push(metadata);
+              }
+            } else {
+              console.warn('无法获取文章内容:', filename, articleResponse.status);
             }
-          } else {
-            console.warn('无法获取文章内容:', filename, articleResponse.status);
+          } catch (error) {
+            console.warn(`无法加载文章: ${filename}`, error);
           }
-        } catch (error) {
-          console.warn(`无法加载文章: ${filename}`, error);
         }
       }
+    } else {
+      // 如果不是目录列表，尝试通过API或其他方式获取文章列表
+      console.log('服务器未返回目录列表，尝试其他方式获取文章列表...');
+      // 这里可以添加其他获取文章列表的方式
+      // 比如通过一个专门的API端点获取文章列表
     }
     
     console.log('总共解析到的文章数量:', articles.length);
