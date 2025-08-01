@@ -3655,25 +3655,15 @@ setInterval(() => {
   // 暴露函数到全局，方便手动调用
   window.loadRecentUpdates = loadRecentUpdates;
 
-// 黑暗模式切换功能
-          }
-        }
-      }
-    } else {
-      // 如果不是目录列表，尝试通过API或其他方式获取文章列表
-      console.log('服务器未返回目录列表，尝试其他方式获取文章列表...');
-      // 这里可以添加其他获取文章列表的方式
-      // 比如通过一个专门的API端点获取文章列表
-    }
-    
+// 扫描articles文件夹并更新配置文件（需要手动调用）
+async function scanArticlesFolder() {
     console.log('总共解析到的文章数量:', articles.length);
     return articles;
     
-  } catch (error) {
-    console.warn('扫描文章文件夹失败:', error);
-    throw error; // 重新抛出错误，让调用者知道扫描失败了
-  }
 }
+
+// 暴露函数到全局，方便手动调用
+window.loadRecentUpdates = loadRecentUpdates;
 
 // 扫描articles文件夹并更新配置文件（需要手动调用）
 async function scanArticlesFolder() {
