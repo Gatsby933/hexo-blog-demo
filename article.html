@@ -731,7 +731,11 @@
         document.body.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
-        darkModeToggle.innerHTML = isDarkMode ? '<i class="fa fa-sun" id="darkModeIcon"></i>' : '<i class="fa fa-moon-o" id="darkModeIcon"></i>';
+        if (isDarkMode) {
+          darkModeToggle.innerHTML = '<i class="fa fa-sun" id="darkModeIcon" style="color: #fff !important;"></i>';
+        } else {
+          darkModeToggle.innerHTML = '<i class="fa fa-moon-o" id="darkModeIcon"></i>';
+        }
       });
     }
 
