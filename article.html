@@ -196,11 +196,34 @@
       color: #90caf9;
     }
 
-    body.dark-mode .dark-mode-toggle {
-      background: #333 !important;
+    /* 黑暗模式切换按钮 */
+    .dark-mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1001;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
+    
+    .dark-mode-toggle #darkModeIcon {
+      color: #333;
+      font-size: 20px;
+    }
+    
+    body.dark-mode .dark-mode-toggle {
+      background: #333;
+    }
+    
     body.dark-mode .dark-mode-toggle #darkModeIcon {
-      color: white !important;
+      color: white;
     }
 
     body.dark-mode .article-content p:hover {
@@ -554,13 +577,8 @@
   <img src="./images/web.png" alt="我的博客天地" class="top-image" style="user-select: none; pointer-events: none;" />
 
   <!-- 黑暗模式切换按钮 -->
-  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式" 
-       style="z-index: 1001; position: fixed; top: 20px; right: 20px;
-              width: 40px; height: 40px; border-radius: 50%;
-              display: flex; align-items: center; justify-content: center;
-              background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-    <i class="fa fa-moon" id="darkModeIcon" 
-       style="color: black !important; font-size: 20px !important;"></i>
+  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式">
+    <i class="fa fa-moon-o" id="darkModeIcon"></i>
   </div>
   
   <!-- 返回按钮 -->
@@ -735,35 +753,19 @@
       }
       
       // Toggle dark mode on button click
-      darkModeToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
+      darkModeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
         
-        const toggle = document.getElementById('darkModeToggle');
         const icon = document.getElementById('darkModeIcon');
-        if (isDarkMode) {
-          toggle.style.background = '#333';
-          icon.className = 'fa fa-sun';
-          icon.style.cssText = 'color: white !important; font-size: 20px !important;';
-        } else {
-          toggle.style.background = 'white';
-          icon.className = 'fa fa-moon';
-          icon.style.cssText = 'color: black !important; font-size: 20px !important;';
-        }
+        icon.className = isDarkMode ? 'fa fa-sun' : 'fa fa-moon-o';
       });
 
-      // Initialize icon on page load
-      const icon = document.getElementById('darkModeIcon');
+      // Initialize on page load
       if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
-        icon.className = 'fa fa-sun';
-        icon.style.cssText = 'color: white !important; font-size: 20px; display: inline-block !important;';
-      } else {
-        document.body.classList.remove('dark-mode');
-        icon.className = 'fa fa-moon';
-        icon.style.cssText = 'color: black !important; font-size: 20px; display: inline-block !important;';
+        document.getElementById('darkModeIcon').className = 'fa fa-sun';
       }
     }
 
