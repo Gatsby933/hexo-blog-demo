@@ -736,10 +736,10 @@
         const icon = document.getElementById('darkModeIcon');
         if (isDarkMode) {
           icon.className = 'fa fa-sun';
-          icon.style.color = '#fff';
+          icon.style.cssText = 'color: #fff !important; font-size: 20px;';
         } else {
           icon.className = 'fa fa-moon-o';
-          icon.style.color = '#333';
+          icon.style.cssText = 'color: #333 !important; font-size: 20px;';
         }
       });
 
@@ -747,7 +747,11 @@
       if (document.body.classList.contains('dark-mode')) {
         const icon = document.getElementById('darkModeIcon');
         icon.className = 'fa fa-sun';
-        icon.style.color = '#fff';
+        icon.style.cssText = 'color: #fff !important; font-size: 20px;';
+      } else {
+        const icon = document.getElementById('darkModeIcon');
+        icon.className = 'fa fa-moon-o';
+        icon.style.cssText = 'color: #333 !important; font-size: 20px;';
       }
     }
 
