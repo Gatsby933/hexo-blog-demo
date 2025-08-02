@@ -547,13 +547,13 @@
   </style>
 </head>
 <body>
-  <!-- 黑暗模式切换按钮 -->
-  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式">
-    <i class="fa fa-moon-o" id="darkModeIcon"></i>
-  </div>
-
   <!-- 顶部图片 -->
-  <img src="./images/web.png" alt="我的博客天地" class="top-image" />
+  <img src="./images/web.png" alt="我的博客天地" class="top-image" style="user-select: none; pointer-events: none;" />
+
+  <!-- 黑暗模式切换按钮 -->
+  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式" style="z-index: 1001;">
+    <i class="fa fa-moon-o" id="darkModeIcon" style="color: #333;"></i>
+  </div>
   
   <!-- 返回按钮 -->
   <a href="index.html" class="back-btn" title="返回首页">
@@ -727,7 +727,8 @@
       }
       
       // Toggle dark mode on button click
-      darkModeToggle.addEventListener('click', function() {
+      darkModeToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
         document.body.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
@@ -738,7 +739,7 @@
           icon.style.color = '#fff';
         } else {
           icon.className = 'fa fa-moon-o';
-          icon.style.color = '';
+          icon.style.color = '#333';
         }
       });
 
