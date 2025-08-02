@@ -138,6 +138,82 @@
       50% { background-position: 100% 50%; }
     }
 
+    /* 黑暗模式样式 */
+    body.dark-mode {
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    body.dark-mode .top-image {
+      filter: invert(1);
+    }
+
+    body.dark-mode .article-container {
+      background: rgba(30, 30, 30, 0.96);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .article-content,
+    body.dark-mode .article-title,
+    body.dark-mode .article-meta,
+    body.dark-mode .article-date,
+    body.dark-mode .article-category {
+      color: #ffffff;
+    }
+
+    body.dark-mode .article-content h1,
+    body.dark-mode .article-content h2,
+    body.dark-mode .article-content h3,
+    body.dark-mode .article-content h4,
+    body.dark-mode .article-content h5,
+    body.dark-mode .article-content h6 {
+      color: #ffffff;
+    }
+
+    body.dark-mode .article-content a {
+      color: #90caf9;
+    }
+
+    body.dark-mode .article-content a:hover {
+      color: #bbdefb;
+    }
+
+    body.dark-mode .back-btn {
+      background: #333;
+      border-color: #555;
+    }
+
+    body.dark-mode .back-btn i {
+      color: #fff;
+    }
+
+    body.dark-mode .back-btn:hover {
+      border-color: #90caf9;
+    }
+
+    body.dark-mode .back-btn:hover i {
+      color: #90caf9;
+    }
+
+    body.dark-mode .back-to-top {
+      background: rgba(51, 51, 51, 0.9);
+      border-color: rgba(85, 85, 85, 0.5);
+    }
+
+    body.dark-mode .back-to-top i {
+      color: #fff;
+    }
+
+    body.dark-mode .back-to-top:hover {
+      background: rgba(68, 68, 68, 0.95);
+    }
+
+    body.dark-mode .article-category {
+      background: rgba(85, 85, 85, 0.2);
+      color: #fff;
+    }
+
     /* 文章标题 */
     .article-title {
       font-size: 2.2rem;
@@ -465,7 +541,7 @@
 <body>
   <!-- 黑暗模式切换按钮 -->
   <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式">
-    <i class="fa fa-moon"></i>
+    <i class="fa fa-moon-o" id="darkModeIcon"></i>
   </div>
 
   <!-- 顶部图片 -->
@@ -647,7 +723,7 @@
         document.body.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
-        darkModeToggle.innerHTML = isDarkMode ? '<i class="fa fa-sun"></i>' : '<i class="fa fa-moon"></i>';
+        darkModeToggle.innerHTML = isDarkMode ? '<i class="fa fa-sun" id="darkModeIcon"></i>' : '<i class="fa fa-moon-o" id="darkModeIcon"></i>';
       });
     }
 
