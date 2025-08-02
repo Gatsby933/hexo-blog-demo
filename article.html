@@ -551,8 +551,8 @@
   <img src="./images/web.png" alt="我的博客天地" class="top-image" style="user-select: none; pointer-events: none;" />
 
   <!-- 黑暗模式切换按钮 -->
-  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式" style="z-index: 1001;">
-    <i class="fa fa-moon-o" id="darkModeIcon" style="color: #333;"></i>
+  <div class="dark-mode-toggle" id="darkModeToggle" title="切换黑暗模式" style="z-index: 1001; position: fixed; top: 20px; right: 20px;">
+    <i class="fa fa-moon" id="darkModeIcon" style="color: #333; font-size: 20px;"></i>
   </div>
   
   <!-- 返回按钮 -->
@@ -736,22 +736,23 @@
         const icon = document.getElementById('darkModeIcon');
         if (isDarkMode) {
           icon.className = 'fa fa-sun';
-          icon.style.cssText = 'color: #fff !important; font-size: 20px;';
+          icon.style.cssText = 'color: white !important; font-size: 20px; display: inline-block !important;';
         } else {
-          icon.className = 'fa fa-moon-o';
-          icon.style.cssText = 'color: #333 !important; font-size: 20px;';
+          icon.className = 'fa fa-moon';
+          icon.style.cssText = 'color: black !important; font-size: 20px; display: inline-block !important;';
         }
       });
 
       // Initialize icon on page load
-      if (document.body.classList.contains('dark-mode')) {
-        const icon = document.getElementById('darkModeIcon');
+      const icon = document.getElementById('darkModeIcon');
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
         icon.className = 'fa fa-sun';
-        icon.style.cssText = 'color: #fff !important; font-size: 20px;';
+        icon.style.cssText = 'color: white !important; font-size: 20px; display: inline-block !important;';
       } else {
-        const icon = document.getElementById('darkModeIcon');
-        icon.className = 'fa fa-moon-o';
-        icon.style.cssText = 'color: #333 !important; font-size: 20px;';
+        document.body.classList.remove('dark-mode');
+        icon.className = 'fa fa-moon';
+        icon.style.cssText = 'color: black !important; font-size: 20px; display: inline-block !important;';
       }
     }
 
