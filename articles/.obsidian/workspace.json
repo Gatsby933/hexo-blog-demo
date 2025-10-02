@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "a8f2438d0450f9ac",
+        "id": "05ccdf1c0d8fc9cc",
         "type": "tabs",
         "children": [
           {
-            "id": "3da50f0d55e122e3",
+            "id": "a4b85ad708b08866",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "launch my blog.md",
+                "file": "【3】idea1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "launch my blog"
+              "title": "【3】idea1"
             }
           }
         ]
@@ -168,9 +168,12 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "3da50f0d55e122e3",
+  "active": "a4b85ad708b08866",
   "lastOpenFiles": [
-    "auto-scan-test.md",
-    "launch my blog.md"
+    "launch my blog.md",
+    "forecast1.md",
+    "【3】idea1.md",
+    "2025-08-01.md",
+    "auto-scan-test.md"
   ]
 }
