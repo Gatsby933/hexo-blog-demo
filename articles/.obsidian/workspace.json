@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "7a6b19d918fa90f8",
+        "id": "d57f7b8d15c2fa1c",
         "type": "tabs",
         "children": [
           {
-            "id": "f12ee31449241669",
+            "id": "d88f052935aed76b",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "StoryPipeline.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "StoryPipeline"
             }
           }
         ]
@@ -165,7 +169,7 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "f12ee31449241669",
+  "active": "d88f052935aed76b",
   "lastOpenFiles": [
     "StoryPipeline.md",
     "exercise.md",
