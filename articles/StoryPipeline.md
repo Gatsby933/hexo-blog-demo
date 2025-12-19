@@ -151,3 +151,7 @@ StoryPipeline 更像一个 **创作工作台**，而不是黑箱式生成工具�
 
 在“人 × AI 协作创作”的语境下，StoryPipeline提供了一种  
 以作者为中心的创作范式。
+
+---
+2025年12月19日 github仓库已更新
+https://github.com/yinghan-dev/StoryPipeline
