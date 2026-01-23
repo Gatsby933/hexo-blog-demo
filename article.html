@@ -196,7 +196,7 @@
       
       if (isDark) {
         document.body.classList.add('dark-mode');
-        document.getElementById('darkModeIcon').className = 'fa fa-sun';
+        document.getElementById('darkModeIcon').className = 'fa fa-sun-o';
       }
       
       // 切换黑暗模式
@@ -204,7 +204,7 @@
         document.body.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
-        document.getElementById('darkModeIcon').className = isDarkMode ? 'fa fa-sun' : 'fa fa-moon-o';
+        document.getElementById('darkModeIcon').className = isDarkMode ? 'fa fa-sun-o' : 'fa fa-moon-o';
       });
     }
 
