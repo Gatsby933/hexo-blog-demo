@@ -46,7 +46,12 @@ author: "@王映寒"
 ---
 
 ![农场全视图](articles/photos/stardew-valley/1.jpg)
+
 ![人际关系](articles/photos/stardew-valley/2.jpg)
+
 ![通关后登顶](articles/photos/stardew-valley/3.jpg)
+
 ![酒吧cg](articles/photos/stardew-valley/4.jpg)
+
 ![爷爷的称赞](articles/photos/stardew-valley/5.jpg)
+
