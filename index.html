@@ -2546,7 +2546,7 @@
       <button class="close-btn" id="closeSidebar"><i class="fa fa-times"></i></button>
     </div>
     <div class="sidebar-content">
-      <a href="hanverse.pub" class="sidebar-link">首页</a>
+      <a href="https://hanverse.pub" class="sidebar-link">首页</a>
       <a href="#" class="sidebar-link">专题</a>
       <a href="guestbook.html" class="sidebar-link">留言</a>
     </div>
@@ -2600,7 +2600,7 @@
       
       <!-- 导航按钮 -->
       <div class="nav-buttons">
-        <a href="hanverse.pub" class="nav-btn">首页</a>
+        <a href="https://hanverse.pub" class="nav-btn">首页</a>
         <a href="guestbook.html" class="nav-btn">留言</a>
         <button id="likeBtn" class="nav-btn like-btn">点赞</button>
       </div>
@@ -3457,7 +3457,7 @@ function createRandomMessage(e) {
 }
 
 // 自动加载文章列表
-async function loadArticlesList() {
+async function loadArticlesList(showAll = false) {
   try {
     // 首先尝试直接扫描文件夹
     const articles = await scanAndParseArticles();
@@ -3467,20 +3467,20 @@ async function loadArticlesList() {
       articles.sort((a, b) => new Date(b.date) - new Date(a.date));
       
       // 渲染文章列表
-      renderArticlesList(articles);
+      renderArticlesList(articles, showAll);
     } else {
       // 如果扫描没有返回文章，也尝试从配置文件加载
-      await loadFromConfig();
+      await loadFromConfig(showAll);
     }
     
   } catch (error) {
     console.warn('自动扫描失败，尝试从配置文件加载', error);
-    await loadFromConfig();
+    await loadFromConfig(showAll);
   }
 }
 
 // 从配置文件加载（备用方案）
-async function loadFromConfig() {
+async function loadFromConfig(showAll = false) {
   try {
     const response = await fetch('./articles/articles-config.json');
     const articles = await response.json();
@@ -3489,7 +3489,7 @@ async function loadFromConfig() {
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     // 渲染文章列表
-    renderArticlesList(articles);
+    renderArticlesList(articles, showAll);
     
   } catch (error) {
   }
@@ -3724,7 +3724,7 @@ function parseMarkdownMetadata(content, filename) {
 }
 
 // 渲染文章列表
-function renderArticlesList(articles) {
+function renderArticlesList(articles, showAll = false) {
   const mobileContainer = document.getElementById('mobile-posts-container');
   const desktopContainer = document.getElementById('desktop-posts-container');
   
@@ -3736,8 +3736,11 @@ function renderArticlesList(articles) {
   mobileContainer.innerHTML = '';
   desktopContainer.innerHTML = '';
   
+  // 确定显示的文章数量
+  const displayArticles = showAll ? articles : articles.slice(0, 4);
+  
   // 渲染每篇文章并检测标题长度
-  articles.forEach(article => {
+  displayArticles.forEach(article => {
     // 检测标题长度
     const isLongTitle = article.title.length > 15; // 根据实际效果调整
     // 对文件名进行编码，防止特殊字符导致问题
@@ -3796,6 +3799,19 @@ function renderArticlesList(articles) {
     mobileContainer.insertAdjacentHTML('beforeend', mobileCard);
     desktopContainer.insertAdjacentHTML('beforeend', desktopCard);
   });
+  
+  // 如果不是显示所有且有更多文章，添加“查看更多”按钮
+  if (!showAll && articles.length > 4) {
+    const loadMoreButton = `
+      <div class="text-center mt-4">
+        <button id="load-more-btn" class="btn btn-primary" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%); border: none; border-radius: 25px; padding: 10px 30px; color: white; font-weight: bold; transition: all 0.3s ease;">
+          查看更多文章
+        </button>
+      </div>
+    `;
+    mobileContainer.insertAdjacentHTML('afterend', loadMoreButton);
+    desktopContainer.insertAdjacentHTML('afterend', loadMoreButton);
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -3807,6 +3823,13 @@ window.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     loadArticlesList();
   }, 30000);
+  
+  // 添加“查看更多”按钮的事件监听器
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'load-more-btn') {
+      loadAllArticles();
+    }
+  });
 });
 
 // 手动刷新文章列表的函数
@@ -3816,6 +3839,12 @@ function refreshArticles() {
 
 // 暴露刷新函数到全局，方便调用
 window.refreshArticles = refreshArticles;
+
+// 加载所有文章
+function loadAllArticles() {
+  // 重新加载文章列表，但显示所有
+  loadArticlesList(true);
+}
 
 // 黑暗模式切换功能
 function initDarkMode() {
