@@ -551,6 +551,12 @@ body.dark-mode .article-content a:hover {
   color: #bbdefb !important;
 }
 
+body.dark-mode .article-content p,
+body.dark-mode .article-content li,
+body.dark-mode .article-content blockquote {
+  color: #ffffff !important;
+}
+
 body.dark-mode .back-btn {
   background: #333 !important;
   border-color: #555 !important;
