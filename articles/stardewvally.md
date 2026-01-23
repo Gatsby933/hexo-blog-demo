@@ -45,8 +45,8 @@ author: "@王映寒"
 
 ---
 
-! [农场全视图](./stardew valley/1.jpg "农场全视图")
-! [人际关系](./stardew valley\2.jpg "人际关系")
-! [通关后登顶](./stardew valley\3.jpg "通关后登顶")
-! [酒吧cg](./stardew valley\4.jpg "酒吧cg")
-! [爷爷的称赞](./stardew valley\5.jpg "爷爷的称赞")
+![农场全视图](./stardew-valley/1.jpg "农场全视图")
+![人际关系](./stardew-valley/2.jpg "人际关系")
+![通关后登顶](./stardew-valley/3.jpg "通关后登顶")
+![酒吧cg](./stardew-valley/4.jpg "酒吧cg")
+![爷爷的称赞](./stardew-valley/5.jpg "爷爷的称赞")
