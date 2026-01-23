@@ -516,7 +516,7 @@ body.dark-mode .dark-mode-toggle:hover {
 }
 
 body.dark-mode .dark-mode-toggle i {
-  color: #e0e0e0;
+  color: #ffffff !important;
 }
 
 /* Article page specific dark mode styles */
