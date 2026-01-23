@@ -3732,6 +3732,12 @@ function renderArticlesList(articles, showAll = false) {
     return;
   }
   
+  // 移除现有的“查看更多”按钮
+  const existingButton = document.getElementById('load-more-btn');
+  if (existingButton) {
+    existingButton.parentElement.remove();
+  }
+  
   // 清空现有内容
   mobileContainer.innerHTML = '';
   desktopContainer.innerHTML = '';
@@ -3804,12 +3810,12 @@ function renderArticlesList(articles, showAll = false) {
   if (!showAll && articles.length > 4) {
     const loadMoreButton = `
       <div class="text-center mt-4">
-        <button id="load-more-btn" class="btn btn-primary" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%); border: none; border-radius: 25px; padding: 10px 30px; color: white; font-weight: bold; transition: all 0.3s ease;">
+        <button id="load-more-btn" class="btn btn-dark" style="border-radius: 25px; padding: 10px 30px; font-weight: bold; transition: all 0.3s ease;">
           查看更多文章
         </button>
       </div>
     `;
-    mobileContainer.insertAdjacentHTML('afterend', loadMoreButton);
+    // 只在desktop容器后添加按钮，避免重复
     desktopContainer.insertAdjacentHTML('afterend', loadMoreButton);
   }
 }
