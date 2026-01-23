@@ -43,8 +43,10 @@ author: "@王映寒"
 
 很长时间里，我都失去了认真生活的能力，沉迷在烟酒、焦虑迷茫、失意与伤悲当中。正如刚刚分析的那样，现实与游戏仍然有很多区别，但《星露谷物语》的这段旅程足以为我充电。我会重新建立起生活的锚点，用具体的行动充实生活，满怀期待的奔向下一个景点。
 
-![农场全视图](/articles/photos/stardew valley/1.jpg "农场全视图")
-![人际关系](articles\photos\stardew valley\2.jpg "人际关系")
-![通关后登顶](articles\photos\stardew valley\3.jpg "通关后登顶")
-![酒吧cg](articles\photos\stardew valley\4.jpg "酒吧cg")
-![爷爷的称赞](articles\photos\stardew valley\5.jpg "爷爷的称赞")
+---
+
+! [农场全视图](./stardew valley/1.jpg "农场全视图")
+! [人际关系](./stardew valley\2.jpg "人际关系")
+! [通关后登顶](./stardew valley\3.jpg "通关后登顶")
+! [酒吧cg](./stardew valley\4.jpg "酒吧cg")
+! [爷爷的称赞](./stardew valley\5.jpg "爷爷的称赞")
