@@ -20,8 +20,23 @@
               "icon": "lucide-file",
               "title": "StoryPipeline"
             }
+          },
+          {
+            "id": "865d0ef10a0554f4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "stardewvally.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "stardewvally"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -169,9 +184,27 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "d88f052935aed76b",
+  "active": "865d0ef10a0554f4",
   "lastOpenFiles": [
+    "photos/stardew valley/5.jpg",
+    "photos/stardew valley/4.jpg",
+    "photos/stardew valley/3.jpg",
+    "photos/stardew valley/2.jpg",
+    "photos/stardew valley/1.jpg",
+    "photos/stardew valley/724b63964551ca6a150dd38d8941667d.jpg",
+    "photos/stardew valley/e4b33b613832bc6ff4872adb9411ac22.jpg",
+    "photos/stardew valley/951684c58750dbaa541bb6b10b2ff424.jpg",
+    "photos/stardew valley/971417e38251e8f685a93460bddd336d.jpg",
+    "photos/stardew valley/073eb1402801c60d285b3885f78cd6ea.jpg",
+    "photos/stardew valley/10061deb44193a66db8a5013dc03149d.jpg",
+    "photos/stardew valley",
+    "photos/新建文件夹",
+    "photos",
+    "新建文件夹",
     "StoryPipeline.md",
+    "stardewvally.md",
+    "2026-01-18.md",
+    "未命名",
     "exercise.md",
     "mathematical analysis （1）.md",
     "forecast1.md",
