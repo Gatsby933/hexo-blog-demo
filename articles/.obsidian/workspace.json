@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "idea2.md",
+                "file": "exercise.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "idea2"
+              "title": "exercise"
             }
           }
         ]
@@ -169,11 +169,14 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "8a5bcfb18d44a5ef",
+  "active": "0bb8176611c772d1",
   "lastOpenFiles": [
+    "【3】idea1.md",
     "forecast1.md",
-    "idea2.md",
     "launch my blog.md",
+    "mathematical analysis （1）.md",
+    "StoryPipeline.md",
+    "idea2.md",
     "exercise.md",
     "stardewvally.md",
     "photos/stardew-valley/5.jpg",
@@ -188,7 +191,6 @@
     "“",
     "articles/photos/stardew.md",
     "articles/photos/stardew 1.md",
-    "StoryPipeline.md",
     "articles/photos",
     "articles",
     "photos/stardew valley/5.jpg",
@@ -201,8 +203,6 @@
     "photos",
     "新建文件夹",
     "2026-01-18.md",
-    "mathematical analysis （1）.md",
-    "【3】idea1.md",
     "2025-08-01.md",
     "auto-scan-test.md"
   ]
